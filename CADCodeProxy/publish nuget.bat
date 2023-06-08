@@ -1,0 +1,1 @@
+.\nuget.exe add "C:\\Users\\Zachary Londono\\source\\repos\\CADCodeProxy\\CADCodeProxy\\bin\\Release\\net7.0\\publish\\CADCodeProxy.1.0.8.nupkg" -Source "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\"
