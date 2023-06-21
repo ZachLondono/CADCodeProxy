@@ -39,4 +39,8 @@
     </COMReference>
   </ItemGroup>
 
+  <Target Name="PublishNugetPackage" AfterTargets="Publish">
+    <Exec Command="powershell ..\Scripts\PublishNuget.ps1" />
+  </Target>
+
 </Project>
