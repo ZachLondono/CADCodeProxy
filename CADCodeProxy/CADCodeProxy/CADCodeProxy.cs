@@ -82,18 +82,18 @@ internal class CADCodeProxy : IDisposable {
         List<MaterialGCodeGenerationResult> materialResults = new();
         var groups = batch.Parts.GroupBy(p => new PartGroupKey(p.Material, p.Thickness));
         foreach (var group in groups) {
-            var matResult = GenerateCodeForMaterialType(batch.InfoFields, group.Key, group.ToArray(), inventory, units, _bootObj, labels, files, code);
+            var matResult = GenerateCodeForMaterialType(batch.InfoFields, group.Key, group.ToArray(), inventory, machine.TableOrientation, units, _bootObj, labels, files, code);
             materialResults.Add(matResult);
         }
 
-        // TODO: add single programs. 'code.DoOutput(units, 0, 0);'
+        GenerateSinglePrograms(batch.Parts, units, code);
 
         if (RuntimeInformation.ProcessArchitecture == Architecture.X86) {
             var job = new WS_Job();
             var result = code.GetWINStepMachining(ref job, AllMachining: true);
             _wsJobs.Add(job);
         } else {
-            Console.WriteLine("WSXML skipped because application is not x86");
+            Console.WriteLine("WSXML skipped because architecture is not x86");
         }
 
         ReleaseComObjects(labels, toolFile, files, code);
@@ -105,6 +105,7 @@ internal class CADCodeProxy : IDisposable {
 
     }
 
+    /*
     public void GenerateProgramFromWinStepFile(string filePath, Machine machine) {
 
         if (_bootObj is null) {
@@ -126,30 +127,32 @@ internal class CADCodeProxy : IDisposable {
         Console.WriteLine(_bootObj.GetErrorString(result));
 
     }
-
-    private static MaterialGCodeGenerationResult GenerateCodeForMaterialType(InfoFields batchInfoFields, PartGroupKey partGroupKey, Machining.Part[] batchParts, InventoryItem[] inventory, UnitTypes units, CADCodeBootObject bootObj, CADCodeLabelClass labels, CADCodeFileClass files, CADCodeCodeClass code) {
+    */
+    
+    private static MaterialGCodeGenerationResult GenerateCodeForMaterialType(InfoFields batchInfoFields, PartGroupKey partGroupKey, Machining.Part[] batchParts, InventoryItem[] inventory, TableOrientation orientation, UnitTypes units, CADCodeBootObject bootObj, CADCodeLabelClass labels, CADCodeFileClass files, CADCodeCodeClass code) {
 
         var optimizer = CreateOptimizer(bootObj, files);
 
         List<CutlistInventory> sheetStock = inventory.Where(i => i.MaterialName == partGroupKey.MaterialName && i.PanelThickness == partGroupKey.Thickness)
-                                                    .Select(i => i.AsCutlistInventory())
+                                                    .Select(i => i.AsCutlistInventory(orientation))
                                                     .ToList();
 
         // TODO: Do something if there is no valid materials
 
-        List<CADCode.Part> parts = batchParts.SelectMany(p => p.AsCADCodePart(units)).ToList();
+        List<CADCode.Part> parts = batchParts.SelectMany(p => p.ToCADCodePart(units)).ToList();
 
         code.Border(1.0f, 1.0f, (float)partGroupKey.Thickness, units, OriginType.CC_LL, $"{partGroupKey.MaterialName} {partGroupKey.Thickness}", AxisTypes.CC_AUTO_AXIS);
         foreach (var part in batchParts) {
             part.AddToLabels(batchInfoFields, labels);
-            part.AddToCode(code);
+            part.AddNestPartToCode(code);
         }
         code.EndPanel();
 
         sheetStock.ForEach(ss => optimizer.AddSheetStockByRef(ss, units));
         parts.ForEach(p => optimizer.AddPartByRef(p));
 
-        optimizer.Optimize(typeOptimizeMethod.CC_OPT_ANYKIND, code, GenerateResultName(), 0, 0, labels);
+        var resultName = GenerateResultName();
+        optimizer.Optimize(typeOptimizeMethod.CC_OPT_ANYKIND, code, resultName, 0, 0, labels);
 
         var usedInventory = sheetStock.Select(UsedInventory.FromCutlistInventory)
                                         .Where(i => i.Qty > 0)
@@ -176,6 +179,17 @@ internal class CADCodeProxy : IDisposable {
             PlacedParts = placedParts,
             UsedInventory = usedInventory,
         };
+
+    }
+
+    private static void GenerateSinglePrograms(Machining.Part[] batchParts, UnitTypes units, CADCodeCodeClass code) {
+
+        foreach (var part in batchParts) {
+            part.AddPrimaryFaceSinglePartToCode(code, units);
+        }
+
+        int result = code.DoOutput(units, 0, 0);
+        Console.WriteLine($"Result {result}");
 
     }
 

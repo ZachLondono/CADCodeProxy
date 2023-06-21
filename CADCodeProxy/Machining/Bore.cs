@@ -1,4 +1,5 @@
 ﻿using CADCode;
+using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
@@ -36,6 +37,19 @@ public record Bore : IToken {
                     0f,
                     0f,
                     "");
+
+    }
+
+    TokenRecord IToken.ToTokenRecord() {
+
+        return new() {
+            Name = "Bore",
+            StartX = Position.X.ToString(),
+            StartY = Position.Y.ToString(),
+            StartZ = Depth.ToString(),
+            ToolName = ToolName,
+            ToolDiameter = ToolDiameter.ToString()
+        };
 
     }
 

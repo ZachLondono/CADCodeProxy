@@ -1,4 +1,5 @@
 ﻿using CADCode;
+using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
@@ -15,7 +16,7 @@ public record Part {
     public required PartFace PrimaryFace { get; init; }
     public PartFace? SecondaryFace { get; init; } = null;
 
-    internal void AddToCode(CADCodeCodeClass code) {
+    internal void AddNestPartToCode(CADCodeCodeClass code) {
 
         float width = (float)Width;
         float length = (float)Length;
@@ -34,6 +35,22 @@ public record Part {
 
     }
 
+    internal void AddPrimaryFaceSinglePartToCode(CADCodeCodeClass code, UnitTypes units) {
+
+        float width = (float)Width;
+        float length = (float)Length;
+        float thickness = (float)Thickness;
+
+        code.Border(width, length, thickness, units, OriginType.CC_LL, PrimaryFace.ProgramName, AxisTypes.CC_X_AXIS);
+
+        foreach (var token in PrimaryFace.Tokens) {
+            token.AddToCode(code);
+        }
+
+        code.EndPanel();
+
+    }
+
     internal void AddToLabels(InfoFields batchInfo, CADCodeLabelClass labels) {
         labels.NewLabel();
         foreach (var (field, value) in InfoFields) {
@@ -45,7 +62,7 @@ public record Part {
         labels.EndLabel();
     }
 
-    internal CADCode.Part[] AsCADCodePart(UnitTypes units) {
+    internal CADCode.Part[] ToCADCodePart(UnitTypes units) {
 
         var parts = new List<CADCode.Part>();
 
@@ -86,6 +103,23 @@ public record Part {
 
         return parts.ToArray();
 
+    }
+
+    internal PartRecord ToPartRecord(string jobName) {
+        return new() {
+            CabNumber = "",
+            PartID = "",
+            PartName = Name,
+            JobName = jobName,
+            Qty = Qty.ToString(),
+            Width = Width.ToString(),
+            Length = Length.ToString(),
+            Thickness = Thickness.ToString(),
+            Material = Material,
+            Graining = IsGrained ? "Y" : "N",
+            FileName = PrimaryFace.ProgramName,
+            Mirror = "" //"Mir Off"
+        };
     }
 
 }

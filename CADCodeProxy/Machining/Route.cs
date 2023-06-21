@@ -1,5 +1,6 @@
 ﻿using CADCode;
 using CADCodeProxy.CADCodeProxy;
+using CADCodeProxy.CSV;
 using CADCodeProxy.Enums;
 
 namespace CADCodeProxy.Machining;
@@ -33,6 +34,22 @@ public record Route : IToken {
                        0f,
                        "",
                        0);
+
+    }
+
+    TokenRecord IToken.ToTokenRecord() {
+
+        return new() {
+            Name = "Route",
+            StartX = Start.X.ToString(),
+            StartY = Start.Y.ToString(),
+            StartZ = StartDepth.ToString(),
+            EndX = End.X.ToString(),
+            EndY = End.Y.ToString(),
+            EndZ = EndDepth.ToString(),
+            OffsetSide = Offset.ToCSVCode(),
+            ToolName = ToolName,
+        };
 
     }
 

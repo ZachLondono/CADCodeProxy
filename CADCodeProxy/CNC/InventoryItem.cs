@@ -12,15 +12,15 @@ public record InventoryItem {
     public required double PanelLength { get; init; }
     public required double PanelThickness { get; init; }
 
-    internal CutlistInventory AsCutlistInventory() {
+    internal CutlistInventory AsCutlistInventory(TableOrientation orientation) {
 
         var inv = new CutlistInventory();
         Console.WriteLine(inv.Graining);
 
         return new CutlistInventory() {
             Description = MaterialName,
-            Width = PanelWidth.ToString(),
-            Length = PanelLength.ToString(),
+            Width = (orientation == TableOrientation.Standard ? PanelWidth : PanelLength).ToString(),
+            Length = (orientation == TableOrientation.Standard ? PanelLength : PanelWidth).ToString(),
             Thickness = PanelThickness.ToString(),
             Priority = Priority.ToString(),
             Graining = IsGrained ? "Y" : "N",

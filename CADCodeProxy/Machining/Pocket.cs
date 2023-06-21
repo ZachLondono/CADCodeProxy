@@ -1,4 +1,5 @@
 ﻿using CADCode;
+using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
@@ -34,6 +35,25 @@ public record Pocket : IToken {
                     0,
                     0
             );
+
+    }
+
+    TokenRecord IToken.ToTokenRecord() {
+
+        return new() {
+            Name = "Pocket",
+            StartX = CornerA.X.ToString(),
+            StartY = CornerA.Y.ToString(),
+            StartZ = StartDepth.ToString(),
+            EndX = CornerB.X.ToString(),
+            EndY = CornerB.Y.ToString(),
+            EndZ = EndDepth.ToString(),
+            CenterX = CornerC.X.ToString(),
+            CenterY = CornerC.Y.ToString(),
+            PocketX = CornerD.X.ToString(),
+            PocketY = CornerD.Y.ToString(),
+            ToolName = ToolName,
+        };
 
     }
 

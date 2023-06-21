@@ -55,18 +55,18 @@ public class GCodeGenerator {
 
     }
 
-    public GCodeGenerationResult GenerateProgramFromWSXMLFile(string filePath, Machine machine) {
+    //public GCodeGenerationResult GenerateProgramFromWSXMLFile(string filePath, Machine machine) {
 
-        using var cadcode = new CADCodeProxy.CADCodeProxy();
+    //    using var cadcode = new CADCodeProxy.CADCodeProxy();
 
-        cadcode.GenerateProgramFromWinStepFile(filePath, machine);
+    //    cadcode.GenerateProgramFromWinStepFile(filePath, machine);
 
-        return new GCodeGenerationResult() {
-            WinStepReportFilePath = null,
-            MachineResults = Array.Empty<MachineGCodeGenerationResult>()
-        };
+    //    return new GCodeGenerationResult() {
+    //        WinStepReportFilePath = null,
+    //        MachineResults = Array.Empty<MachineGCodeGenerationResult>()
+    //    };
 
-    }
+    //}
 
     internal UnitTypes GetCCUnits() => Units switch {
         LinearUnits.Millimeters => UnitTypes.CC_U_METRIC,

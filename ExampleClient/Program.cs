@@ -1,5 +1,6 @@
 ﻿using CADCodeProxy;
 using CADCodeProxy.CNC;
+using CADCodeProxy.CSV;
 using CADCodeProxy.Enums;
 using CADCodeProxy.Exceptions;
 using CADCodeProxy.Machining;
@@ -11,6 +12,7 @@ var generator = new GCodeGenerator(LinearUnits.Millimeters);
 var machines = new List<Machine>() {
     new() {
         Name = "Anderson Stratos",
+        TableOrientation = TableOrientation.Standard,
         NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
         SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
         ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Andi Stratos Royal - Tools from Omni.mdb",
@@ -19,6 +21,7 @@ var machines = new List<Machine>() {
     },
     new() {
         Name = "Omnitech Selexx",
+        TableOrientation = TableOrientation.Rotated,
         NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
         SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
         ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Royal Omnitech Fanuc-Smart names SMALL PARTS.mdb",
@@ -27,9 +30,87 @@ var machines = new List<Machine>() {
     }
 };
 
-GenerateGCodeForBatch(generator, machines);
+var batch = new Batch() {
+    Name = "Test Batch",
+    InfoFields = new() {
+        { "Field", "Value" }
+    },
+    Parts = new Part[] {
+        new() {
+            Name = "ABC123",
+            Qty = 5,
+            Material = "3/4\" MDF",
+            Width = 250,
+            Length = 500,
+            Thickness = 19.05,
+            IsGrained = true,
+            InfoFields = new() {
+                { "Name", "Value" }
+            },
+            PrimaryFace = new() {
+                ProgramName = "PartFront",
+                Tokens = new IToken[] {
+                    new Route() {
+                        Start = new(0, 0),
+                        End = new(100, 100),
+                        StartDepth = 19.05,
+                        EndDepth = 19.05,
+                        ToolName = "3-8Comp"
+                    },
+                    new MultiBore(
+                        8,
+                        new(0, 0),
+                        new(0, 500),
+                        32,
+                        32,
+                        19.05
+                    )
+                }
+            },
+            SecondaryFace = null
+        },
+        new Part() {
+            Qty = 5,
+            Width = 100,
+            Length = 200,
+            Thickness = 12.7,
+            IsGrained = true,
+            Name = "UBottom",
+            Material = "1/2\" MDF",
+            PrimaryFace = new() {
+                ProgramName = $"UBottom-{1}",
+                Tokens = new IToken[] {
+                    new Route() {
+                        Start = new(12, 0),
+                        End = new(50, 100),
+                        StartDepth = 19.1,
+                        EndDepth = 19.1,
+                        ToolName = "3-8Comp"
+                    },
+                    new Route() {
+                        Start = new(50, 50),
+                        End = new(50, 100),
+                        StartDepth = 19.1,
+                        EndDepth = 19.1,
+                        ToolName = "3-8Comp"
+                    },
+                    new Route() {
+                        Start = new(75, 100),
+                        End = new(100, 0),
+                        StartDepth = 19.1,
+                        EndDepth = 19.1,
+                        ToolName = "3-8Comp"
+                    }
+                }
+            }
+        }
+    }
+};
 
-static void GenerateGCodeForBatch(GCodeGenerator generator, List<Machine> machines) {
+//GenerateGCodeForBatch(generator, machines);
+WriteBatchToCSVFile(batch, @"R:\Door Orders\CC Input");
+
+static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> machines) {
     generator.Inventory.Add(new() {
         MaterialName = "1/2\" MDF",
         AvailableQty = 10,
@@ -49,79 +130,10 @@ static void GenerateGCodeForBatch(GCodeGenerator generator, List<Machine> machin
         Priority = 1,
     });
 
-    var batch = new Batch() {
-        Name = "Test Batch",
-        InfoFields = new() {
-            { "Field", "Value" }
-        },
-        Parts = new Part[] {
-            new() {
-                Name = "ABC123",
-                Qty = 5,
-                Material = "3/4\" MDF",
-                Width = 250,
-                Length = 500,
-                Thickness = 19.05,
-                IsGrained = true,
-                InfoFields = new() {
-                    { "Name", "Value" }
-                },
-                PrimaryFace = new() {
-                    ProgramName = "PartFront",
-                    Tokens = new IToken[] {
-                        new Route() {
-                            Start = new(0, 0),
-                            End = new(100, 100),
-                            StartDepth = 19.05,
-                            EndDepth = 19.05,
-                            ToolName = "3-8Comp"
-                        }
-                    }
-                },
-                SecondaryFace = null
-            },
-            new Part() {
-                Qty = 5,
-                Width = 100,
-                Length = 200,
-                Thickness = 12.7,
-                IsGrained = true,
-                Name = "UBottom",
-                Material = "1/2\" MDF",
-                PrimaryFace = new() {
-                    ProgramName = $"UBottom-{1}",
-                    Tokens = new IToken[] {
-                        new Route() {
-                            Start = new(50, 0),
-                            End = new(50, 50),
-                            StartDepth = 19.1,
-                            EndDepth = 19.1,
-                            ToolName = "3-8Comp"
-                        },
-                        new Route() {
-                            Start = new(50, 50),
-                            End = new(50, 100),
-                            StartDepth = 19.1,
-                            EndDepth = 19.1,
-                            ToolName = "3-8Comp"
-                        },
-                        new Route() {
-                            Start = new(50, 100),
-                            End = new(50, 0),
-                            StartDepth = 19.1,
-                            EndDepth = 19.1,
-                            ToolName = "3-8Comp"
-                        }
-                    }
-                }
-            }
-        }
-    };
-
     try {
 
-        //var result = generator.GeneratePrograms(machines, batch, @"C:\Users\Zachary Londono\Desktop\CC Output\reports");
-        var result = generator.GenerateProgramFromWSXMLFile(@"C:\Users\Zachary Londono\Desktop\WSXML\WSXML Drawing\Draw 05-31-2023-V11\testjob.xml", machines.First());
+        var result = generator.GeneratePrograms(machines, batch, @"C:\Users\Zachary Londono\Desktop\CC Output\reports");
+        //var result = generator.GenerateProgramFromWSXMLFile(@"C:\Users\Zachary Londono\Desktop\WSXML\WSXML Drawing\Draw 05-31-2023-V11\testjob.xml", machines.First());
 
         Console.WriteLine($"Report: {result.WinStepReportFilePath}");
         foreach (var machineResult in result.MachineResults) {
@@ -150,3 +162,12 @@ static void GenerateGCodeForBatch(GCodeGenerator generator, List<Machine> machin
 
 }
 
+static void WriteBatchToCSVFile(Batch batch, string directory) {
+
+    var writer = new CSVTokenWriter();
+
+    var file = writer.WriteBatchCSV(batch, directory);
+
+    Console.WriteLine($"File written to '{file}'");
+
+}
