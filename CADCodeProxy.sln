@@ -5,7 +5,12 @@ VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CADCodeProxy", "CADCodeProxy\CADCodeProxy.csproj", "{98FCDCD0-B2B3-4AAE-9579-D16CBF54D909}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleClient", "ExampleClient\ExampleClient.csproj", "{EE5E8939-1362-43F4-8B07-65F95728187D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleClient", "ExampleClient\ExampleClient.csproj", "{EE5E8939-1362-43F4-8B07-65F95728187D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D5821B73-EFA7-4597-8CAC-BBEA5B21FAB7}"
+	ProjectSection(SolutionItems) = preProject
+		Scripts\PublishNuget.ps1 = Scripts\PublishNuget.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
