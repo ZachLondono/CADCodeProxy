@@ -3,7 +3,6 @@ using CADCodeProxy.CNC;
 using CADCodeProxy.Enums;
 using CADCodeProxy.Machining;
 using CADCodeProxy.Results;
-using CCWSXML;
 
 namespace CADCodeProxy;
 
