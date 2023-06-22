@@ -42,19 +42,26 @@ public class PartRecordMap : ClassMap<PartRecord> {
         Map(p => p.Graining).Index(33);
         Map().Index(34).Constant("");
         Map(p => p.Rotation).Index(35);
-        Map().Index(35).Constant(""); // Machine as Island Part
-        Map().Index(36).Constant(""); // Machine as Small Part
-        Map().Index(37).Constant(""); // ProductId 
-        Map().Index(38).Constant(""); // ProductClass
+        Map().Index(36).Constant("");
+        Map().Index(37).Constant("");
         Map().Index(38).Constant("");
-        Map(p => p.WidthColor1).Index(39);
-        Map(p => p.WidthColor2).Index(40);
-        Map(p => p.WidthMaterial1).Index(39);
-        Map(p => p.WidthMaterial2).Index(40);
-        Map(p => p.LengthColor1).Index(41);
-        Map(p => p.LengthColor2).Index(42);
-        Map(p => p.LengthMaterial1).Index(43);
-        Map(p => p.LengthMaterial2).Index(44);
+        Map().Index(39).Constant("");
+        Map().Index(40).Constant("");
+        Map().Index(41).Constant("");
+        Map().Index(42).Constant("");
+        Map().Index(43).Constant(""); // Machine as Island Part
+        Map().Index(44).Constant(""); // Machine as Small Part
+        Map().Index(45).Constant(""); // ProductId 
+        Map().Index(46).Constant(""); // ProductClass
+        Map().Index(47).Constant("");
+        Map(p => p.WidthColor1).Index(48);
+        Map(p => p.WidthColor2).Index(49);
+        Map(p => p.WidthMaterial1).Index(50);
+        Map(p => p.WidthMaterial2).Index(51);
+        Map(p => p.LengthColor1).Index(52);
+        Map(p => p.LengthColor2).Index(53);
+        Map(p => p.LengthMaterial1).Index(54);
+        Map(p => p.LengthMaterial2).Index(55);
 
     }
 
