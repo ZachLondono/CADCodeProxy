@@ -15,6 +15,10 @@ public record Part {
     public InfoFields InfoFields { get; init; } = new();
     public required PartFace PrimaryFace { get; init; }
     public PartFace? SecondaryFace { get; init; } = null;
+    public EdgeBanding Width1Banding { get; init; } = new("", "");
+    public EdgeBanding Width2Banding { get; init; } = new("", "");
+    public EdgeBanding Length1Banding { get; init; } = new("", "");
+    public EdgeBanding Length2Banding { get; init; } = new("", "");
 
     internal void AddNestPartToCode(CADCodeCodeClass code) {
 
@@ -59,8 +63,17 @@ public record Part {
         foreach (var (field, value) in batchInfo) {
             labels.AddField(field, value);
         }
+        AddEdgeBandingLabelFields(labels, "Width", 1, Width1Banding);
+        AddEdgeBandingLabelFields(labels, "Width", 2, Width2Banding);
+        AddEdgeBandingLabelFields(labels, "Length", 1, Length1Banding);
+        AddEdgeBandingLabelFields(labels, "Length", 2, Length2Banding);
         labels.EndLabel();
     }
+
+    private static void AddEdgeBandingLabelFields(CADCodeLabelClass labels, string edgeName, int edgeNum, EdgeBanding banding) {
+        labels.AddField($"{edgeName} Color {edgeNum}", banding.Color);
+        labels.AddField($"{edgeName} Material {edgeNum}", banding.Material);
+    } 
 
     internal CADCode.Part[] ToCADCodePart(UnitTypes units) {
 
@@ -80,7 +93,17 @@ public record Part {
                 Material = Material,
                 Units = units,
                 RotationAllowed = IsGrained ? 0 : 1, // This does not seem to have any affect
-                Graining = IsGrained ? "Y" : "N"    // This is the important field required to make sure that the parts are oriented correctly on grained material. The Graining flag on the 'CutListInventory' class seems to have no affect.
+                Graining = IsGrained ? "Y" : "N",    // This is the important field required to make sure that the parts are oriented correctly on grained material. The Graining flag on the 'CutListInventory' class seems to have no affect.
+                Rotated = PrimaryFace.IsRotated,
+                Face5Runfield = PrimaryFace.IsMirrored ? "Mirror On" : "",
+                WidthColor1 = Width1Banding.Color,
+                WidthMaterial1 = Width1Banding.Material,
+                WidthColor2 = Width2Banding.Color,
+                WidthMaterial2 = Width2Banding.Material,
+                LengthColor1 = Length1Banding.Color,
+                LengthMaterial1 = Length1Banding.Material,
+                LengthColor2 = Length2Banding.Color,
+                LengthMaterial2 = Length2Banding.Material,
                 //DoLabel = true
             });
 
@@ -94,7 +117,9 @@ public record Part {
                     Material = Material,
                     Units = units,
                     RotationAllowed = IsGrained ? 0 : 1,
-                    Graining = IsGrained ? "Y" : "N" 
+                    Graining = IsGrained ? "Y" : "N",
+                    Rotated = SecondaryFace.IsRotated,
+                    Face5Runfield = SecondaryFace.IsMirrored ? "Mirror On" : "",
                     //DoLabel = true
                 });
             }
@@ -118,7 +143,16 @@ public record Part {
             Material = Material,
             Graining = IsGrained ? "Y" : "N",
             FileName = PrimaryFace.ProgramName,
-            Mirror = "" //"Mir Off"
+            Mirror = PrimaryFace.IsMirrored ? "Mirror On" : "",
+            Rotation = PrimaryFace.IsRotated ? "90" : "",
+            WidthColor1 = Width1Banding.Color,
+            WidthMaterial1 = Width1Banding.Material,
+            WidthColor2 = Width2Banding.Color,
+            WidthMaterial2 = Width2Banding.Material,
+            LengthColor1 = Length1Banding.Color,
+            LengthMaterial1 = Length1Banding.Material,
+            LengthColor2 = Length2Banding.Color,
+            LengthMaterial2 = Length2Banding.Material,
         };
     }
 
