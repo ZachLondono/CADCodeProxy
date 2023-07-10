@@ -1,0 +1,14 @@
+jobs:
+
+  Publish:
+    name: Publish NuGet package to GitHub
+    runs-on: windows-latest
+
+
+    steps:
+      - name: Pack
+        run: dotnet pack --configuration Release
+        shell: pwsh
+
+      - name: Publish
+        run: dotnet nuget push "bin/Release/CADCodeProxy.1.0.0.nupkg" --source "github"
