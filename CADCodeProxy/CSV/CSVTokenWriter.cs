@@ -25,11 +25,13 @@ public class CSVTokenWriter {
 
         foreach (var part in batch.Parts) {
 
-            csv.WriteRecord(part.ToPartRecord(batch.Name));
-            csv.NextRecord();
-            foreach (var token in part.PrimaryFace.Tokens) {
-                csv.WriteRecord(token.ToTokenRecord());
+            foreach (var csvPart in part.ToCSVParts(batch.Name)) {
+                csv.WriteRecord(csvPart);
                 csv.NextRecord();
+                foreach (var tokenRecord in csvPart.Tokens) {
+                    csv.WriteRecord(tokenRecord);
+                    csv.NextRecord();
+                }
             }
 
         }

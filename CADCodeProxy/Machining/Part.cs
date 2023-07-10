@@ -130,8 +130,19 @@ public record Part {
 
     }
 
-    internal PartRecord ToPartRecord(string jobName) {
-        return new() {
+    internal IEnumerable<CSVPart> ToCSVParts(string jobName) {
+
+        yield return CreateCSVPart(jobName, PrimaryFace, false, SecondaryFace?.ProgramName ?? "");
+
+        if (SecondaryFace is not null) {
+            yield return CreateCSVPart(jobName, SecondaryFace, true, string.Empty);
+        }
+
+    }
+
+    private CSVPart CreateCSVPart(string jobName, PartFace face, bool isFace6, string face6FileName) {
+
+        var partRecord = new PartRecord() {
             CabNumber = "",
             PartID = "",
             PartName = Name,
@@ -142,9 +153,11 @@ public record Part {
             Thickness = Thickness.ToString(),
             Material = Material,
             Graining = IsGrained ? "Y" : "N",
-            FileName = PrimaryFace.ProgramName,
-            Mirror = PrimaryFace.IsMirrored ? "Mirror On" : "",
-            Rotation = PrimaryFace.IsRotated ? "90" : "",
+            FileName = face.ProgramName,
+            Face6FileName = face6FileName,
+            Face6Flag = isFace6 ? "6" : "",
+            Mirror = face.IsMirrored ? "Mirror On" : "",
+            Rotation = face.IsRotated ? "90" : "",
             WidthColor1 = Width1Banding.Color,
             WidthMaterial1 = Width1Banding.Material,
             WidthColor2 = Width2Banding.Color,
@@ -154,6 +167,14 @@ public record Part {
             LengthColor2 = Length2Banding.Color,
             LengthMaterial2 = Length2Banding.Material,
         };
+
+        var tokenRecords = face.Tokens.Select(t => t.ToTokenRecord());
+
+        return new() {
+            PartRecord = partRecord,
+            Tokens = tokenRecords
+        };
+
     }
 
 }

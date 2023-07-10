@@ -35,8 +35,8 @@ public class PartRecordMap : ClassMap<PartRecord> {
         Map().Index(26).Constant("");
         Map(p => p.FileName).Index(27);
         Map().Index(28).Constant("");
-        Map().Index(29).Constant("");
-        Map().Index(30).Constant("");
+        Map(p => p.Face6FileName).Index(29);
+        Map(p => p.Face6Flag).Index(30);
         Map(p => p.Mirror).Index(31);
         Map(p => p.Material).Index(32);
         Map(p => p.Graining).Index(33);

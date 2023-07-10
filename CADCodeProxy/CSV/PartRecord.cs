@@ -12,6 +12,8 @@ public class PartRecord {
     public string Length { get; set; } = string.Empty;
     public string Thickness { get; set; } = string.Empty;
     public string FileName { get; set; } = string.Empty;
+    public string Face6FileName { get; set; } = string.Empty;
+    public string Face6Flag { get; set; } = string.Empty;
     public string Mirror { get; set; } = string.Empty;
     public string Material { get; set; } = string.Empty;
     public string Graining { get; set; } = string.Empty;
