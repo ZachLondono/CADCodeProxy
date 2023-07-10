@@ -1,6 +1,6 @@
 on:
-  release:
-    types: [published]
+  push:
+    branches: [master]
 
 jobs:
 
@@ -14,9 +14,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Setup msbuild
+        uses: microsoft/setup-msbuild@v1.1
+
       - name: Pack
-        run: dotnet pack --configuration Release
+        run: msbuild /t:pack .\CADCodeProxy\CADCodeProxy.csproj
         shell: pwsh
 
       - name: Publish
-        run: dotnet nuget push "bin/Release/CADCodeProxy.1.0.0.nupkg" --source "github"
+        run: dotnet nuget push ".\CADCodeProxy\CADCodeProxy\bin\Release\CADCodeProxy.1.0.0.nupkg" --source "github"
