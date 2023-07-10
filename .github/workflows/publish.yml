@@ -1,5 +1,5 @@
 on:
-  release
+  release:
     types: [published]
 
 jobs:
