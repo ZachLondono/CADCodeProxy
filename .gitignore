@@ -364,3 +364,5 @@ FodyWeavers.xsd
 
 Scripts/nuget.exe
 Scripts/SetPackageVersion.ps1
+/nuget.config
+/Scripts/PublishNuget.ps1
