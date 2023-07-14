@@ -26,7 +26,7 @@ public class CSVTokenWriter {
         foreach (var part in batch.Parts) {
 
             foreach (var csvPart in part.ToCSVParts(batch.Name)) {
-                csv.WriteRecord(csvPart);
+                csv.WriteRecord(csvPart.PartRecord);
                 csv.NextRecord();
                 foreach (var tokenRecord in csvPart.Tokens) {
                     csv.WriteRecord(tokenRecord);
