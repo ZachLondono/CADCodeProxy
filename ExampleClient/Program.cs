@@ -5,9 +5,7 @@ using CADCodeProxy.Enums;
 using CADCodeProxy.Exceptions;
 using CADCodeProxy.Machining;
 
-Console.WriteLine("Hello, World!");
-
-var generator = new GCodeGenerator(LinearUnits.Millimeters);
+Console.WriteLine("Generating GCode/CSV Tokens");
 
 var machines = new List<Machine>() {
     new() {
@@ -40,7 +38,7 @@ var batch = new Batch() {
             Name = "ABC123",
             Qty = 5,
             Material = "3/4\" MDF",
-            Width = 250,
+            Width = 500,
             Length = 500,
             Thickness = 19.05,
             IsGrained = true,
@@ -50,21 +48,41 @@ var batch = new Batch() {
             PrimaryFace = new() {
                 ProgramName = "PartFront",
                 Tokens = new IToken[] {
+                    new OutlineSegment() {
+                        Start = new(0, 0),
+                        End = new(200, 0),
+                        StartDepth = 19.05,
+                        EndDepth = 19.05,
+                        ToolName = "3-8Comp"
+                    },
+                    new OutlineSegment() {
+                        Start = new(200, 0),
+                        End = new(200, 500),
+                        StartDepth = 19.05,
+                        EndDepth = 19.05,
+                        ToolName = "3-8Comp"
+                    },
+                    new OutlineSegment() {
+                        Start = new(200, 500),
+                        End = new(0, 500),
+                        StartDepth = 19.05,
+                        EndDepth = 19.05,
+                        ToolName = "3-8Comp"
+                    },
+                    new OutlineSegment() {
+                        Start = new(0, 500),
+                        End = new(0, 0),
+                        StartDepth = 19.05,
+                        EndDepth = 19.05,
+                        ToolName = "3-8Comp"
+                    },
                     new Route() {
                         Start = new(0, 0),
                         End = new(100, 100),
                         StartDepth = 19.05,
                         EndDepth = 19.05,
                         ToolName = "3-8Comp"
-                    },
-                    new MultiBore(
-                        8,
-                        new(0, 0),
-                        new(0, 500),
-                        32,
-                        32,
-                        19.05
-                    )
+                    }
                 }
             },
             SecondaryFace = null
@@ -73,42 +91,22 @@ var batch = new Batch() {
             Qty = 5,
             Width = 100,
             Length = 200,
-            Thickness = 12.7,
+            Thickness = 19.05,
             IsGrained = true,
             Name = "UBottom",
-            Material = "1/2\" MDF",
+            Material = "3/4\" MDF",
             PrimaryFace = new() {
                 ProgramName = $"UBottom-{1}",
                 Tokens = new IToken[] {
-                    new Route() {
-                        Start = new(12, 0),
-                        End = new(50, 100),
-                        StartDepth = 19.1,
-                        EndDepth = 19.1,
-                        ToolName = "3-8Comp"
-                    },
-                    new Route() {
-                        Start = new(50, 50),
-                        End = new(50, 100),
-                        StartDepth = 19.1,
-                        EndDepth = 19.1,
-                        ToolName = "3-8Comp"
-                    },
-                    new Route() {
-                        Start = new(75, 100),
-                        End = new(100, 0),
-                        StartDepth = 19.1,
-                        EndDepth = 19.1,
-                        ToolName = "3-8Comp"
-                    }
                 }
             }
         }
     }
 };
 
-//GenerateGCodeForBatch(generator, machines);
-WriteBatchToCSVFile(batch, @"R:\Door Orders\CC Input");
+var generator = new GCodeGenerator(LinearUnits.Millimeters);
+GenerateGCodeForBatch(batch, generator, machines);
+//WriteBatchToCSVFile(batch, @"R:\Door Orders\CC Input");
 
 static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> machines) {
     generator.Inventory.Add(new() {
