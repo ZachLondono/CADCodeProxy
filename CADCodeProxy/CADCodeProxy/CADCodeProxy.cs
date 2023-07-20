@@ -89,9 +89,9 @@ internal class CADCodeProxy : IDisposable {
         GenerateSinglePrograms(batch.Parts, units, code);
 
         if (RuntimeInformation.ProcessArchitecture == Architecture.X86) {
-            var job = new WS_Job();
-            var result = code.GetWINStepMachining(ref job, AllMachining: true);
-            _wsJobs.Add(job);
+           // var job = new WS_Job();
+           // var result = code.GetWINStepMachining(ref job, AllMachining: true);
+           // _wsJobs.Add(job);
         } else {
             Console.WriteLine("WSXML skipped because architecture is not x86");
         }
