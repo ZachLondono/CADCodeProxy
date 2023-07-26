@@ -19,4 +19,8 @@ public class InfoFields : IEnumerable<KeyValuePair<string, string>> {
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator(); 
 
+    public bool TryGetValue(string fieldName, out string? fieldValue) {
+        return Fields.TryGetValue(fieldName, out fieldValue);
+    }
+
 }

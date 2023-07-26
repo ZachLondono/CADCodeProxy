@@ -26,5 +26,10 @@ public class PartRecord {
     public string LengthMaterial1 { get; set; } = string.Empty;
     public string LengthColor2 { get; set; } = string.Empty;
     public string LengthMaterial2 { get; set; } = string.Empty;
+    public string WidthInches { get; set; } = string.Empty;
+    public string LengthInches { get; set;} = string.Empty;
+    public string Side1Color { get; set; } = string.Empty;
+    public string Side1Material { get; set; } = string.Empty;
+    public string CustomerInfo1 { get; set; } = string.Empty;
 
 }

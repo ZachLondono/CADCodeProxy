@@ -146,6 +146,11 @@ public record Part {
 
     private CSVPart CreateCSVPart(string jobName, PartFace face, bool isFace6, string face6FileName) {
 
+        string widthInches = AsInchFraction(Width).ToString();
+        string lengthInches = AsInchFraction(Length).ToString();
+
+        InfoFields.TryGetValue("CustomerInfo1", out string? customerInfo1);
+
         var partRecord = new PartRecord() {
             CabNumber = "",
             PartID = "",
@@ -170,6 +175,9 @@ public record Part {
             LengthMaterial1 = Length1Banding.Material,
             LengthColor2 = Length2Banding.Color,
             LengthMaterial2 = Length2Banding.Material,
+            WidthInches = widthInches,
+            LengthInches = lengthInches,
+            CustomerInfo1 = customerInfo1 ?? ""
         };
 
         var tokenRecords = face.Tokens.Select(t => t.ToTokenRecord());
@@ -179,6 +187,52 @@ public record Part {
             Tokens = tokenRecords
         };
 
+    }
+
+    private static Fraction AsInchFraction(double mm, double accuracy = 0.0001) {
+
+        // https://stackoverflow.com/questions/5124743/algorithm-for-simplifying-decimal-to-fractions/42085412#42085412
+
+        if (accuracy <= 0.0 || accuracy >= 1.0) {
+            throw new ArgumentOutOfRangeException(nameof(accuracy), "Must be > 0 and < 1.");
+        }
+
+        double value = mm / 25.4;
+
+        int sign = Math.Sign(value);
+
+        if (sign == -1) {
+            value = Math.Abs(value);
+        }
+
+        // Accuracy is the maximum relative error; convert to absolute maxError
+        double maxError = sign == 0 ? accuracy : value * accuracy;
+
+        int n = (int)Math.Floor(value);
+        value -= n;
+
+        if (value < maxError) {
+            return new Fraction(sign * n, 1);
+        }
+
+        if (1 - maxError < value) {
+            return new Fraction(sign * (n + 1), 1);
+        }
+
+        double z = value;
+        int previousDenominator = 0;
+        int denominator = 1;
+        int numerator;
+
+        do {
+            z = 1.0 / (z - (int)z);
+            int temp = denominator;
+            denominator = denominator * (int)z + previousDenominator;
+            previousDenominator = temp;
+            numerator = Convert.ToInt32(value * denominator);
+        } while (Math.Abs(value - (double)numerator / denominator) > maxError && z != (int)z);
+
+        return new Fraction((n * denominator + numerator) * sign, denominator);
     }
 
 }
