@@ -2,10 +2,10 @@
 
 public class PartRecord {
 
+    // Batch properties
     public string JobName { get; set; } = string.Empty;
-    public string CabNumber { get; set; } = string.Empty;
-    public string PartID { get; set;} = string.Empty;
-    public string PartName { get; set; } = string.Empty;
+
+    // Part properties
     public string Qty { get; set; } = string.Empty;
     public string Border { get; set; } = "Border";
     public string Width { get; set; } = string.Empty;
@@ -18,6 +18,24 @@ public class PartRecord {
     public string Material { get; set; } = string.Empty;
     public string Graining { get; set; } = string.Empty;
     public string Rotation { get; set; } = string.Empty;
+
+    // Label properties
+    public string CabinetNumber { get; set; } = string.Empty;
+    public string PartID { get; set;} = string.Empty;
+    public string ProductName { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+
+    public string CustomerInfo1 { get; set; } = string.Empty;
+    public string Level1 { get; set; } = string.Empty;
+    public string Comment1 { get; set; } = string.Empty;
+    public string Comment2 { get; set; } = string.Empty;
+
+    public string WidthInches { get; set; } = string.Empty;
+    public string LengthInches { get; set;} = string.Empty;
+
+    public string Side1Color { get; set; } = string.Empty;
+    public string Side1Material { get; set; } = string.Empty;
+
     public string WidthColor1 { get; set; } = string.Empty;
     public string WidthMaterial1 { get; set; } = string.Empty;
     public string WidthColor2 { get; set; } = string.Empty;
@@ -26,10 +44,5 @@ public class PartRecord {
     public string LengthMaterial1 { get; set; } = string.Empty;
     public string LengthColor2 { get; set; } = string.Empty;
     public string LengthMaterial2 { get; set; } = string.Empty;
-    public string WidthInches { get; set; } = string.Empty;
-    public string LengthInches { get; set;} = string.Empty;
-    public string Side1Color { get; set; } = string.Empty;
-    public string Side1Material { get; set; } = string.Empty;
-    public string CustomerInfo1 { get; set; } = string.Empty;
 
 }

@@ -5,7 +5,6 @@ namespace CADCodeProxy.Machining;
 
 public record Part {
 
-    public required string Name { get; init; }
     public required int Qty { get; init; }
     public required double Width { get; init; }
     public required double Length { get; init; }
@@ -150,11 +149,21 @@ public record Part {
         string lengthInches = AsInchFraction(Length).ToString();
 
         InfoFields.TryGetValue("CustomerInfo1", out string? customerInfo1);
+        InfoFields.TryGetValue("Level1", out string? level1);
+        InfoFields.TryGetValue("Comment1", out string? comment1);
+        InfoFields.TryGetValue("Comment2", out string? comment2);
+        InfoFields.TryGetValue("Side1Color", out string? side1Color);
+        InfoFields.TryGetValue("Side1Material", out string? side1Material);
+        InfoFields.TryGetValue("CabinetNumber", out string? cabNumber);
+        InfoFields.TryGetValue("ProductName", out string? productName);
+        InfoFields.TryGetValue("Description", out string? description);
 
         var partRecord = new PartRecord() {
-            CabNumber = "",
+
+            CabinetNumber = cabNumber ?? "",
             PartID = "",
-            PartName = Name,
+            ProductName = productName ?? "",
+            Description = description ?? "",
             JobName = jobName,
             Qty = Qty.ToString(),
             Width = Width.ToString(),
@@ -167,6 +176,18 @@ public record Part {
             Face6Flag = isFace6 ? "6" : "",
             Mirror = face.IsMirrored ? "Mirror On" : "",
             Rotation = face.IsRotated ? "90" : "",
+
+            CustomerInfo1 = customerInfo1 ?? "",
+            Level1 = level1 ?? "",
+            Comment1 = comment1 ?? "",
+            Comment2 = comment2 ?? "",
+
+            WidthInches = widthInches,
+            LengthInches = lengthInches,
+
+            Side1Color = side1Color ?? "",
+            Side1Material = side1Material ?? "",
+
             WidthColor1 = Width1Banding.Color,
             WidthMaterial1 = Width1Banding.Material,
             WidthColor2 = Width2Banding.Color,
@@ -175,9 +196,7 @@ public record Part {
             LengthMaterial1 = Length1Banding.Material,
             LengthColor2 = Length2Banding.Color,
             LengthMaterial2 = Length2Banding.Material,
-            WidthInches = widthInches,
-            LengthInches = lengthInches,
-            CustomerInfo1 = customerInfo1 ?? ""
+
         };
 
         var tokenRecords = face.Tokens.Select(t => t.ToTokenRecord());
