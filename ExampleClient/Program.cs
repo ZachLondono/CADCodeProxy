@@ -35,7 +35,6 @@ var batch = new Batch() {
     },
     Parts = new Part[] {
         new() {
-            Name = "ABC123",
             Qty = 5,
             Material = "3/4\" MDF",
             Width = 500,
@@ -43,8 +42,21 @@ var batch = new Batch() {
             Thickness = 19.05,
             IsGrained = true,
             InfoFields = new() {
-                { "Name", "Value" }
+                { "Name", "Value" },
+                { "CustomerInfo1", "Customer Name" },
+                { "Level1", "Room Name" },
+                { "Comment1", "Comment 1" },
+                { "Comment2", "Comment 2" },
+                { "Side1Color", "Color" },
+                { "Side1Material", "Material" },
+                { "CabinetNumber", "1234" },
+                { "ProductName", "ProdABC" },
+                { "Description", "Product ABC" },
             },
+            Width1Banding = new("Purple", "PVC"),
+            Width2Banding = new("Pink", "Paper"),
+            Length1Banding = new("Red", "Bubble Gum"),
+            Length2Banding = new("Blue", "Rocks"),
             PrimaryFace = new() {
                 ProgramName = "PartFront",
                 Tokens = new IToken[] {
@@ -93,7 +105,6 @@ var batch = new Batch() {
             Length = 200,
             Thickness = 19.05,
             IsGrained = true,
-            Name = "UBottom",
             Material = "3/4\" MDF",
             PrimaryFace = new() {
                 ProgramName = $"UBottom-{1}",
@@ -104,9 +115,9 @@ var batch = new Batch() {
     }
 };
 
-var generator = new GCodeGenerator(LinearUnits.Millimeters);
-GenerateGCodeForBatch(batch, generator, machines);
-//WriteBatchToCSVFile(batch, @"R:\Door Orders\CC Input");
+//var generator = new GCodeGenerator(LinearUnits.Millimeters);
+//GenerateGCodeForBatch(batch, generator, machines);
+WriteBatchToCSVFile(batch, @"R:\Door Orders\CC Input");
 
 static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> machines) {
     generator.Inventory.Add(new() {
