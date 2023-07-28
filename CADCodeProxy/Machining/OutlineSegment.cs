@@ -10,6 +10,8 @@ public record OutlineSegment : IToken {
     public required Point End { get; init; }
     public required double StartDepth { get; init; }
     public required double EndDepth { get; init; }
+    public int SequenceNumber { get; init; } = 0;
+    public int NumberOfPasses { get; init; } = 0;
 
     void IToken.AddToCode(CADCodeCodeClass code) {
 
@@ -26,8 +28,8 @@ public record OutlineSegment : IToken {
                             ToolName: ToolName,
                             FeedSpeed: 0,
                             SpindleSpeed: 0,
-                            NestedRouteSequence: 5,
-                            NumberOfPasses: 1,
+                            NestedRouteSequence: SequenceNumber,
+                            NumberOfPasses: NumberOfPasses,
                             KerfClearance: 0);
 
     }
@@ -43,6 +45,8 @@ public record OutlineSegment : IToken {
             EndY = End.Y.ToString(),
             EndZ = EndDepth.ToString(),
             ToolName = ToolName,
+            SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
+            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString()
         };
 
     }

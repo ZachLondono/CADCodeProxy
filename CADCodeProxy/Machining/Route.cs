@@ -13,6 +13,8 @@ public record Route : IToken {
     public required double StartDepth { get; init; }
     public required double EndDepth { get; init; }
     public Offset Offset { get; init; } = Offset.Center;
+    public int SequenceNumber { get; init; } = 0;
+    public int NumberOfPasses { get; init; } = 0;
 
     void IToken.AddToCode(CADCodeCodeClass code) {
 
@@ -33,7 +35,8 @@ public record Route : IToken {
                        0f,
                        0f,
                        "",
-                       0);
+                       SequenceNumber,
+                       NumberOfPasses: NumberOfPasses);
 
     }
 
@@ -49,6 +52,8 @@ public record Route : IToken {
             EndZ = EndDepth.ToString(),
             OffsetSide = Offset.ToCSVCode(),
             ToolName = ToolName,
+            SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
+            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString()
         };
 
     }

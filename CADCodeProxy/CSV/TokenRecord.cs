@@ -17,7 +17,7 @@ public class TokenRecord {
     public string PocketY { get; set; } = string.Empty;
     public string Radius { get; set; } = string.Empty;
     public string Pitch { get; set; } = string.Empty;
-    public string PassCount { get; set; } = string.Empty;
+    public string NumberOfPasses { get; set; } = string.Empty;
     public string OffsetSide { get; set; } = string.Empty;
     public string ToolName { get; set; } = string.Empty;
     public string ToolDiameter { get; set; } = string.Empty;

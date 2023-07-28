@@ -12,8 +12,10 @@ public record MultiBore : IToken {
     public int HoleCount { get; init; }
     public double Spacing { get; init; }
     public double Depth { get; init; }
+    public int SequenceNumber { get; init; } = 0;
+    public int NumberOfPasses { get; init; } = 0;
 
-    public MultiBore(string toolName, Point start, Point end, int holeCount, double spacing, double depth) {
+    public MultiBore(string toolName, Point start, Point end, int holeCount, double spacing, double depth, int sequenceNumber = 0, int numberOfPasses = 0) {
         ToolName = toolName;
         ToolDiameter = 0;
         Start = start;
@@ -21,9 +23,11 @@ public record MultiBore : IToken {
         HoleCount = holeCount;
         Spacing = spacing;
         Depth = depth;
+        SequenceNumber = sequenceNumber;
+        NumberOfPasses = numberOfPasses;
     }
 
-    public MultiBore(double toolDiameter, Point start, Point end, int holeCount, double spacing, double depth) {
+    public MultiBore(double toolDiameter, Point start, Point end, int holeCount, double spacing, double depth, int sequenceNumber = 0, int numberOfPasses = 0) {
         ToolName = string.Empty;
         ToolDiameter = toolDiameter;
         Start = start;
@@ -31,9 +35,11 @@ public record MultiBore : IToken {
         HoleCount = holeCount;
         Spacing = spacing;
         Depth = depth;
+        SequenceNumber = sequenceNumber;
+        NumberOfPasses = numberOfPasses;
     }
 
-    public MultiBore(string toolName, Point start, Point end, double spacing, double depth) {
+    public MultiBore(string toolName, Point start, Point end, double spacing, double depth, int sequenceNumber = 0, int numberOfPasses = 0) {
         ToolName = toolName;
         ToolDiameter = 0;
         Start = start;
@@ -41,9 +47,11 @@ public record MultiBore : IToken {
         HoleCount = 0;
         Spacing = spacing;
         Depth = depth;
+        SequenceNumber = sequenceNumber;
+        NumberOfPasses = numberOfPasses;
     }
 
-    public MultiBore(double toolDiameter, Point start, Point end, double spacing, double depth) {
+    public MultiBore(double toolDiameter, Point start, Point end, double spacing, double depth, int sequenceNumber = 0, int numberOfPasses = 0) {
         ToolName = string.Empty;
         ToolDiameter = toolDiameter;
         Start = start;
@@ -51,6 +59,8 @@ public record MultiBore : IToken {
         HoleCount = 0;
         Spacing = spacing;
         Depth = depth;
+        SequenceNumber = sequenceNumber;
+        NumberOfPasses = numberOfPasses;
     }
 
     void IToken.AddToCode(CADCodeCodeClass code) {
@@ -67,7 +77,9 @@ public record MultiBore : IToken {
                         0,
                         0,
                         "",
-                        HoleCount);
+                        HoleCount,
+                        SequenceNumber: SequenceNumber,
+                        NumberOfPasses: NumberOfPasses);
 
     }
 
@@ -82,7 +94,9 @@ public record MultiBore : IToken {
             EndY = End.Y.ToString(),
             Pitch = Spacing.ToString(),
             ToolName = ToolName,
-            ToolDiameter = ToolDiameter.ToString()
+            ToolDiameter = ToolDiameter.ToString(),
+            SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
+            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString()
         };
 
     }

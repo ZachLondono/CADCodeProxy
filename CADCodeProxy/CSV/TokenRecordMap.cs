@@ -25,7 +25,7 @@ public class TokenRecordMap : ClassMap<TokenRecord> {
         Map(t => t.PocketY).Index(16).Name("PocketY");
         Map(t => t.Radius).Index(17).Name("Radius");
         Map(t => t.Pitch).Index(18).Name("Pitch");
-        Map(t => t.PassCount).Index(19).Name("PassCount");
+        Map(t => t.NumberOfPasses).Index(19).Name("Number Of Passes");
         Map(t => t.OffsetSide).Index(20).Name("OffsetSide");
         Map().Index(21).Constant("");
         Map(t => t.ToolName).Index(22).Name("ToolName");

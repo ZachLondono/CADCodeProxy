@@ -5,13 +5,15 @@ namespace CADCodeProxy.Machining;
 
 public record Pocket : IToken {
 
-    public required string ToolName { get; set; }
-    public required Point CornerA { get; set; }
-    public required Point CornerB { get; set; }
-    public required Point CornerC { get; set; }
-    public required Point CornerD { get; set; }
-    public required double StartDepth { get; set; }
-    public required double EndDepth { get; set; }
+    public required string ToolName { get; init; }
+    public required Point CornerA { get; init; }
+    public required Point CornerB { get; init; }
+    public required Point CornerC { get; init; }
+    public required Point CornerD { get; init; }
+    public required double StartDepth { get; init; }
+    public required double EndDepth { get; init; }
+    public int SequenceNumber { get; init; } = 0;
+    public int NumberOfPasses { get; init; } = 0;
 
     void IToken.AddToCode(CADCodeCodeClass code) {
 
@@ -32,8 +34,9 @@ public record Pocket : IToken {
                     0f,
                     0f,
                     "",
+                    SequenceNumber,
                     0,
-                    0
+                    NumberOfPasses: NumberOfPasses
             );
 
     }
@@ -53,6 +56,8 @@ public record Pocket : IToken {
             PocketX = CornerD.X.ToString(),
             PocketY = CornerD.Y.ToString(),
             ToolName = ToolName,
+            SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
+            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString()
         };
 
     }
