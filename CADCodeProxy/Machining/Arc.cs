@@ -65,6 +65,7 @@ public class Arc : IToken {
             EndX = End.X.ToString(),
             EndY = End.Y.ToString(),
             EndZ = EndDepth.ToString(),
+            Radius = Radius.ToString(),
             OffsetSide = Offset.ToCSVCode(),
             ToolName = ToolName,
             SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
