@@ -34,4 +34,10 @@ internal static class Extensions {
         _ => throw new ArgumentException(nameof(offset))
     };
 
+    internal static ArcTypes AsCCArcType(this ArcDirection direction) => direction switch {
+        ArcDirection.ClockWise => ArcTypes.CC_CLOCKWISE_ARC,
+        ArcDirection.CounterClockWise => ArcTypes.CC_COUNTER_CLOCKWISE_ARC,
+        _ => ArcTypes.CC_UNKNOWN_ARC
+    };
+
 }
