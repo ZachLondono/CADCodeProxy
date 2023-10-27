@@ -3,15 +3,15 @@ using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
-public record OutlineSegment : IToken {
+public class OutlineSegment : IToken {
 
-    public required string ToolName { get; init; }
-    public required Point Start { get; init; }
-    public required Point End { get; init; }
-    public required double StartDepth { get; init; }
-    public required double EndDepth { get; init; }
-    public int SequenceNumber { get; init; } = 0;
-    public int NumberOfPasses { get; init; } = 0;
+    public required string ToolName { get; set; }
+    public required Point Start { get; set; }
+    public required Point End { get; set; }
+    public required double StartDepth { get; set; }
+    public required double EndDepth { get; set; }
+    public int SequenceNumber { get; set; } = 0;
+    public int NumberOfPasses { get; set; } = 0;
 
     void IToken.AddToCode(CADCodeCodeClass code) {
 

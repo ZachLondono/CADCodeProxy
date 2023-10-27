@@ -3,17 +3,17 @@ using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
-public record MultiBore : IToken {
+public class MultiBore : IToken {
 
-    public string ToolName { get; init; } = string.Empty;
-    public double ToolDiameter { get; init; } = 0;
-    public Point Start { get; init; }
-    public Point End { get; init; }
-    public int HoleCount { get; init; }
-    public double Spacing { get; init; }
-    public double Depth { get; init; }
-    public int SequenceNumber { get; init; } = 0;
-    public int NumberOfPasses { get; init; } = 0;
+    public string ToolName { get; set; } = string.Empty;
+    public double ToolDiameter { get; set; } = 0;
+    public Point Start { get; set; }
+    public Point End { get; set; }
+    public int HoleCount { get; set; }
+    public double Spacing { get; set; }
+    public double Depth { get; set; }
+    public int SequenceNumber { get; set; } = 0;
+    public int NumberOfPasses { get; set; } = 0;
 
     public MultiBore(string toolName, Point start, Point end, int holeCount, double spacing, double depth, int sequenceNumber = 0, int numberOfPasses = 0) {
         ToolName = toolName;

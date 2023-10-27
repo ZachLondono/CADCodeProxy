@@ -3,14 +3,14 @@ using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
-public record Bore : IToken {
+public class Bore : IToken {
 
-    public string ToolName { get; init; } = string.Empty;
-    public double ToolDiameter { get; init; } = 0;
-    public Point Position { get; init; }
-    public double Depth { get; init; }
-    public int SequenceNumber { get; init; } = 0;
-    public int NumberOfPasses { get; init; } = 0;
+    public string ToolName { get; set; } = string.Empty;
+    public double ToolDiameter { get; set; } = 0;
+    public Point Position { get; set; }
+    public double Depth { get; set; }
+    public int SequenceNumber { get; set; } = 0;
+    public int NumberOfPasses { get; set; } = 0;
 
     public Bore(string toolName, Point position, double depth, int sequenceNumber = 0, int numberOfPasses = 0) {
         ToolName = toolName;

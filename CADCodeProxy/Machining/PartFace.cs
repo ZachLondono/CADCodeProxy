@@ -1,10 +1,10 @@
 ﻿namespace CADCodeProxy.Machining;
 
-public record PartFace {
+public class PartFace {
 
-    public required string ProgramName { get; init; }
-    public bool IsRotated { get; init; } = false;
-    public bool IsMirrored { get; init; } = false;
-    public required IToken[] Tokens { get; init; }
+    public required string ProgramName { get; set; }
+    public bool IsRotated { get; set; } = false;
+    public bool IsMirrored { get; set; } = false;
+    public required IToken[] Tokens { get; set; }
 
 }

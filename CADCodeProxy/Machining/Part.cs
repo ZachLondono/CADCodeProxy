@@ -3,21 +3,21 @@ using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
-public record Part {
+public class Part {
 
-    public required int Qty { get; init; }
-    public required double Width { get; init; }
-    public required double Length { get; init; }
-    public required double Thickness { get; init; }
-    public required string Material { get; init; }
-    public required bool IsGrained { get; init; }
-    public InfoFields InfoFields { get; init; } = new();
-    public required PartFace PrimaryFace { get; init; }
-    public PartFace? SecondaryFace { get; init; } = null;
-    public EdgeBanding Width1Banding { get; init; } = new("", "");
-    public EdgeBanding Width2Banding { get; init; } = new("", "");
-    public EdgeBanding Length1Banding { get; init; } = new("", "");
-    public EdgeBanding Length2Banding { get; init; } = new("", "");
+    public required int Qty { get; set; }
+    public required double Width { get; set; }
+    public required double Length { get; set; }
+    public required double Thickness { get; set; }
+    public required string Material { get; set; }
+    public required bool IsGrained { get; set; }
+    public InfoFields InfoFields { get; set; } = new();
+    public required PartFace PrimaryFace { get; set; }
+    public PartFace? SecondaryFace { get; set; } = null;
+    public EdgeBanding Width1Banding { get; set; } = new("", "");
+    public EdgeBanding Width2Banding { get; set; } = new("", "");
+    public EdgeBanding Length1Banding { get; set; } = new("", "");
+    public EdgeBanding Length2Banding { get; set; } = new("", "");
 
     internal void AddNestPartToCode(CADCodeCodeClass code) {
 

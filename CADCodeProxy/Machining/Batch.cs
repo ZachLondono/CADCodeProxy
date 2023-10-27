@@ -1,9 +1,9 @@
 ﻿namespace CADCodeProxy.Machining;
 
-public record Batch {
+public class Batch {
 
-    public required string Name { get; init; }
-    public required Part[] Parts { get; init; }
-    public InfoFields InfoFields { get; init; } = new();
+    public required string Name { get; set; }
+    public required Part[] Parts { get; set; }
+    public InfoFields InfoFields { get; set; } = new();
 
 }
