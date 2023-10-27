@@ -12,7 +12,7 @@ public class PartRecordMap : ClassMap<PartRecord> {
         Map(p => p.ProductName).Index(3).Name("Product Name");
         Map(p => p.Qty).Index(4).Name("Qty");
         Map(p => p.Border).Index(5).Name("Border");
-        Map().Index(6).Name("Face");
+        Map().Index(6).Constant("").Name("Face");
         Map(p => p.Length).Index(7).Name("Length / Start X");
         Map(p => p.Width).Index(8).Name("Width / Start Y");
         Map(p => p.Thickness).Index(9).Name("Thickness / Start Z");
