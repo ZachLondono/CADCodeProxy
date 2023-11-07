@@ -22,7 +22,7 @@ var machines = new List<Machine>() {
         TableOrientation = TableOrientation.Rotated,
         NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
         SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
-        ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Royal Omnitech Fanuc-Smart names SMALL PARTS.mdb",
+        ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Royal Omnitech Fanuc-Smart names.mdb",
         PictureOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
         LabelDatabaseOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
     }
@@ -35,9 +35,9 @@ var batch = new Batch() {
     },
     Parts = new Part[] {
         new() {
-            Qty = 5,
+            Qty = 1,
             Material = "3/4\" MDF",
-            Width = 500,
+            Width = 250,
             Length = 500,
             Thickness = 19.05,
             IsGrained = true,
@@ -58,36 +58,8 @@ var batch = new Batch() {
             Length1Banding = new("Red", "Bubble Gum"),
             Length2Banding = new("Blue", "Rocks"),
             PrimaryFace = new() {
-                ProgramName = "PartFront",
+                ProgramName = "PartFront1",
                 Tokens = new IToken[] {
-                    new OutlineSegment() {
-                        Start = new(0, 0),
-                        End = new(200, 0),
-                        StartDepth = 19.05,
-                        EndDepth = 19.05,
-                        ToolName = "3-8Comp"
-                    },
-                    new OutlineSegment() {
-                        Start = new(200, 0),
-                        End = new(200, 500),
-                        StartDepth = 19.05,
-                        EndDepth = 19.05,
-                        ToolName = "3-8Comp"
-                    },
-                    new OutlineSegment() {
-                        Start = new(200, 500),
-                        End = new(0, 500),
-                        StartDepth = 19.05,
-                        EndDepth = 19.05,
-                        ToolName = "3-8Comp"
-                    },
-                    new OutlineSegment() {
-                        Start = new(0, 500),
-                        End = new(0, 0),
-                        StartDepth = 19.05,
-                        EndDepth = 19.05,
-                        ToolName = "3-8Comp"
-                    },
                     new Route() {
                         Start = new(0, 0),
                         End = new(100, 100),
@@ -99,33 +71,57 @@ var batch = new Batch() {
             },
             SecondaryFace = null
         },
-        new Part() {
+        new() {
             Qty = 5,
-            Width = 100,
-            Length = 200,
+            Material = "3/4\" MDF",
+            Width = 670,
+            Length = 250,
             Thickness = 19.05,
             IsGrained = true,
-            Material = "3/4\" MDF",
+            InfoFields = new() {
+                { "Name", "Value" },
+                { "CustomerInfo1", "Customer Name" },
+                { "Level1", "Room Name" },
+                { "Comment1", "Comment 1" },
+                { "Comment2", "Comment 2" },
+                { "Side1Color", "Color" },
+                { "Side1Material", "Material" },
+                { "CabinetNumber", "1234" },
+                { "ProductName", "ProdABC" },
+                { "Description", "Product ABC" },
+            },
+            Width1Banding = new("Purple", "PVC"),
+            Width2Banding = new("Pink", "Paper"),
+            Length1Banding = new("Red", "Bubble Gum"),
+            Length2Banding = new("Blue", "Rocks"),
             PrimaryFace = new() {
-                ProgramName = $"UBottom-{1}",
+                ProgramName = "PartFront2",
                 Tokens = new IToken[] {
+                    new Route() {
+                        Start = new(0, 0),
+                        End = new(100, 250),
+                        StartDepth = 19.05,
+                        EndDepth = 19.05,
+                        ToolName = "3-8Comp"
+                    }
                 }
-            }
+            },
+            SecondaryFace = null
         }
     }
 };
 
-//var generator = new GCodeGenerator(LinearUnits.Millimeters);
-//GenerateGCodeForBatch(batch, generator, machines);
-WriteBatchToCSVFile(batch, @"R:\Door Orders\CC Input");
+var generator = new GCodeGenerator(LinearUnits.Millimeters);
+GenerateGCodeForBatch(batch, generator, machines);
+//WriteBatchToCSVFile(batch, @"R:\Door Orders\CC Input");
 
 static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> machines) {
     generator.Inventory.Add(new() {
         MaterialName = "1/2\" MDF",
         AvailableQty = 10,
         IsGrained = true,
-        PanelLength = 2000,
-        PanelWidth = 1000,
+        PanelLength = 3000,
+        PanelWidth = 1500,
         PanelThickness = 12.7,
         Priority = 1,
     });
@@ -133,8 +129,8 @@ static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Ma
         MaterialName = "3/4\" MDF",
         AvailableQty = 10,
         IsGrained = true,
-        PanelLength = 2000,
-        PanelWidth = 1000,
+        PanelLength = 3000,
+        PanelWidth = 1500,
         PanelThickness = 19.05,
         Priority = 1,
     });
@@ -180,3 +176,4 @@ static void WriteBatchToCSVFile(Batch batch, string directory) {
     Console.WriteLine($"File written to '{file}'");
 
 }
+
