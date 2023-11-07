@@ -82,7 +82,7 @@ internal class CADCodeProxy : IDisposable {
         List<MaterialGCodeGenerationResult> materialResults = new();
         var groups = batch.Parts.GroupBy(p => new PartGroupKey(p.Material, p.Thickness));
         foreach (var group in groups) {
-            var matResult = GenerateCodeForMaterialType(batch.InfoFields, group.Key, group.ToArray(), inventory, machine.TableOrientation, units, _bootObj, labels, files, code);
+            var matResult = GenerateCodeForMaterialType(batch.InfoFields, group.Key, group.ToArray(), inventory, units, _bootObj, labels, files, code);
             materialResults.Add(matResult);
         }
 
@@ -129,12 +129,12 @@ internal class CADCodeProxy : IDisposable {
     }
     */
     
-    private static MaterialGCodeGenerationResult GenerateCodeForMaterialType(InfoFields batchInfoFields, PartGroupKey partGroupKey, Machining.Part[] batchParts, InventoryItem[] inventory, TableOrientation orientation, UnitTypes units, CADCodeBootObject bootObj, CADCodeLabelClass labels, CADCodeFileClass files, CADCodeCodeClass code) {
+    private static MaterialGCodeGenerationResult GenerateCodeForMaterialType(InfoFields batchInfoFields, PartGroupKey partGroupKey, Machining.Part[] batchParts, InventoryItem[] inventory, UnitTypes units, CADCodeBootObject bootObj, CADCodeLabelClass labels, CADCodeFileClass files, CADCodeCodeClass code) {
 
         var optimizer = CreateOptimizer(bootObj, files);
 
         List<CutlistInventory> sheetStock = inventory.Where(i => i.MaterialName == partGroupKey.MaterialName && i.PanelThickness == partGroupKey.Thickness)
-                                                    .Select(i => i.AsCutlistInventory(orientation))
+                                                    .Select(i => i.AsCutlistInventory())
                                                     .ToList();
 
         // TODO: Do something if there is no valid materials
