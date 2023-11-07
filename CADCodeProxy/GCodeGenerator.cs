@@ -8,6 +8,9 @@ namespace CADCodeProxy;
 
 public class GCodeGenerator {
 
+    public delegate void GenerationEventHandler(string message);
+    public event GenerationEventHandler? GenerationEvent;
+
     public LinearUnits Units { get; init; }
 
     public GCodeGenerator(LinearUnits units) {
@@ -19,6 +22,7 @@ public class GCodeGenerator {
     public GCodeGenerationResult GeneratePrograms(IEnumerable<Machine> machines, Batch batch, string wsReportOutputDirectory) {
 
         if (!batch.Parts.Any()) {
+            GenerationEvent?.Invoke("No parts in batch");
             return new GCodeGenerationResult() {
                 WinStepReportFilePath = null,
                 MachineResults = Array.Empty<MachineGCodeGenerationResult>()
@@ -27,17 +31,22 @@ public class GCodeGenerator {
 
         using var cadcode = new CADCodeProxy.CADCodeProxy();
 
+        GenerationEvent?.Invoke("Initializing CADCode proxy");
         cadcode.Initialize();
         
         var units = GetCCUnits();
         var inventory = Inventory.ToArray();
-        
+
         List<MachineGCodeGenerationResult> machineResults = new();
         foreach (var machine in machines) {
         
+            GenerationEvent?.Invoke($"Generating G-code for '{machine.Name}'");
             var result = cadcode.GenerateGCode(machine, batch, inventory, units);
-        
+
             machineResults.Add(result);
+
+            var programCount = result.MaterialGCodeGenerationResults.Sum(r => r.ProgramNames.Length);
+            GenerationEvent?.Invoke($"Generated '{programCount}' nested programs for '{machine.Name}'");
         
         }
         
