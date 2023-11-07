@@ -262,6 +262,7 @@ internal class CADCodeProxy : IDisposable {
         code.PicturesFilledCircles = false;
         code.GeneratePictures = true;
         code.SetPicturePath(machine.PictureOutputDirectory); // if generate pictures is set, the picture path must be set
+        code.AllowPanelRotation = true; // Required to make Omni work
 
         code.WriteWinStepFiles = true;
 
