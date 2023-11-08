@@ -167,7 +167,7 @@ internal class CADCodeProxy : IDisposable {
         code.EndPanel();
 
         sheetStock.ForEach(ss => optimizer.AddSheetStockByRef(ss, units));
-        parts.ForEach(p => optimizer.AddPartByRef(p));
+        parts.ForEach(p => optimizer.AddPartByRef(p.Part));
 
         var resultName = GenerateResultName();
         optimizer.Optimize(typeOptimizeMethod.CC_OPT_ANYKIND, code, resultName, 0, 0, labels);
