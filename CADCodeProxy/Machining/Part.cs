@@ -1,10 +1,12 @@
 ﻿using CADCode;
 using CADCodeProxy.CSV;
+using CADCodeProxy.Results;
 
 namespace CADCodeProxy.Machining;
 
 public class Part {
 
+    public Guid Id { get; } = Guid.NewGuid();
     public required int Qty { get; set; }
     public required double Width { get; set; }
     public required double Length { get; set; }
@@ -54,24 +56,35 @@ public class Part {
 
     }
 
-    internal void AddToLabels(InfoFields batchInfo, CADCodeLabelClass labels) {
-        labels.NewLabel();
+    internal PartLabel AddToLabels(InfoFields batchInfo, CADCodeLabelClass labels) {
+
+        Dictionary<string, string> labelFields = new();
         foreach (var (field, value) in InfoFields) {
-            labels.AddField(field, value);
+            labelFields.Add(field, value);
         }
         foreach (var (field, value) in batchInfo) {
+            labelFields.Add(field, value);
+        }
+        AddEdgeBandingLabelFields(labelFields, "Width", 2, Width2Banding);
+        AddEdgeBandingLabelFields(labelFields, "Length", 1, Length1Banding);
+        AddEdgeBandingLabelFields(labelFields, "Length", 2, Length2Banding);
+
+        labels.NewLabel();
+        foreach (var (field, value) in labelFields) {
             labels.AddField(field, value);
         }
-        AddEdgeBandingLabelFields(labels, "Width", 1, Width1Banding);
-        AddEdgeBandingLabelFields(labels, "Width", 2, Width2Banding);
-        AddEdgeBandingLabelFields(labels, "Length", 1, Length1Banding);
-        AddEdgeBandingLabelFields(labels, "Length", 2, Length2Banding);
         labels.EndLabel();
+
+        return new PartLabel() {
+            PartId = Id,
+            Fields = labelFields
+        };
+
     }
 
-    private static void AddEdgeBandingLabelFields(CADCodeLabelClass labels, string edgeName, int edgeNum, EdgeBanding banding) {
-        labels.AddField($"{edgeName} Color {edgeNum}", banding.Color);
-        labels.AddField($"{edgeName} Material {edgeNum}", banding.Material);
+    private static void AddEdgeBandingLabelFields(Dictionary<string, string> labelFields, string edgeName, int edgeNum, EdgeBanding banding) {
+        labelFields.Add($"{edgeName} Color {edgeNum}", banding.Color);
+        labelFields.Add($"{edgeName} Material {edgeNum}", banding.Material);
     } 
 
     internal CADCode.Part[] ToCADCodePart(UnitTypes units) {
