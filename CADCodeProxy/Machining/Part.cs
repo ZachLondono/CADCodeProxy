@@ -59,15 +59,19 @@ public class Part {
     internal PartLabel AddToLabels(InfoFields batchInfo, CADCodeLabelClass labels) {
 
         Dictionary<string, string> labelFields = new();
+
+        labelFields["Face5Filename"] = PrimaryFace.ProgramName;
+        if (SecondaryFace is not null) labelFields["Face5FileName"] = SecondaryFace.ProgramName;
+        AddEdgeBandingLabelFields(labelFields, "Width", 2, Width2Banding);
+        AddEdgeBandingLabelFields(labelFields, "Length", 1, Length1Banding);
+        AddEdgeBandingLabelFields(labelFields, "Length", 2, Length2Banding);
+
         foreach (var (field, value) in InfoFields) {
             labelFields.Add(field, value);
         }
         foreach (var (field, value) in batchInfo) {
             labelFields.Add(field, value);
         }
-        AddEdgeBandingLabelFields(labelFields, "Width", 2, Width2Banding);
-        AddEdgeBandingLabelFields(labelFields, "Length", 1, Length1Banding);
-        AddEdgeBandingLabelFields(labelFields, "Length", 2, Length2Banding);
 
         labels.NewLabel();
         foreach (var (field, value) in labelFields) {
@@ -83,8 +87,8 @@ public class Part {
     }
 
     private static void AddEdgeBandingLabelFields(Dictionary<string, string> labelFields, string edgeName, int edgeNum, EdgeBanding banding) {
-        labelFields.Add($"{edgeName} Color {edgeNum}", banding.Color);
-        labelFields.Add($"{edgeName} Material {edgeNum}", banding.Material);
+        labelFields[$"{edgeName} Color {edgeNum}"] = banding.Color;
+        labelFields[$"{edgeName} Material {edgeNum}"] = banding.Material;
     } 
 
     internal CADCode.Part[] ToCADCodePart(UnitTypes units) {
