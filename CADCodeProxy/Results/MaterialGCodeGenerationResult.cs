@@ -7,4 +7,5 @@ public class MaterialGCodeGenerationResult {
     public required UnplacedPart[] UnplacedParts { get; init; }
     public required PlacedPart[] PlacedParts { get; init; }
     public required UsedInventory[] UsedInventory { get; init; }
+    public required PartLabel[] PartLabels { get; init; }
 }

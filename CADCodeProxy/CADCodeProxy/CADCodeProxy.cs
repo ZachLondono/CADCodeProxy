@@ -4,6 +4,7 @@ using CADCodeProxy.Exceptions;
 using CADCodeProxy.Machining;
 using CADCodeProxy.Results;
 using CCWSXML;
+using Microsoft.VisualBasic;
 using System.Runtime.InteropServices;
 
 namespace CADCodeProxy.CADCodeProxy;
@@ -154,12 +155,14 @@ internal class CADCodeProxy : IDisposable {
 
         // TODO: Do something if there is no valid materials
 
-        List<CADCode.Part> parts = batchParts.SelectMany(p => p.ToCADCodePart(units)).ToList();
+        List<(CADCode.Part Part, Guid PartId)> parts = batchParts.SelectMany(p => p.ToCADCodePart(units).Select(cp => (cp, p.Id))).ToList();
+
+        var partLabels = new List<PartLabel>();
 
         code.Border(1.0f, 1.0f, (float)partGroupKey.Thickness, units, OriginType.CC_LL, $"{partGroupKey.MaterialName} {partGroupKey.Thickness}", AxisTypes.CC_AUTO_AXIS);
-        foreach (var part in batchParts) {
-            part.AddToLabels(batchInfoFields, labels);
-            part.AddNestPartToCode(code);
+        foreach (var batchPart in batchParts) {
+            partLabels.Add(batchPart.AddToLabels(batchInfoFields, labels));
+            batchPart.AddNestPartToCode(code);
         }
         code.EndPanel();
 
@@ -173,8 +176,8 @@ internal class CADCodeProxy : IDisposable {
                                         .Where(i => i.Qty > 0)
                                         .ToArray();
 
-        var placedParts = parts.Where(p => p.PatternNumber != 0)
-                                .Select(PlacedPart.FromPart)
+        var placedParts = parts.Where(p => p.Part.PatternNumber != 0)
+                                .Select(val => PlacedPart.FromPart(val.Part, val.PartId) )
                                 .ToArray();
 
         var unplacedParts = optimizer.GetUnplacedParts();
@@ -193,6 +196,7 @@ internal class CADCodeProxy : IDisposable {
             UnplacedParts = unplacedParts,
             PlacedParts = placedParts,
             UsedInventory = usedInventory,
+            PartLabels = partLabels.ToArray()
         };
 
     }
