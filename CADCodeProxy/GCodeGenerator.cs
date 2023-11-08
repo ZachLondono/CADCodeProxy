@@ -11,6 +11,12 @@ public class GCodeGenerator {
     public delegate void GenerationEventHandler(string message);
     public event GenerationEventHandler? GenerationEvent;
 
+    public delegate void CADCodeProgressEventHandler(int value);
+    public event CADCodeProgressEventHandler? CADCodeProgressEvent;
+
+    public delegate void CADCodeErrorEventHandler(int value);
+    public event CADCodeErrorEventHandler? CADCodeErrorEvent;
+
     public LinearUnits Units { get; init; }
 
     public GCodeGenerator(LinearUnits units) {
@@ -30,6 +36,14 @@ public class GCodeGenerator {
         }
 
         using var cadcode = new CADCodeProxy.CADCodeProxy();
+
+        if (CADCodeProgressEvent is not null) {
+            cadcode.ProgressEvent += CADCodeProgressEvent.Invoke;
+        }
+    
+        if (CADCodeErrorEvent is not null) {
+            cadcode.ProgressEvent += CADCodeErrorEvent.Invoke;
+        }
 
         GenerationEvent?.Invoke("Initializing CADCode proxy");
         cadcode.Initialize();

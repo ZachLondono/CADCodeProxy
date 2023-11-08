@@ -14,6 +14,12 @@ internal class CADCodeProxy : IDisposable {
     private readonly List<WS_Job> _wsJobs = new();
     // TODO: add a list of 'unreleased com objects' which can be released in the Dispose method, incase an exception is thrown and they have not yet been released
 
+    public delegate void ProgressEventHandler(int value);
+    public event ProgressEventHandler? ProgressEvent;
+
+    public delegate void ErrorEventHandler(string message);
+    public event ErrorEventHandler? ErrorEvent;
+
     public void Initialize() {
 
         _bootObj = new CADCodeBootObject() {
@@ -79,6 +85,11 @@ internal class CADCodeProxy : IDisposable {
         var labels = CreateLabel(_bootObj, batch.Name, machine.LabelDatabaseOutputDirectory);
         var code = CreateCode(_bootObj, batch.Name, machine, toolFile);
 
+        if (ProgressEvent is not null) {
+            labels.Progress += ProgressEvent.Invoke;
+            code.Progress += ProgressEvent.Invoke;
+        }
+
         List<MaterialGCodeGenerationResult> materialResults = new();
         var groups = batch.Parts.GroupBy(p => new PartGroupKey(p.Material, p.Thickness));
         foreach (var group in groups) {
@@ -129,9 +140,13 @@ internal class CADCodeProxy : IDisposable {
     }
     */
     
-    private static MaterialGCodeGenerationResult GenerateCodeForMaterialType(InfoFields batchInfoFields, PartGroupKey partGroupKey, Machining.Part[] batchParts, InventoryItem[] inventory, UnitTypes units, CADCodeBootObject bootObj, CADCodeLabelClass labels, CADCodeFileClass files, CADCodeCodeClass code) {
+    private MaterialGCodeGenerationResult GenerateCodeForMaterialType(InfoFields batchInfoFields, PartGroupKey partGroupKey, Machining.Part[] batchParts, InventoryItem[] inventory, UnitTypes units, CADCodeBootObject bootObj, CADCodeLabelClass labels, CADCodeFileClass files, CADCodeCodeClass code) {
 
         var optimizer = CreateOptimizer(bootObj, files);
+
+        if (ProgressEvent is not null) {
+            optimizer.Progress += ProgressEvent.Invoke;
+        }
 
         List<CutlistInventory> sheetStock = inventory.Where(i => i.MaterialName == partGroupKey.MaterialName && i.PanelThickness == partGroupKey.Thickness)
                                                     .Select(i => i.AsCutlistInventory())
@@ -235,6 +250,7 @@ internal class CADCodeProxy : IDisposable {
 
         optimizer.OptimizeError += (l,s) => Console.WriteLine($"[OPTI][ERROR] {l} - {s}");
         optimizer.Progress += (l) => Console.WriteLine($"[OPTI][PROG] {l}");
+        optimizer.ReportedProgress += (int PanelsUsed, ref int PartsToGo) => Console.WriteLine($"[OPTI][PROG] {PanelsUsed} panels used | {PartsToGo} parts left");
 
         optimizer.FileLocations = files;
         optimizer.Settings(100, 20, 1, 12.53, 10, 0f);  // Error 33011 - Did not set optimizer settings `CADCodePanelOptimizer.Settings()`
@@ -250,6 +266,11 @@ internal class CADCodeProxy : IDisposable {
 
         code.MachiningInfo += (i) => Console.WriteLine($"[CODE][INFO] {i}");
         code.MachiningError += (l,s) => Console.WriteLine($"[CODE][ERROR] {l} - {s}");
+        code.StartProcess += (f) => Console.WriteLine($"[CODE][PROC] Process Started {f}");
+        code.Progress += (l) => Console.WriteLine($"[CODE][PROG] {l}");
+        code.PictureFileWritten += (f) => Console.WriteLine($"[CODE] Picture file {f}");
+        code.LastProgramNumberUsed += (n) => Console.WriteLine($"[CODE] Last program number used '{n}'");
+        code.NameChange += (o, n) => Console.WriteLine($"[CODE] Name change {o} => {n}");
 
         string outputDir = Path.Combine(machine.NestOutputDirectory, RemoveInvalidFileNameChars(batchName));
         if (!Directory.Exists(outputDir)) {

@@ -120,8 +120,8 @@ static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Ma
         MaterialName = "1/2\" MDF",
         AvailableQty = 10,
         IsGrained = true,
-        PanelLength = 3000,
-        PanelWidth = 1500,
+        PanelLength = 2464,
+        PanelWidth = 1245,
         PanelThickness = 12.7,
         Priority = 1,
     });
@@ -129,8 +129,8 @@ static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Ma
         MaterialName = "3/4\" MDF",
         AvailableQty = 10,
         IsGrained = true,
-        PanelLength = 3000,
-        PanelWidth = 1500,
+        PanelLength = 2464,
+        PanelWidth = 1245,
         PanelThickness = 19.05,
         Priority = 1,
     });

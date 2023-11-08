@@ -23,7 +23,7 @@ public record InventoryItem {
             Length = PanelLength.ToString(),
             Thickness = PanelThickness.ToString(),
             Priority = Priority.ToString(),
-            Graining = IsGrained ? "Y" : "N",
+            Graining = IsGrained ? "1" : "0",
             Supply = AvailableQty.ToString(),
 
             Trim1 = "7",

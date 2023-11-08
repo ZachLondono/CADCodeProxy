@@ -92,7 +92,7 @@ public class Part {
                 Thickness = (float) Thickness,
                 Material = Material,
                 Units = units,
-                RotationAllowed = IsGrained ? 0 : 1, // This does not seem to have any affect
+                RotationAllowed = IsGrained ? 0 : 90, // The increments which this part is allowed to be rotated 
                 Graining = IsGrained ? "Y" : "N",    // This is the important field required to make sure that the parts are oriented correctly on grained material. The Graining flag on the 'CutListInventory' class seems to have no affect.
                 Rotated = PrimaryFace.IsRotated,
                 Face5Runfield = PrimaryFace.IsMirrored ? "Mirror On" : "",
