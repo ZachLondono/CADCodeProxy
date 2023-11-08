@@ -4,7 +4,6 @@ using CADCodeProxy.Exceptions;
 using CADCodeProxy.Machining;
 using CADCodeProxy.Results;
 using CCWSXML;
-using Microsoft.VisualBasic;
 using System.Runtime.InteropServices;
 
 namespace CADCodeProxy.CADCodeProxy;
@@ -91,6 +90,10 @@ internal class CADCodeProxy : IDisposable {
             code.Progress += ProgressEvent.Invoke;
         }
 
+        if (ErrorEvent is not null) {
+            code.MachiningError += (L, S) => ErrorEvent?.Invoke($"{L} - {S}");
+        }
+
         List<MaterialGCodeGenerationResult> materialResults = new();
         var groups = batch.Parts.GroupBy(p => new PartGroupKey(p.Material, p.Thickness));
         foreach (var group in groups) {
@@ -140,13 +143,16 @@ internal class CADCodeProxy : IDisposable {
 
     }
     */
-    
+
     private MaterialGCodeGenerationResult GenerateCodeForMaterialType(InfoFields batchInfoFields, PartGroupKey partGroupKey, Machining.Part[] batchParts, InventoryItem[] inventory, UnitTypes units, CADCodeBootObject bootObj, CADCodeLabelClass labels, CADCodeFileClass files, CADCodeCodeClass code) {
 
         var optimizer = CreateOptimizer(bootObj, files);
 
         if (ProgressEvent is not null) {
             optimizer.Progress += ProgressEvent.Invoke;
+        }
+        if (ErrorEvent is not null) {
+            optimizer.OptimizeError += (L, S) => ErrorEvent?.Invoke($"{L} - {S}");
         }
 
         List<CutlistInventory> sheetStock = inventory.Where(i => i.MaterialName == partGroupKey.MaterialName && i.PanelThickness == partGroupKey.Thickness)
