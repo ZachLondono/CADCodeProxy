@@ -10,7 +10,6 @@ Console.WriteLine("Generating GCode/CSV Tokens");
 var machines = new List<Machine>() {
     new() {
         Name = "Anderson Stratos",
-        TableOrientation = TableOrientation.Standard,
         NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
         SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
         ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Andi Stratos Royal - Tools from Omni.mdb",
@@ -19,7 +18,6 @@ var machines = new List<Machine>() {
     },
     new() {
         Name = "Omnitech Selexx",
-        TableOrientation = TableOrientation.Rotated,
         NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
         SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
         ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Royal Omnitech Fanuc-Smart names.mdb",
@@ -118,7 +116,7 @@ GenerateGCodeForBatch(batch, generator, machines);
 static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> machines) {
     generator.Inventory.Add(new() {
         MaterialName = "1/2\" MDF",
-        AvailableQty = 10,
+        AvailableQty = 2,
         IsGrained = true,
         PanelLength = 2464,
         PanelWidth = 1245,
@@ -127,7 +125,7 @@ static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Ma
     });
     generator.Inventory.Add(new() {
         MaterialName = "3/4\" MDF",
-        AvailableQty = 10,
+        AvailableQty = 2,
         IsGrained = true,
         PanelLength = 2464,
         PanelWidth = 1245,
