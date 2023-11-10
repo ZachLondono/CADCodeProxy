@@ -39,9 +39,11 @@ internal class CADCodeProxy : IDisposable {
         };
 
         var initResult = _bootObj.Init();
-        
-        if (initResult != 0) {
-            throw new InvalidOperationException($"Could not initialize CADCode - {_bootObj.GetErrorString(initResult)}");
+
+        if (initResult == 33012) {
+            throw new CADCodeAuthorizationException(_bootObj.GetErrorString(initResult));
+        } else if (initResult != 0) {
+            throw new CADCodeInitializationException(initResult, $"Could not initialize CADCode - {_bootObj.GetErrorString(initResult)}");
         }
 
     }
