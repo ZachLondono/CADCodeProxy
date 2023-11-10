@@ -3,7 +3,7 @@ using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
-public class MultiBore : IToken {
+public class MultiBore : IBoringToken {
 
     public string ToolName { get; set; } = string.Empty;
     public double ToolDiameter { get; set; } = 0;
