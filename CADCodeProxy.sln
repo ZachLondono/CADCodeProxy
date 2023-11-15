@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Scripts\PublishNuget.ps1 = Scripts\PublishNuget.ps1
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CADCodeProxy.Unit.Test", "CADCodeProxy.Unit.Test\CADCodeProxy.Unit.Test.csproj", "{E05D24BB-FB25-4C40-B345-A4A805BCA231}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,12 +22,16 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{98FCDCD0-B2B3-4AAE-9579-D16CBF54D909}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{98FCDCD0-B2B3-4AAE-9579-D16CBF54D909}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{98FCDCD0-B2B3-4AAE-9579-D16CBF54D909}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{98FCDCD0-B2B3-4AAE-9579-D16CBF54D909}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98FCDCD0-B2B3-4AAE-9579-D16CBF54D909}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{98FCDCD0-B2B3-4AAE-9579-D16CBF54D909}.Release|Any CPU.Build.0 = Debug|Any CPU
 		{EE5E8939-1362-43F4-8B07-65F95728187D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EE5E8939-1362-43F4-8B07-65F95728187D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EE5E8939-1362-43F4-8B07-65F95728187D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EE5E8939-1362-43F4-8B07-65F95728187D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE5E8939-1362-43F4-8B07-65F95728187D}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE5E8939-1362-43F4-8B07-65F95728187D}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{E05D24BB-FB25-4C40-B345-A4A805BCA231}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E05D24BB-FB25-4C40-B345-A4A805BCA231}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E05D24BB-FB25-4C40-B345-A4A805BCA231}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E05D24BB-FB25-4C40-B345-A4A805BCA231}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
