@@ -1,9 +1,11 @@
 ﻿using CADCode;
+using CADCodeProxy.CADCodeProxy;
 using CADCodeProxy.CSV;
+using CADCodeProxy.Enums;
 
 namespace CADCodeProxy.Machining;
 
-public class Pocket : IToken {
+public class Rectangle : IToken {
 
     public required string ToolName { get; set; }
     public required Point CornerA { get; set; }
@@ -12,39 +14,98 @@ public class Pocket : IToken {
     public required Point CornerD { get; set; }
     public required double StartDepth { get; set; }
     public required double EndDepth { get; set; }
+    public Offset Offset { get; set; } = Offset.Center; // TODO: figure out how to handle inside and outside
     public int SequenceNumber { get; set; } = 0;
     public int NumberOfPasses { get; set; } = 0;
 
     void IToken.AddToCode(CADCodeCodeClass code) {
 
-        code.Pocket((float) CornerA.X,
-                    (float) CornerA.Y,
-                    (float) CornerB.X,
-                    (float) CornerB.Y,
-                    (float) CornerC.X,
-                    (float) CornerC.Y,
-                    (float) CornerD.X,
-                    (float) CornerD.Y,
-                    (float) StartDepth,
-                    (float) EndDepth,
-                    ToolName,
-                    FaceTypes.CC_UPPER_FACE,
-                    0f,
-                    0f,
-                    0f,
-                    0f,
-                    "",
-                    SequenceNumber,
-                    0,
-                    NumberOfPasses: NumberOfPasses
-            );
+        code.RouteLine((float) CornerA.X,
+                       (float) CornerA.Y,
+                       (float) StartDepth,
+                       (float) CornerB.X,
+                       (float) CornerB.Y,
+                       (float) EndDepth,
+                       ToolName,
+                       0f,
+                       Offset.AsCCOffset(),
+                       0f,
+                       RotationTypes.CC_ROTATION_AUTO,
+                       FaceTypes.CC_UPPER_FACE,
+                       0f,
+                       0f,
+                       0f,
+                       0f,
+                       "",
+                       SequenceNumber,
+                       NumberOfPasses: NumberOfPasses);
+
+        code.RouteLine((float) CornerB.X,
+                       (float) CornerB.Y,
+                       (float) StartDepth,
+                       (float) CornerC.X,
+                       (float) CornerC.Y,
+                       (float) EndDepth,
+                       ToolName,
+                       0f,
+                       Offset.AsCCOffset(),
+                       0f,
+                       RotationTypes.CC_ROTATION_AUTO,
+                       FaceTypes.CC_UPPER_FACE,
+                       0f,
+                       0f,
+                       0f,
+                       0f,
+                       "",
+                       SequenceNumber,
+                       NumberOfPasses: NumberOfPasses);
+
+        code.RouteLine((float) CornerC.X,
+                       (float) CornerC.Y,
+                       (float) StartDepth,
+                       (float) CornerD.X,
+                       (float) CornerD.Y,
+                       (float) EndDepth,
+                       ToolName,
+                       0f,
+                       Offset.AsCCOffset(),
+                       0f,
+                       RotationTypes.CC_ROTATION_AUTO,
+                       FaceTypes.CC_UPPER_FACE,
+                       0f,
+                       0f,
+                       0f,
+                       0f,
+                       "",
+                       SequenceNumber,
+                       NumberOfPasses: NumberOfPasses);
+
+        code.RouteLine((float) CornerD.X,
+                       (float) CornerD.Y,
+                       (float) StartDepth,
+                       (float) CornerA.X,
+                       (float) CornerA.Y,
+                       (float) EndDepth,
+                       ToolName,
+                       0f,
+                       Offset.AsCCOffset(),
+                       0f,
+                       RotationTypes.CC_ROTATION_AUTO,
+                       FaceTypes.CC_UPPER_FACE,
+                       0f,
+                       0f,
+                       0f,
+                       0f,
+                       "",
+                       SequenceNumber,
+                       NumberOfPasses: NumberOfPasses);
 
     }
 
     TokenRecord IToken.ToTokenRecord() {
 
         return new() {
-            Name = "Pocket",
+            Name = "Rectangle",
             StartX = CornerA.X.ToString(),
             StartY = CornerA.Y.ToString(),
             StartZ = StartDepth.ToString(),
@@ -55,6 +116,7 @@ public class Pocket : IToken {
             CenterY = CornerC.Y.ToString(),
             PocketX = CornerD.X.ToString(),
             PocketY = CornerD.Y.ToString(),
+            OffsetSide = Offset.ToCSVCode(),
             ToolName = ToolName,
             SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
             NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString()
@@ -62,7 +124,7 @@ public class Pocket : IToken {
 
     }
 
-    internal static Pocket FromTokenRecord(TokenRecord tokenRecord) {
+    internal static Rectangle FromTokenRecord(TokenRecord tokenRecord) {
 
         if (!double.TryParse(tokenRecord.StartX, out double startX)) {
             throw new InvalidOperationException("Start X value not specified or invalid for Bore operation");
@@ -112,6 +174,8 @@ public class Pocket : IToken {
             numberOfPasses = 0;
         }
 
+        Offset offset = OffsetExtension.FromCSVCode(tokenRecord.OffsetSide);
+
         return new() {
             ToolName = tokenRecord.ToolName,
             CornerA = new(startX, startY),
@@ -120,6 +184,7 @@ public class Pocket : IToken {
             CornerD = new(pocketX, pocketY),
             StartDepth = startDepth,
             EndDepth = endDepth,
+            Offset = offset, 
             SequenceNumber = sequenceNum,
             NumberOfPasses = numberOfPasses
         };

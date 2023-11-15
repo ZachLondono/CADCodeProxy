@@ -74,4 +74,63 @@ public class Arc : IToken {
 
     }
 
+    internal static Arc FromTokenRecord(TokenRecord tokenRecord) {
+ 
+        if (!double.TryParse(tokenRecord.StartX, out double startX)) {
+            throw new InvalidOperationException("Start X value not specified or invalid for Bore operation");
+        }
+
+        if (!double.TryParse(tokenRecord.EndX, out double startY)) {
+            throw new InvalidOperationException("Start Y value not specified or invalid for Bore operation");
+        }
+
+        if (!double.TryParse(tokenRecord.EndX, out double endX)) {
+            throw new InvalidOperationException("End X value not specified or invalid for Bore operation");
+        }
+
+        if (!double.TryParse(tokenRecord.EndY, out double endY)) {
+            throw new InvalidOperationException("End Y value not specified or invalid for Bore operation");
+        }
+
+        if (!double.TryParse(tokenRecord.StartZ, out double startDepth)) {
+            throw new InvalidOperationException("Start Z value not specified or invalid for Bore operation");
+        }
+
+        if (!double.TryParse(tokenRecord.EndZ, out double endDepth)) {
+            throw new InvalidOperationException("End Z value not specified or invalid for Bore operation");
+        }
+
+        if (!double.TryParse(tokenRecord.Radius, out double radius)) {
+            throw new InvalidOperationException("Radius value not specified or invalid for Bore operation");
+        }
+
+        if (!int.TryParse(tokenRecord.SequenceNum, out int sequenceNum)) {
+            sequenceNum = 0;
+        }
+
+        if (!int.TryParse(tokenRecord.NumberOfPasses, out int numberOfPasses)) {
+            numberOfPasses = 0;
+        }
+
+        if (!double.TryParse(tokenRecord.ToolDiameter, out double toolDiameter)) {
+            throw new InvalidOperationException("Tool value not specified or invalid for Bore operation");
+        }
+
+        Offset offset = OffsetExtension.FromCSVCode(tokenRecord.OffsetSide);
+
+        return new() {
+            ToolName = tokenRecord.ToolName,
+            Start = new(startX, startY),
+            End = new(endX, endY),
+            Radius = radius,
+            StartDepth = startDepth,
+            EndDepth = endDepth,
+            Direction = ArcDirection.Unknown, // TODO: read arc direction
+            Offset = offset,
+            SequenceNumber = sequenceNum,
+            NumberOfPasses = numberOfPasses
+        };
+
+    }
+
 }

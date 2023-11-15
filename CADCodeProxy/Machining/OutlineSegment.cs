@@ -50,4 +50,51 @@ public class OutlineSegment : IToken {
         };
 
     }
+
+    internal static OutlineSegment FromTokenRecord(TokenRecord tokenRecord) {
+
+        if (!double.TryParse(tokenRecord.StartX, out double startX)) {
+            throw new InvalidOperationException("Start X value not specified or invalid for Bore operation");
+        }
+
+        if (!double.TryParse(tokenRecord.StartY, out double startY)) {
+            throw new InvalidOperationException("Start Y value not specified or invalid for Bore operation");
+        }
+
+        if (!double.TryParse(tokenRecord.EndX, out double endX)) {
+            throw new InvalidOperationException("End X value not specified or invalid for Bore operation");
+        }
+
+        if (!double.TryParse(tokenRecord.EndY, out double endY)) {
+            throw new InvalidOperationException("End Y value not specified or invalid for Bore operation");
+        }
+
+        if (!double.TryParse(tokenRecord.StartZ, out double startDepth)) {
+            throw new InvalidOperationException("Start Z value not specified or invalid for Bore operation");
+        }
+
+        if (!double.TryParse(tokenRecord.EndZ, out double endDepth)) {
+            throw new InvalidOperationException("End Z value not specified or invalid for Bore operation");
+        }
+
+        if (!int.TryParse(tokenRecord.SequenceNum, out int sequenceNum)) {
+            sequenceNum = 0;
+        }
+
+        if (!int.TryParse(tokenRecord.NumberOfPasses, out int numberOfPasses)) {
+            numberOfPasses = 0;
+        }
+
+        return new() {
+            ToolName = tokenRecord.ToolName,
+            Start = new(startX, startY),
+            End = new(endX, endY),
+            StartDepth = startDepth,
+            EndDepth = endDepth,
+            SequenceNumber = sequenceNum,
+            NumberOfPasses = numberOfPasses
+        };
+
+    }
+
 }

@@ -216,7 +216,7 @@ public class Part {
 
         };
 
-        var tokenRecords = face.Tokens.Select(t => t.ToTokenRecord());
+        var tokenRecords = face.Tokens.Select(t => t.ToTokenRecord()).ToList();
 
         return new() {
             PartRecord = partRecord,

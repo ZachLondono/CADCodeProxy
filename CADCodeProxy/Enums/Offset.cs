@@ -21,4 +21,14 @@ public static class OffsetExtension {
         _ => ""
     };
 
+    public static Offset FromCSVCode(string code) => code switch {
+        "L" => Offset.Left,
+        "R" => Offset.Right,
+        "I" => Offset.Inside,
+        "O" => Offset.Outside,
+        "C" => Offset.Center,
+        "" => Offset.None,
+        _ => throw new InvalidOperationException("")
+    };
+
 }
