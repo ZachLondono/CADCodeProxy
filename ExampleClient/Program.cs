@@ -1,12 +1,29 @@
 ﻿using CADCodeProxy;
 using CADCodeProxy.CNC;
 using CADCodeProxy.CSV;
-using CADCodeProxy.Enums;
 using CADCodeProxy.Exceptions;
 using CADCodeProxy.Machining;
 
-Console.WriteLine("Generating GCode/CSV Tokens");
+var reader = new CSVTokenReader();
+var batches = reader.ReadBatchCSV(@"R:\Door Orders\CC Input\Test - DoorTokens.csv");
 
+Console.WriteLine($"Read '{batches.Count()}' batches");
+foreach (var batch in batches) {
+    Console.WriteLine(batch.Name);
+    Console.WriteLine($"Info ({batch.InfoFields.Count()}):");
+    foreach (var field in batch.InfoFields) {
+        Console.WriteLine($"\t{field.Key} => {field.Value}");
+    }
+    Console.WriteLine($"Parts ({batch.Parts.Count()}):");
+    foreach (var part in batch.Parts) {
+        Console.WriteLine($"\t{part.Qty}");
+        Console.WriteLine($"\t{part.Width}");
+        Console.WriteLine($"\t{part.Length}");
+        Console.WriteLine($"\t{part.Material}");
+    }
+}
+
+/*
 var machines = new List<Machine>() {
     new() {
         Name = "Anderson Stratos",
@@ -25,13 +42,82 @@ var machines = new List<Machine>() {
         LabelDatabaseOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
     }
 };
+Batch batch = CreateBatch();
 
-var batch = new Batch() {
-    Name = "Test Batch",
-    InfoFields = new() {
+var generator = new GCodeGenerator(LinearUnits.Millimeters);
+GenerateGCodeForBatch(batch, generator, machines);
+//WriteBatchToCSVFile(batch, @"R:\Door Orders\CC Input");
+*/
+
+static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> machines) {
+    generator.Inventory.Add(new() {
+        MaterialName = "1/2\" MDF",
+        AvailableQty = 2,
+        IsGrained = true,
+        PanelLength = 2464,
+        PanelWidth = 1245,
+        PanelThickness = 12.7,
+        Priority = 1,
+    });
+    generator.Inventory.Add(new() {
+        MaterialName = "3/4\" MDF",
+        AvailableQty = 2,
+        IsGrained = true,
+        PanelLength = 2464,
+        PanelWidth = 1245,
+        PanelThickness = 19.05,
+        Priority = 1,
+    });
+
+    try {
+
+        var result = generator.GeneratePrograms(machines, batch, @"C:\Users\Zachary Londono\Desktop\CC Output\reports");
+        //var result = generator.GenerateProgramFromWSXMLFile(@"C:\Users\Zachary Londono\Desktop\WSXML\WSXML Drawing\Draw 05-31-2023-V11\testjob.xml", machines.First());
+
+        Console.WriteLine($"Report: {result.WinStepReportFilePath}");
+        foreach (var machineResult in result.MachineResults) {
+            Console.WriteLine("====================");
+            Console.WriteLine($"Machine: {machineResult.MachineName}");
+            foreach (var matResult in machineResult.MaterialGCodeGenerationResults) {
+                Console.WriteLine($"Material: {matResult.MaterialName} {matResult.MaterialThickness}");
+                Console.WriteLine($"\tUnplaced parts ({matResult.UnplacedParts.Length})");
+                Console.WriteLine($"\tUsed Inventory ({matResult.UsedInventory.Length}):");
+                Console.WriteLine($"\tPlaced Parts ({matResult.PlacedParts.Length}):");
+                foreach (var inv in matResult.UsedInventory) {
+                    Console.WriteLine($"\t\tG: {inv.IsGrained}");
+                }
+            }
+            Console.WriteLine("====================");
+        }
+
+    } catch (CADCodeAuthorizationException ex) {
+
+        Console.WriteLine("Could not get authorization to use CADCode");
+        Console.Write(ex);
+
+    }
+
+    Console.Read();
+
+}
+
+static void WriteBatchToCSVFile(Batch batch, string directory) {
+
+    var writer = new CSVTokenWriter();
+
+    var file = writer.WriteBatchCSV(batch, directory);
+
+    Console.WriteLine($"File written to '{file}'");
+
+}
+
+static Batch CreateBatch() {
+    return new Batch() {
+        Name = "Test Batch",
+        InfoFields = new() {
         { "Field", "Value" }
     },
-    Parts = new Part[] {
+        Parts = new Part[] {
         new() {
             Qty = 1,
             Material = "3/4\" MDF",
@@ -107,71 +193,5 @@ var batch = new Batch() {
             SecondaryFace = null
         }
     }
-};
-
-var generator = new GCodeGenerator(LinearUnits.Millimeters);
-GenerateGCodeForBatch(batch, generator, machines);
-//WriteBatchToCSVFile(batch, @"R:\Door Orders\CC Input");
-
-static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> machines) {
-    generator.Inventory.Add(new() {
-        MaterialName = "1/2\" MDF",
-        AvailableQty = 2,
-        IsGrained = true,
-        PanelLength = 2464,
-        PanelWidth = 1245,
-        PanelThickness = 12.7,
-        Priority = 1,
-    });
-    generator.Inventory.Add(new() {
-        MaterialName = "3/4\" MDF",
-        AvailableQty = 2,
-        IsGrained = true,
-        PanelLength = 2464,
-        PanelWidth = 1245,
-        PanelThickness = 19.05,
-        Priority = 1,
-    });
-
-    try {
-
-        var result = generator.GeneratePrograms(machines, batch, @"C:\Users\Zachary Londono\Desktop\CC Output\reports");
-        //var result = generator.GenerateProgramFromWSXMLFile(@"C:\Users\Zachary Londono\Desktop\WSXML\WSXML Drawing\Draw 05-31-2023-V11\testjob.xml", machines.First());
-
-        Console.WriteLine($"Report: {result.WinStepReportFilePath}");
-        foreach (var machineResult in result.MachineResults) {
-            Console.WriteLine("====================");
-            Console.WriteLine($"Machine: {machineResult.MachineName}");
-            foreach (var matResult in machineResult.MaterialGCodeGenerationResults) {
-                Console.WriteLine($"Material: {matResult.MaterialName} {matResult.MaterialThickness}");
-                Console.WriteLine($"\tUnplaced parts ({matResult.UnplacedParts.Length})");
-                Console.WriteLine($"\tUsed Inventory ({matResult.UsedInventory.Length}):");
-                Console.WriteLine($"\tPlaced Parts ({matResult.PlacedParts.Length}):");
-                foreach (var inv in matResult.UsedInventory) {
-                    Console.WriteLine($"\t\tG: {inv.IsGrained}");
-                }
-            }
-            Console.WriteLine("====================");
-        }
-
-    } catch (CADCodeAuthorizationException ex) {
-
-        Console.WriteLine("Could not get authorization to use CADCode");
-        Console.Write(ex);
-
-    }
-
-    Console.Read();
-
+    };
 }
-
-static void WriteBatchToCSVFile(Batch batch, string directory) {
-
-    var writer = new CSVTokenWriter();
-
-    var file = writer.WriteBatchCSV(batch, directory);
-
-    Console.WriteLine($"File written to '{file}'");
-
-}
-
