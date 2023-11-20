@@ -79,6 +79,17 @@ public class CSVTokenReader {
                             IsMirrored = (record.PartRecord.Mirror.Equals("Y", StringComparison.InvariantCultureIgnoreCase) || record.PartRecord.Mirror.Equals("mirr on", StringComparison.InvariantCultureIgnoreCase)),
                             IsRotated = record.PartRecord.Rotation.Equals("Y", StringComparison.InvariantCultureIgnoreCase),
                             Tokens = tokens
+                        },
+                        InfoFields = new() {
+                            { "CustomerInfo1", record.PartRecord.CustomerInfo1 },
+                            { "Level1", record.PartRecord.Level1 },
+                            { "Comment1", record.PartRecord.Comment1 },
+                            { "Comment2", record.PartRecord.Comment2 },
+                            { "Side1Color", record.PartRecord.Side1Color },
+                            { "Side1Material", record.PartRecord.Side1Material },
+                            { "CabinetNumber", record.PartRecord.CabinetNumber },
+                            { "ProductName", record.PartRecord.ProductName },
+                            { "Description", record.PartRecord.Description }
                         }
                     };
                 }).ToArray();
