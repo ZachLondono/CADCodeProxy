@@ -27,14 +27,14 @@ public class Part {
         float length = (float)Length;
 
         code.NestedPart(width, length, OriginType.CC_LL, PrimaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, 0);
-        foreach (var token in PrimaryFace.Tokens) {
-            token.AddToCode(code);
+        foreach (var operation in PrimaryFace.GetMachiningOperations()) {
+            operation.AddToCode(code);
         }
 
         if (SecondaryFace is not null) {
             code.NestedPart(width, length, OriginType.CC_LL, SecondaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, 0);
-            foreach (var token in SecondaryFace.Tokens) {
-                token.AddToCode(code);
+            foreach (var operation in SecondaryFace.GetMachiningOperations()) {
+                operation.AddToCode(code);
             }
         }
 
@@ -48,8 +48,8 @@ public class Part {
 
         code.Border(width, length, thickness, units, OriginType.CC_LL, PrimaryFace.ProgramName, AxisTypes.CC_X_AXIS);
 
-        foreach (var token in PrimaryFace.Tokens) {
-            token.AddToCode(code);
+        foreach (var operation in PrimaryFace.GetMachiningOperations()) {
+            operation.AddToCode(code);
         }
 
         code.EndPanel();

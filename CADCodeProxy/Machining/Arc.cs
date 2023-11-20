@@ -5,7 +5,7 @@ using CADCodeProxy.Enums;
 
 namespace CADCodeProxy.Machining;
 
-public class Arc : IToken {
+public class Arc : IToken, IMachiningOperation {
 
     public required string ToolName { get; set; }
     public required Point Start { get; set; }
@@ -20,7 +20,7 @@ public class Arc : IToken {
     public double FeedSpeed { get; set; } = 0;
     public double SpindleSpeed { get; set; } = 0;
 
-    void IToken.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 
         code.RouteArc(StartX: (float) Start.X,
                         StartY: (float) Start.Y,

@@ -3,7 +3,7 @@ using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
-public class OutlineSegment : IToken {
+public class OutlineSegment : IToken, IMachiningOperation {
 
     public required string ToolName { get; set; }
     public required Point Start { get; set; }
@@ -15,7 +15,7 @@ public class OutlineSegment : IToken {
     public double FeedSpeed { get; set; } = 0;
     public double SpindleSpeed { get; set; } = 0;
 
-    void IToken.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 
         code.DefineOutLine(
                             StartX: (float) Start.X,

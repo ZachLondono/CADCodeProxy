@@ -3,7 +3,7 @@ using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
-public class Pocket : IToken {
+public class Pocket : IToken, IMachiningOperation {
 
     // TODO: Create Circular Pocket and Free Pocket Segment tokens
 
@@ -19,7 +19,7 @@ public class Pocket : IToken {
     public double FeedSpeed { get; set; } = 0;
     public double SpindleSpeed { get; set; } = 0;
 
-    void IToken.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 
         code.Pocket((float) CornerA.X,
                     (float) CornerA.Y,

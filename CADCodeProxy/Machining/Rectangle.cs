@@ -5,7 +5,7 @@ using CADCodeProxy.Enums;
 
 namespace CADCodeProxy.Machining;
 
-public class Rectangle : IToken {
+public class Rectangle : IToken, IMachiningOperation {
 
     public required string ToolName { get; set; }
     public required Point CornerA { get; set; }
@@ -22,7 +22,7 @@ public class Rectangle : IToken {
 
     public double Radius { get; set; } = 0;
 
-    void IToken.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 
         if (Radius != 0) {
             throw new NotImplementedException("Radiused rectangle not yet supported");

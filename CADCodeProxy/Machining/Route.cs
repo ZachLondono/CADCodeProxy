@@ -5,7 +5,7 @@ using CADCodeProxy.Enums;
 
 namespace CADCodeProxy.Machining;
 
-public class Route : IToken {
+public class Route : IToken, IMachiningOperation {
 
     public required string ToolName { get; set; }
     public required Point Start { get; set; }
@@ -18,7 +18,7 @@ public class Route : IToken {
     public double FeedSpeed { get; set; } = 0;
     public double SpindleSpeed { get; set; } = 0;
 
-    void IToken.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 
         code.RouteLine((float) Start.X,
                        (float) Start.Y,

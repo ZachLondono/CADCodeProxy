@@ -3,7 +3,7 @@ using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
-public class MultiBore : IBoringToken {
+public class MultiBore : IBoringToken, IMachiningOperation {
 
     public string ToolName { get; set; } = string.Empty;
     public double ToolDiameter { get; set; } = 0;
@@ -63,7 +63,7 @@ public class MultiBore : IBoringToken {
         NumberOfPasses = numberOfPasses;
     }
 
-    void IToken.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 
         code.MultiBore((float)Start.X,
                         (float)Start.Y,

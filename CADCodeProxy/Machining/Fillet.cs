@@ -1,5 +1,4 @@
-﻿using CADCode;
-using CADCodeProxy.CSV;
+﻿using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
@@ -8,11 +7,6 @@ public class Fillet : IToken {
     // TODO: get rid of ToolName
     public string ToolName { get; set; } = "";
     public required double Radius { get; set; } = 0;
-
-    void IToken.AddToCode(CADCodeCodeClass code) {
-        // TODO: Fillet should not be a normal token since it does not map to a CADCode operation. It is more of a "MetaToken" that provides information to other adjacent tokens.
-        throw new NotImplementedException();
-    }
 
     TokenRecord IToken.ToTokenRecord() {
         
