@@ -4,8 +4,6 @@ namespace CADCodeProxy.Machining;
 
 public class Fillet : IToken {
 
-    // TODO: get rid of ToolName
-    public string ToolName { get; set; } = "";
     public required double Radius { get; set; } = 0;
 
     TokenRecord IToken.ToTokenRecord() {
