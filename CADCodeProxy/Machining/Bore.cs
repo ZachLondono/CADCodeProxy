@@ -65,11 +65,15 @@ public class Bore : IBoringToken {
 
     internal static Bore FromTokenRecord(TokenRecord tokenRecord) {
 
+        if (!tokenRecord.Name.Equals("bore", StringComparison.InvariantCultureIgnoreCase)) {
+            throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to bore.");
+        }
+
         if (!double.TryParse(tokenRecord.StartX, out double startX)) {
             throw new InvalidOperationException("Start X value not specified or invalid for Bore operation");
         }
 
-        if (!double.TryParse(tokenRecord.StartX, out double startY)) {
+        if (!double.TryParse(tokenRecord.StartY, out double startY)) {
             throw new InvalidOperationException("Start Y value not specified or invalid for Bore operation");
         }
 

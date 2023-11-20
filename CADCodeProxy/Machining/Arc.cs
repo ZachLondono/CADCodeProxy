@@ -17,6 +17,8 @@ public class Arc : IToken {
     public Offset Offset { get; set; } = Offset.Center;
     public int SequenceNumber { get; set; } = 0;
     public int NumberOfPasses { get; set; } = 0;
+    public double FeedSpeed { get; set; } = 0;
+    public double SpindleSpeed { get; set; } = 0;
 
     void IToken.AddToCode(CADCodeCodeClass code) {
 
@@ -32,9 +34,9 @@ public class Arc : IToken {
                         OffsetAmount: 0,
                         ToolRotation: RotationTypes.CC_ROTATION_AUTO,
                         Face: 0,
-                        FeedSpeed: 0,
+                        FeedSpeed: (float) FeedSpeed,
                         EntrySpeed: 0,
-                        SpindleSpeed: 0,
+                        SpindleSpeed: (float) SpindleSpeed,
                         CornerFeed: 0,
                         RType: "",
                         CenterX: 0,
@@ -51,14 +53,14 @@ public class Arc : IToken {
 
     TokenRecord IToken.ToTokenRecord() {
 
-        string name = Direction switch {
-            ArcDirection.ClockWise => "CWArc",
-            ArcDirection.CounterClockWise => "CCWArc",
+        string direction = Direction switch {
+            ArcDirection.ClockWise => "CW",
+            ArcDirection.CounterClockWise => "CCW",
             _ => throw new InvalidOperationException("Arc direction must be specified") 
         };
 
         return new() {
-            Name = name,
+            Name = "Arc",
             StartX = Start.X.ToString(),
             StartY = Start.Y.ToString(),
             StartZ = StartDepth.ToString(),
@@ -68,19 +70,28 @@ public class Arc : IToken {
             Radius = Radius.ToString(),
             OffsetSide = Offset.ToCSVCode(),
             ToolName = ToolName,
+            ArcDirection = direction,
             SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
-            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString()
+            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString(),
+            FeedSpeed = FeedSpeed.ToString(),
+            SpindleSpeed = SpindleSpeed.ToString(),
         };
 
     }
 
     internal static Arc FromTokenRecord(TokenRecord tokenRecord) {
+        
+        if (!tokenRecord.Name.Equals("arc", StringComparison.InvariantCultureIgnoreCase)
+            && !tokenRecord.Name.Equals("cwarc", StringComparison.InvariantCultureIgnoreCase)
+            && !tokenRecord.Name.Equals("ccwarc", StringComparison.InvariantCultureIgnoreCase)) {
+            throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to arc.");
+        }
  
         if (!double.TryParse(tokenRecord.StartX, out double startX)) {
             throw new InvalidOperationException("Start X value not specified or invalid for Bore operation");
         }
 
-        if (!double.TryParse(tokenRecord.EndX, out double startY)) {
+        if (!double.TryParse(tokenRecord.StartY, out double startY)) {
             throw new InvalidOperationException("Start Y value not specified or invalid for Bore operation");
         }
 
@@ -112,7 +123,26 @@ public class Arc : IToken {
             numberOfPasses = 0;
         }
 
+        if (!double.TryParse(tokenRecord.FeedSpeed, out double feedSpeed)) {
+            feedSpeed = 0;
+        }
+
+        if (!double.TryParse(tokenRecord.SpindleSpeed, out double spindleSpeed)) {
+            spindleSpeed = 0;
+        }
+
         Offset offset = OffsetExtension.FromCSVCode(tokenRecord.OffsetSide);
+
+        var arcDirection = tokenRecord.Name.ToLower() switch {
+            "cwarc" => ArcDirection.ClockWise,
+            "ccwarc" => ArcDirection.CounterClockWise,
+            "arc" => tokenRecord.ArcDirection.ToLower() switch {
+                "cw" => ArcDirection.ClockWise,
+                "ccw" => ArcDirection.CounterClockWise,
+                _ => ArcDirection.Unknown
+            },
+            _ => ArcDirection.Unknown
+        };
 
         return new() {
             ToolName = tokenRecord.ToolName,
@@ -121,10 +151,12 @@ public class Arc : IToken {
             Radius = radius,
             StartDepth = startDepth,
             EndDepth = endDepth,
-            Direction = ArcDirection.Unknown, // TODO: read arc direction either from field or from token name
+            Direction = arcDirection,
             Offset = offset,
             SequenceNumber = sequenceNum,
-            NumberOfPasses = numberOfPasses
+            NumberOfPasses = numberOfPasses,
+            FeedSpeed = feedSpeed,
+            SpindleSpeed = spindleSpeed
         };
 
     }

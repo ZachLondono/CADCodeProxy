@@ -15,6 +15,8 @@ public class Route : IToken {
     public Offset Offset { get; set; } = Offset.Center;
     public int SequenceNumber { get; set; } = 0;
     public int NumberOfPasses { get; set; } = 0;
+    public double FeedSpeed { get; set; } = 0;
+    public double SpindleSpeed { get; set; } = 0;
 
     void IToken.AddToCode(CADCodeCodeClass code) {
 
@@ -30,9 +32,9 @@ public class Route : IToken {
                        0f,
                        RotationTypes.CC_ROTATION_AUTO,
                        FaceTypes.CC_UPPER_FACE,
+                       (float) FeedSpeed,
                        0f,
-                       0f,
-                       0f,
+                       (float) SpindleSpeed,
                        0f,
                        "",
                        SequenceNumber,
@@ -53,18 +55,24 @@ public class Route : IToken {
             OffsetSide = Offset.ToCSVCode(),
             ToolName = ToolName,
             SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
-            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString()
+            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString(),
+            FeedSpeed = FeedSpeed.ToString(),
+            SpindleSpeed = SpindleSpeed.ToString()
         };
 
     }
 
     internal static Route FromTokenRecord(TokenRecord tokenRecord) {
 
+        if (!tokenRecord.Name.Equals("route", StringComparison.InvariantCultureIgnoreCase)) {
+            throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to route.");
+        }
+
         if (!double.TryParse(tokenRecord.StartX, out double startX)) {
             throw new InvalidOperationException("Start X value not specified or invalid for Bore operation");
         }
 
-        if (!double.TryParse(tokenRecord.EndX, out double startY)) {
+        if (!double.TryParse(tokenRecord.StartY, out double startY)) {
             throw new InvalidOperationException("Start Y value not specified or invalid for Bore operation");
         }
 
@@ -92,6 +100,14 @@ public class Route : IToken {
             numberOfPasses = 0;
         }
 
+        if (!double.TryParse(tokenRecord.FeedSpeed, out double feedSpeed)) {
+            feedSpeed = 0;
+        }
+
+        if (!double.TryParse(tokenRecord.SpindleSpeed, out double spindleSpeed)) {
+            spindleSpeed = 0;
+        }
+
         Offset offset = OffsetExtension.FromCSVCode(tokenRecord.OffsetSide);
 
         return new() {
@@ -102,7 +118,9 @@ public class Route : IToken {
             EndDepth = endDepth,
             Offset = offset,
             SequenceNumber = sequenceNum,
-            NumberOfPasses = numberOfPasses
+            NumberOfPasses = numberOfPasses,
+            FeedSpeed = feedSpeed,
+            SpindleSpeed = spindleSpeed
         };
 
     }

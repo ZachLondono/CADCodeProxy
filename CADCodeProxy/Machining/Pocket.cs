@@ -5,6 +5,8 @@ namespace CADCodeProxy.Machining;
 
 public class Pocket : IToken {
 
+    // TODO: Create Circular Pocket and Free Pocket Segment tokens
+
     public required string ToolName { get; set; }
     public required Point CornerA { get; set; }
     public required Point CornerB { get; set; }
@@ -14,6 +16,8 @@ public class Pocket : IToken {
     public required double EndDepth { get; set; }
     public int SequenceNumber { get; set; } = 0;
     public int NumberOfPasses { get; set; } = 0;
+    public double FeedSpeed { get; set; } = 0;
+    public double SpindleSpeed { get; set; } = 0;
 
     void IToken.AddToCode(CADCodeCodeClass code) {
 
@@ -29,9 +33,9 @@ public class Pocket : IToken {
                     (float) EndDepth,
                     ToolName,
                     FaceTypes.CC_UPPER_FACE,
+                    (float) FeedSpeed,
                     0f,
-                    0f,
-                    0f,
+                    (float) SpindleSpeed,
                     0f,
                     "",
                     SequenceNumber,
@@ -57,12 +61,18 @@ public class Pocket : IToken {
             PocketY = CornerD.Y.ToString(),
             ToolName = ToolName,
             SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
-            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString()
+            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString(),
+            FeedSpeed = FeedSpeed.ToString(),
+            SpindleSpeed = SpindleSpeed.ToString()
         };
 
     }
 
     internal static Pocket FromTokenRecord(TokenRecord tokenRecord) {
+
+        if (!tokenRecord.Name.Equals("pocket", StringComparison.InvariantCultureIgnoreCase)) {
+            throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to pocket.");
+        }
 
         if (!double.TryParse(tokenRecord.StartX, out double startX)) {
             throw new InvalidOperationException("Start X value not specified or invalid for Bore operation");
@@ -112,6 +122,14 @@ public class Pocket : IToken {
             numberOfPasses = 0;
         }
 
+        if (!double.TryParse(tokenRecord.FeedSpeed, out double feedSpeed)) {
+            feedSpeed = 0;
+        }
+
+        if (!double.TryParse(tokenRecord.SpindleSpeed, out double spindleSpeed)) {
+            spindleSpeed = 0;
+        }
+
         return new() {
             ToolName = tokenRecord.ToolName,
             CornerA = new(startX, startY),
@@ -121,7 +139,9 @@ public class Pocket : IToken {
             StartDepth = startDepth,
             EndDepth = endDepth,
             SequenceNumber = sequenceNum,
-            NumberOfPasses = numberOfPasses
+            NumberOfPasses = numberOfPasses,
+            FeedSpeed = feedSpeed,
+            SpindleSpeed = spindleSpeed
         };
 
     }

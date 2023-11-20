@@ -104,11 +104,15 @@ public class MultiBore : IBoringToken {
 
     internal static MultiBore FromTokenRecord(TokenRecord tokenRecord) {
 
+        if (!tokenRecord.Name.Equals("multibore", StringComparison.InvariantCultureIgnoreCase)) {
+            throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to multibore.");
+        }
+
         if (!double.TryParse(tokenRecord.StartX, out double startX)) {
             throw new InvalidOperationException("Start X value not specified or invalid for Bore operation");
         }
 
-        if (!double.TryParse(tokenRecord.StartX, out double startY)) {
+        if (!double.TryParse(tokenRecord.StartY, out double startY)) {
             throw new InvalidOperationException("Start Y value not specified or invalid for Bore operation");
         }
 
@@ -116,7 +120,7 @@ public class MultiBore : IBoringToken {
             throw new InvalidOperationException("End X value not specified or invalid for Bore operation");
         }
 
-        if (!double.TryParse(tokenRecord.EndX, out double endY)) {
+        if (!double.TryParse(tokenRecord.EndY, out double endY)) {
             throw new InvalidOperationException("End Y value not specified or invalid for Bore operation");
         }
         

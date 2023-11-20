@@ -17,9 +17,18 @@ public class Rectangle : IToken {
     public Offset Offset { get; set; } = Offset.Center; // TODO: figure out how to handle inside and outside
     public int SequenceNumber { get; set; } = 0;
     public int NumberOfPasses { get; set; } = 0;
+    public double FeedSpeed { get; set; } = 0;
+    public double SpindleSpeed { get; set; } = 0;
+
+    public double Radius { get; set; } = 0;
 
     void IToken.AddToCode(CADCodeCodeClass code) {
 
+        if (Radius != 0) {
+            throw new NotImplementedException("Radiused rectangle not yet supported");
+        }
+
+        // TODO: implement rectangle radius
         code.RouteLine((float) CornerA.X,
                        (float) CornerA.Y,
                        (float) StartDepth,
@@ -32,13 +41,13 @@ public class Rectangle : IToken {
                        0f,
                        RotationTypes.CC_ROTATION_AUTO,
                        FaceTypes.CC_UPPER_FACE,
+                       (float) FeedSpeed,
                        0f,
-                       0f,
-                       0f,
+                       (float) SpindleSpeed,
                        0f,
                        "",
                        SequenceNumber,
-                       NumberOfPasses: NumberOfPasses);
+                       NumberOfPasses);
 
         code.RouteLine((float) CornerB.X,
                        (float) CornerB.Y,
@@ -52,9 +61,9 @@ public class Rectangle : IToken {
                        0f,
                        RotationTypes.CC_ROTATION_AUTO,
                        FaceTypes.CC_UPPER_FACE,
+                       (float) FeedSpeed,
                        0f,
-                       0f,
-                       0f,
+                       (float) SpindleSpeed,
                        0f,
                        "",
                        SequenceNumber,
@@ -72,9 +81,9 @@ public class Rectangle : IToken {
                        0f,
                        RotationTypes.CC_ROTATION_AUTO,
                        FaceTypes.CC_UPPER_FACE,
+                       (float) FeedSpeed,
                        0f,
-                       0f,
-                       0f,
+                       (float) SpindleSpeed,
                        0f,
                        "",
                        SequenceNumber,
@@ -92,9 +101,9 @@ public class Rectangle : IToken {
                        0f,
                        RotationTypes.CC_ROTATION_AUTO,
                        FaceTypes.CC_UPPER_FACE,
+                       (float) FeedSpeed,
                        0f,
-                       0f,
-                       0f,
+                       (float) SpindleSpeed,
                        0f,
                        "",
                        SequenceNumber,
@@ -119,12 +128,19 @@ public class Rectangle : IToken {
             OffsetSide = Offset.ToCSVCode(),
             ToolName = ToolName,
             SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
-            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString()
+            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString(),
+            FeedSpeed = FeedSpeed.ToString(),
+            SpindleSpeed = SpindleSpeed.ToString(),
+            Radius = Radius.ToString()
         };
 
     }
 
     internal static Rectangle FromTokenRecord(TokenRecord tokenRecord) {
+
+        if (!tokenRecord.Name.Equals("rectangle", StringComparison.InvariantCultureIgnoreCase)) {
+            throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to Rectangle.");
+        }
 
         if (!double.TryParse(tokenRecord.StartX, out double startX)) {
             throw new InvalidOperationException("Start X value not specified or invalid for Bore operation");
@@ -174,6 +190,18 @@ public class Rectangle : IToken {
             numberOfPasses = 0;
         }
 
+        if (!double.TryParse(tokenRecord.FeedSpeed, out double feedSpeed)) {
+            feedSpeed = 0;
+        }
+
+        if (!double.TryParse(tokenRecord.SpindleSpeed, out double spindleSpeed)) {
+            spindleSpeed = 0;
+        }
+
+        if (!double.TryParse(tokenRecord.Radius, out double radius)) {
+            radius = 0;
+        }
+
         Offset offset = OffsetExtension.FromCSVCode(tokenRecord.OffsetSide);
 
         return new() {
@@ -186,7 +214,10 @@ public class Rectangle : IToken {
             EndDepth = endDepth,
             Offset = offset, 
             SequenceNumber = sequenceNum,
-            NumberOfPasses = numberOfPasses
+            NumberOfPasses = numberOfPasses,
+            FeedSpeed = feedSpeed,
+            SpindleSpeed = spindleSpeed,
+            Radius = radius
         };
 
     }

@@ -12,6 +12,8 @@ public class OutlineSegment : IToken {
     public required double EndDepth { get; set; }
     public int SequenceNumber { get; set; } = 0;
     public int NumberOfPasses { get; set; } = 0;
+    public double FeedSpeed { get; set; } = 0;
+    public double SpindleSpeed { get; set; } = 0;
 
     void IToken.AddToCode(CADCodeCodeClass code) {
 
@@ -23,11 +25,11 @@ public class OutlineSegment : IToken {
                             CenterX: 0,
                             CenterY: 0,
                             Radius: 0,
-                            ArcDirection: ArcTypes.CC_CLOCKWISE_ARC,
+                            ArcDirection: ArcTypes.CC_UNKNOWN_ARC,
                             Offset: OffsetTypes.CC_OFFSET_OUTSIDE,
                             ToolName: ToolName,
-                            FeedSpeed: 0,
-                            SpindleSpeed: 0,
+                            FeedSpeed: (float) FeedSpeed,
+                            SpindleSpeed: (float) SpindleSpeed,
                             NestedRouteSequence: SequenceNumber,
                             NumberOfPasses: NumberOfPasses,
                             KerfClearance: 0);
@@ -46,12 +48,19 @@ public class OutlineSegment : IToken {
             EndZ = EndDepth.ToString(),
             ToolName = ToolName,
             SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
-            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString()
+            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString(),
+            FeedSpeed = FeedSpeed.ToString(),
+            SpindleSpeed = SpindleSpeed.ToString()
         };
 
     }
 
     internal static OutlineSegment FromTokenRecord(TokenRecord tokenRecord) {
+
+        if (!tokenRecord.Name.Equals("shape", StringComparison.InvariantCultureIgnoreCase)
+            && !tokenRecord.Name.Equals("outline", StringComparison.InvariantCultureIgnoreCase)) {
+            throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to outline/shape segment.");
+        }
 
         if (!double.TryParse(tokenRecord.StartX, out double startX)) {
             throw new InvalidOperationException("Start X value not specified or invalid for Bore operation");
@@ -85,6 +94,14 @@ public class OutlineSegment : IToken {
             numberOfPasses = 0;
         }
 
+        if (!double.TryParse(tokenRecord.FeedSpeed, out double feedSpeed)) {
+            feedSpeed = 0;
+        }
+
+        if (!double.TryParse(tokenRecord.SpindleSpeed, out double spindleSpeed)) {
+            spindleSpeed = 0;
+        }
+
         return new() {
             ToolName = tokenRecord.ToolName,
             Start = new(startX, startY),
@@ -92,7 +109,9 @@ public class OutlineSegment : IToken {
             StartDepth = startDepth,
             EndDepth = endDepth,
             SequenceNumber = sequenceNum,
-            NumberOfPasses = numberOfPasses
+            NumberOfPasses = numberOfPasses,
+            FeedSpeed = feedSpeed,
+            SpindleSpeed = spindleSpeed
         };
 
     }
