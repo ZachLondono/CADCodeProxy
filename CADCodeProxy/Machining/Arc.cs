@@ -112,10 +112,6 @@ public class Arc : IToken {
             numberOfPasses = 0;
         }
 
-        if (!double.TryParse(tokenRecord.ToolDiameter, out double toolDiameter)) {
-            throw new InvalidOperationException("Tool value not specified or invalid for Bore operation");
-        }
-
         Offset offset = OffsetExtension.FromCSVCode(tokenRecord.OffsetSide);
 
         return new() {
@@ -125,7 +121,7 @@ public class Arc : IToken {
             Radius = radius,
             StartDepth = startDepth,
             EndDepth = endDepth,
-            Direction = ArcDirection.Unknown, // TODO: read arc direction
+            Direction = ArcDirection.Unknown, // TODO: read arc direction either from field or from token name
             Offset = offset,
             SequenceNumber = sequenceNum,
             NumberOfPasses = numberOfPasses

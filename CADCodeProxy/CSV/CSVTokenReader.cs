@@ -101,7 +101,7 @@ public class CSVTokenReader {
         return tokenName.ToLower() switch {
             "bore" => Bore.FromTokenRecord(record),
             "multibore" => MultiBore.FromTokenRecord(record),
-            "arc" => Arc.FromTokenRecord(record),
+            "arc" or "cwarc" or "ccwarc" => Arc.FromTokenRecord(record),
             "shape" or "outline" => OutlineSegment.FromTokenRecord(record),
             "pocket" => Pocket.FromTokenRecord(record),
             "route" => Route.FromTokenRecord(record),
