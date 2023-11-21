@@ -103,7 +103,8 @@ internal class CADCodeProxy : IDisposable {
             materialResults.Add(matResult);
         }
 
-        GenerateSinglePrograms(batch.Parts, units, code);
+        var singlePartCode = CreateCode(_bootObj, batch.Name, machine, toolFile);
+        GenerateSinglePrograms(batch.Parts, units, singlePartCode);
 
         if (RuntimeInformation.ProcessArchitecture == Architecture.X86) {
            // var job = new WS_Job();
@@ -167,7 +168,7 @@ internal class CADCodeProxy : IDisposable {
 
         var partLabels = new List<PartLabel>();
 
-        code.Border(1.0f, 1.0f, (float)partGroupKey.Thickness, units, OriginType.CC_LL, $"{partGroupKey.MaterialName} {partGroupKey.Thickness}", AxisTypes.CC_AUTO_AXIS);
+        code.Border(1.0f, 1.0f, (float)partGroupKey.Thickness, units, OriginType.CC_UL, $"{partGroupKey.MaterialName} {partGroupKey.Thickness}", AxisTypes.CC_AUTO_AXIS);
         foreach (var batchPart in batchParts) {
             partLabels.Add(batchPart.AddToLabels(batchInfoFields, labels));
             batchPart.AddNestPartToCode(code);
