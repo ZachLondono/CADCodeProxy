@@ -109,27 +109,27 @@ public class MultiBore : IBoringToken, IMachiningOperation {
         }
 
         if (!double.TryParse(tokenRecord.StartX, out double startX)) {
-            throw new InvalidOperationException("Start X value not specified or invalid for Bore operation");
+            throw new InvalidOperationException("Start X value not specified or invalid for MultiBore operation");
         }
 
         if (!double.TryParse(tokenRecord.StartY, out double startY)) {
-            throw new InvalidOperationException("Start Y value not specified or invalid for Bore operation");
+            throw new InvalidOperationException("Start Y value not specified or invalid for MultiBore operation");
         }
 
         if (!double.TryParse(tokenRecord.EndX, out double endX)) {
-            throw new InvalidOperationException("End X value not specified or invalid for Bore operation");
+            throw new InvalidOperationException("End X value not specified or invalid for MultiBore operation");
         }
 
         if (!double.TryParse(tokenRecord.EndY, out double endY)) {
-            throw new InvalidOperationException("End Y value not specified or invalid for Bore operation");
+            throw new InvalidOperationException("End Y value not specified or invalid for MultiBore operation");
         }
         
         if (!double.TryParse(tokenRecord.StartZ, out double depth)) {
-            throw new InvalidOperationException("Start Z value not specified or invalid for Bore operation");
+            throw new InvalidOperationException("Start Z value not specified or invalid for MultiBore operation");
         }
 
         if (!double.TryParse(tokenRecord.Pitch, out double spacing)) {
-            throw new InvalidOperationException("Pitch value not specified or invalid for Bore operation");
+            throw new InvalidOperationException("Pitch value not specified or invalid for MultiBore operation");
         }
 
         if (!int.TryParse(tokenRecord.SequenceNum, out int sequenceNum)) {
@@ -146,7 +146,7 @@ public class MultiBore : IBoringToken, IMachiningOperation {
         if (string.IsNullOrEmpty(tokenRecord.ToolName)) {
 
             if (!double.TryParse(tokenRecord.ToolDiameter, out double toolDiameter)) {
-                throw new InvalidOperationException("Tool value not specified or invalid for Bore operation");
+                throw new InvalidOperationException("Tool value not specified or invalid for MultiBore operation");
             }
 
             return new(toolDiameter, startPosition, endPosition, spacing, depth, sequenceNum, numberOfPasses);

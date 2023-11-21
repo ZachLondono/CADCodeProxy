@@ -63,27 +63,27 @@ public class OutlineSegment : IToken, IMachiningOperation {
         }
 
         if (!double.TryParse(tokenRecord.StartX, out double startX)) {
-            throw new InvalidOperationException("Start X value not specified or invalid for Bore operation");
+            throw new InvalidOperationException("Start X value not specified or invalid for Outline operation");
         }
 
         if (!double.TryParse(tokenRecord.StartY, out double startY)) {
-            throw new InvalidOperationException("Start Y value not specified or invalid for Bore operation");
+            throw new InvalidOperationException("Start Y value not specified or invalid for Outline operation");
         }
 
         if (!double.TryParse(tokenRecord.EndX, out double endX)) {
-            throw new InvalidOperationException("End X value not specified or invalid for Bore operation");
+            throw new InvalidOperationException("End X value not specified or invalid for Outline operation");
         }
 
         if (!double.TryParse(tokenRecord.EndY, out double endY)) {
-            throw new InvalidOperationException("End Y value not specified or invalid for Bore operation");
+            throw new InvalidOperationException("End Y value not specified or invalid for Outline operation");
         }
 
         if (!double.TryParse(tokenRecord.StartZ, out double startDepth)) {
-            throw new InvalidOperationException("Start Z value not specified or invalid for Bore operation");
+            throw new InvalidOperationException("Start Z value not specified or invalid for Outline operation");
         }
 
         if (!double.TryParse(tokenRecord.EndZ, out double endDepth)) {
-            throw new InvalidOperationException("End Z value not specified or invalid for Bore operation");
+            throw new InvalidOperationException("End Z value not specified or invalid for Outline operation");
         }
 
         if (!int.TryParse(tokenRecord.SequenceNum, out int sequenceNum)) {
