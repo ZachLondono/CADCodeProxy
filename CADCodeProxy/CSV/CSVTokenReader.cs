@@ -117,6 +117,7 @@ public class CSVTokenReader {
             "pocket" => Pocket.FromTokenRecord(record),
             "route" => Route.FromTokenRecord(record),
             "rectangle" => Rectangle.FromTokenRecord(record),
+            "fillet" => Fillet.FromTokenRecord(record),
             _ => throw new NotImplementedException($"Token not supported '{record.Name}'"),
         };
     }
