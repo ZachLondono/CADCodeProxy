@@ -27,6 +27,7 @@ public class Part {
         float length = (float)Length;
 
         code.NestedPart(width, length, OriginType.CC_LL, PrimaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, 0);
+
         foreach (var operation in PrimaryFace.GetMachiningOperations()) {
             operation.AddToCode(code);
         }
@@ -100,7 +101,7 @@ public class Part {
 
         for (int i = 0; i < Qty; i++) {
 
-            bool shape = PrimaryFace.Tokens.Any(t => t is OutlineSegment);
+            bool containsShape = PrimaryFace.Tokens.Any(t => t is OutlineSegment);
             parts.Add(new() {
                 QuantityOrdered = 1,
                 Face5Filename = PrimaryFace.ProgramName,
@@ -121,9 +122,9 @@ public class Part {
                 LengthMaterial1 = Length1Banding.Material,
                 LengthColor2 = Length2Banding.Color,
                 LengthMaterial2 = Length2Banding.Material,
-                ContainsShape = shape,
-                RouteShape = shape,
-                PerimeterRoute = !shape // If there is a face 6 part i think this should be set to false on one of the faces
+                ContainsShape = containsShape,
+                RouteShape = containsShape,
+                PerimeterRoute = !containsShape, // If there is a face 6 part i think this should be set to false on one of the faces
                 //DoLabel = true
             });
 
