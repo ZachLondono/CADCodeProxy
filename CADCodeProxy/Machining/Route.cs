@@ -30,7 +30,7 @@ public class Route : IToken, IMachiningOperation {
                        0f,
                        Offset.AsCCOffset(),
                        0f,
-                       RotationTypes.CC_ROTATION_AUTO, // I believe this is tool rotation type
+                       RotationTypes.CC_ROTATION_AUTO,
                        FaceTypes.CC_UPPER_FACE,
                        (float) FeedSpeed,
                        0f,

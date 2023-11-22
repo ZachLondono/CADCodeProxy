@@ -1,11 +1,9 @@
-﻿using CADCode;
-using CADCodeProxy.CADCodeProxy;
-using CADCodeProxy.CSV;
+﻿using CADCodeProxy.CSV;
 using CADCodeProxy.Enums;
 
 namespace CADCodeProxy.Machining;
 
-public class Rectangle : IToken, IMachiningOperation {
+public class Rectangle : IToken {
 
     public required string ToolName { get; set; }
     public required Point CornerA { get; set; }
@@ -14,7 +12,7 @@ public class Rectangle : IToken, IMachiningOperation {
     public required Point CornerD { get; set; }
     public required double StartDepth { get; set; }
     public required double EndDepth { get; set; }
-    public Offset Offset { get; set; } = Offset.Center; // TODO: figure out how to handle inside and outside
+    public Offset Offset { get; set; } = Offset.Center; // TODO: figure out how to handle inside and outside, I think it will just work if passed to CADCode
     public int SequenceNumber { get; set; } = 0;
     public int NumberOfPasses { get; set; } = 0;
     public double FeedSpeed { get; set; } = 0;
@@ -22,94 +20,41 @@ public class Rectangle : IToken, IMachiningOperation {
 
     public double Radius { get; set; } = 0;
 
-    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
+    internal IToken[] GetComponentTokens() {
 
-        if (Radius != 0) {
-            throw new NotImplementedException("Radiused rectangle not yet supported");
-        }
+        Route CreateRoute(Point start, Point end) => new Route() {
+            ToolName = ToolName,
+            Start = start,
+            End = end,
+            StartDepth = StartDepth,
+            EndDepth = EndDepth,
+            Offset = Offset,
+            SequenceNumber = SequenceNumber,
+            NumberOfPasses = NumberOfPasses,
+            FeedSpeed = FeedSpeed,
+            SpindleSpeed = SpindleSpeed
+        };
 
-        // TODO: implement rectangle radius
-        code.RouteLine((float) CornerA.X,
-                       (float) CornerA.Y,
-                       (float) StartDepth,
-                       (float) CornerB.X,
-                       (float) CornerB.Y,
-                       (float) EndDepth,
-                       ToolName,
-                       0f,
-                       Offset.AsCCOffset(),
-                       0f,
-                       RotationTypes.CC_ROTATION_AUTO,
-                       FaceTypes.CC_UPPER_FACE,
-                       (float) FeedSpeed,
-                       0f,
-                       (float) SpindleSpeed,
-                       0f,
-                       "",
-                       SequenceNumber,
-                       NumberOfPasses);
+		List<IToken> tokens = new();
 
-        code.RouteLine((float) CornerB.X,
-                       (float) CornerB.Y,
-                       (float) StartDepth,
-                       (float) CornerC.X,
-                       (float) CornerC.Y,
-                       (float) EndDepth,
-                       ToolName,
-                       0f,
-                       Offset.AsCCOffset(),
-                       0f,
-                       RotationTypes.CC_ROTATION_AUTO,
-                       FaceTypes.CC_UPPER_FACE,
-                       (float) FeedSpeed,
-                       0f,
-                       (float) SpindleSpeed,
-                       0f,
-                       "",
-                       SequenceNumber,
-                       NumberOfPasses: NumberOfPasses);
+        Point start = new(
+                (CornerA.X + CornerB.X) / 2,
+                (CornerA.Y + CornerB.Y) / 2
+            );
 
-        code.RouteLine((float) CornerC.X,
-                       (float) CornerC.Y,
-                       (float) StartDepth,
-                       (float) CornerD.X,
-                       (float) CornerD.Y,
-                       (float) EndDepth,
-                       ToolName,
-                       0f,
-                       Offset.AsCCOffset(),
-                       0f,
-                       RotationTypes.CC_ROTATION_AUTO,
-                       FaceTypes.CC_UPPER_FACE,
-                       (float) FeedSpeed,
-                       0f,
-                       (float) SpindleSpeed,
-                       0f,
-                       "",
-                       SequenceNumber,
-                       NumberOfPasses: NumberOfPasses);
+        tokens.Add(CreateRoute(start, CornerB));
+        if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+        tokens.Add(CreateRoute(CornerB, CornerC));
+        if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+        tokens.Add(CreateRoute(CornerC, CornerD));
+        if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+        tokens.Add(CreateRoute(CornerD, CornerA));
+        if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+        tokens.Add(CreateRoute(CornerA, start));
 
-        code.RouteLine((float) CornerD.X,
-                       (float) CornerD.Y,
-                       (float) StartDepth,
-                       (float) CornerA.X,
-                       (float) CornerA.Y,
-                       (float) EndDepth,
-                       ToolName,
-                       0f,
-                       Offset.AsCCOffset(),
-                       0f,
-                       RotationTypes.CC_ROTATION_AUTO,
-                       FaceTypes.CC_UPPER_FACE,
-                       (float) FeedSpeed,
-                       0f,
-                       (float) SpindleSpeed,
-                       0f,
-                       "",
-                       SequenceNumber,
-                       NumberOfPasses: NumberOfPasses);
+        return tokens.ToArray();
 
-    }
+	}
 
     TokenRecord IToken.ToTokenRecord() {
 
