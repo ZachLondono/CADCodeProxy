@@ -103,6 +103,7 @@ internal class CADCodeProxy : IDisposable {
             materialResults.Add(matResult);
         }
 
+        // TODO: This still does not work properly for route sequences
         var singlePartCode = CreateCode(_bootObj, batch.Name, machine, toolFile);
         GenerateSinglePrograms(batch.Parts, units, singlePartCode);
 
