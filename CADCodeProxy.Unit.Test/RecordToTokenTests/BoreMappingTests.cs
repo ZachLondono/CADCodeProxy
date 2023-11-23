@@ -2,7 +2,7 @@
 using CADCodeProxy.Machining;
 using FluentAssertions;
 
-namespace CADCodeProxy.Unit.Test;
+namespace CADCodeProxy.Unit.Test.RecordToTokenTests;
 
 public class BoreMappingTests {
 

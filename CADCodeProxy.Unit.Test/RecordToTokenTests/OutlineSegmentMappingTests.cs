@@ -1,11 +1,10 @@
 ﻿using CADCodeProxy.CSV;
-using CADCodeProxy.Enums;
 using CADCodeProxy.Machining;
 using FluentAssertions;
 
-namespace CADCodeProxy.Unit.Test;
+namespace CADCodeProxy.Unit.Test.RecordToTokenTests;
 
-public class RouteMappingTests {
+public class OutlineSegmentMappingTests {
 
     [Fact]
     public void MapTokenRecordToRoute() {
@@ -16,14 +15,12 @@ public class RouteMappingTests {
         var end = new Point(30, 40);
         var startDepth = 1;
         var endDepth = 2;
-        var expectedOffset = Offset.Left;
-        var offsetStr = "L";
         var sequenceNumber = 3;
         var numberOfPasses = 4;
         var feedSpeed = 5;
         var spindleSpeed = 6;
         var tokenRecord = new TokenRecord() {
-            Name = "Route",
+            Name = "Shape",
             ToolName = toolName,
             StartX = start.X.ToString(),
             StartY = start.Y.ToString(),
@@ -31,7 +28,6 @@ public class RouteMappingTests {
             EndY = end.Y.ToString(),
             StartZ = startDepth.ToString(),
             EndZ = endDepth.ToString(),
-            OffsetSide = offsetStr,
             SequenceNum = sequenceNumber.ToString(),
             NumberOfPasses = numberOfPasses.ToString(),
             FeedSpeed = feedSpeed.ToString(),
@@ -39,21 +35,20 @@ public class RouteMappingTests {
         };
 
         // Act
-        var route = Route.FromTokenRecord(tokenRecord);
+        var shape = OutlineSegment.FromTokenRecord(tokenRecord);
 
         // Assert
-        route.ToolName.Should().Be(toolName);
-		route.Start.Should().Be(start);
-		route.End.Should().Be(end);
-		route.StartDepth.Should().Be(startDepth);
-		route.EndDepth.Should().Be(endDepth);
-		route.Offset.Should().Be(expectedOffset);
-		route.SequenceNumber.Should().Be(sequenceNumber);
-		route.NumberOfPasses.Should().Be(numberOfPasses);
-		route.FeedSpeed.Should().Be(feedSpeed);
-		route.SpindleSpeed.Should().Be(spindleSpeed);
+        shape.ToolName.Should().Be(toolName);
+        shape.Start.Should().Be(start);
+        shape.End.Should().Be(end);
+        shape.StartDepth.Should().Be(startDepth);
+        shape.EndDepth.Should().Be(endDepth);
+        shape.SequenceNumber.Should().Be(sequenceNumber);
+        shape.NumberOfPasses.Should().Be(numberOfPasses);
+        shape.FeedSpeed.Should().Be(feedSpeed);
+        shape.SpindleSpeed.Should().Be(spindleSpeed);
 
-	}
+    }
 
     [Fact]
     public void MapRouteToTokenRecord() {
@@ -64,19 +59,16 @@ public class RouteMappingTests {
         var end = new Point(30, 40);
         var startDepth = 1;
         var endDepth = 2;
-        var offset = Offset.Left;
-        var expectedOffsetStr = "L";
         var sequenceNumber = 3;
         var numberOfPasses = 4;
         var feedSpeed = 5;
         var spindleSpeed = 6;
-        IToken route = new Route() {
+        IToken shape = new OutlineSegment() {
             ToolName = toolName,
             Start = start,
             End = end,
             StartDepth = startDepth,
             EndDepth = endDepth,
-            Offset = offset,
             SequenceNumber = sequenceNumber,
             NumberOfPasses = numberOfPasses,
             FeedSpeed = feedSpeed,
@@ -84,10 +76,10 @@ public class RouteMappingTests {
         };
 
         // Act
-        var record = route.ToTokenRecord();
+        var record = shape.ToTokenRecord();
 
         // Assert
-        record.Name.Should().BeEquivalentTo("route");
+        record.Name.Should().Match(name => name.Equals("shape", StringComparison.InvariantCultureIgnoreCase) || name.Equals("outline", StringComparison.InvariantCultureIgnoreCase));
         record.ToolName.Should().Be(toolName);
         record.StartX.Should().Be(start.X.ToString());
         record.StartY.Should().Be(start.Y.ToString());
@@ -95,7 +87,6 @@ public class RouteMappingTests {
         record.EndY.Should().Be(end.Y.ToString());
         record.StartZ.Should().Be(startDepth.ToString());
         record.EndZ.Should().Be(endDepth.ToString());
-        record.OffsetSide.Should().Be(expectedOffsetStr);
         record.SequenceNum.Should().Be(sequenceNumber.ToString());
         record.NumberOfPasses.Should().Be(numberOfPasses.ToString());
         record.FeedSpeed.Should().Be(feedSpeed.ToString());

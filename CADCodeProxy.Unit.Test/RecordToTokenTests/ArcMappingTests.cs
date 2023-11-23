@@ -3,7 +3,7 @@ using CADCodeProxy.Enums;
 using CADCodeProxy.Machining;
 using FluentAssertions;
 
-namespace CADCodeProxy.Unit.Test;
+namespace CADCodeProxy.Unit.Test.RecordToTokenTests;
 
 public class ArcMappingTests {
 
@@ -26,7 +26,7 @@ public class ArcMappingTests {
         var feedSpeed = 10;
         var spindleSpeed = 11;
 
-		var record = new TokenRecord() {
+        var record = new TokenRecord() {
             Name = "Arc",
             ToolName = toolName,
             StartX = start.X.ToString(),
@@ -81,7 +81,7 @@ public class ArcMappingTests {
         var feedSpeed = 10;
         var spindleSpeed = 11;
 
-		var record = new TokenRecord() {
+        var record = new TokenRecord() {
             Name = "CCWArc",
             ToolName = toolName,
             StartX = start.X.ToString(),
@@ -136,7 +136,7 @@ public class ArcMappingTests {
         var feedSpeed = 10;
         var spindleSpeed = 11;
 
-		var record = new TokenRecord() {
+        var record = new TokenRecord() {
             Name = "CWArc",
             ToolName = toolName,
             StartX = start.X.ToString(),
@@ -191,7 +191,7 @@ public class ArcMappingTests {
         var feedSpeed = 10;
         var spindleSpeed = 11;
 
-		IToken arc = new Arc() {
+        IToken arc = new Arc() {
             ToolName = toolName,
             Start = start,
             End = end,
@@ -241,6 +241,6 @@ public class ArcMappingTests {
         // Assert
         mapAction.Should().Throw<InvalidOperationException>();
 
-    } 
+    }
 
 }

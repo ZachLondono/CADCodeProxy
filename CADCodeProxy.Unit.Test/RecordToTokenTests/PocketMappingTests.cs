@@ -1,14 +1,13 @@
-using CADCodeProxy.CSV;
-using CADCodeProxy.Enums;
+﻿using CADCodeProxy.CSV;
 using CADCodeProxy.Machining;
 using FluentAssertions;
 
-namespace CADCodeProxy.Unit.Test;
+namespace CADCodeProxy.Unit.Test.RecordToTokenTests;
 
-public class RectangleMappingTests {
+public class PocketMappingTests {
 
     [Fact]
-    public void MapTokenRecordToRectangle() {
+    public void MapTokenRecordToPocket() {
 
         // Arrange
         var toolName = "3-8Comp";
@@ -18,15 +17,12 @@ public class RectangleMappingTests {
         var cornerD = new Point(60, 1000);
         var startDepth = 1;
         var endDepth = 2;
-        var offsetStr = "I";
-        var expectedOffset = Offset.Inside;
         var sequenceNum = 3;
         var numOfPasses = 4;
         var feedSpeed = 5;
         var spindleSpeed = 6;
-        var radius = 7;
         var tokenRecord = new TokenRecord() {
-            Name = "Rectangle",
+            Name = "Pocket",
             ToolName = toolName,
             StartX = cornerA.X.ToString(),
             StartY = cornerA.Y.ToString(),
@@ -38,42 +34,32 @@ public class RectangleMappingTests {
             PocketY = cornerD.Y.ToString(),
             StartZ = startDepth.ToString(),
             EndZ = endDepth.ToString(),
-            OffsetSide = offsetStr,
             SequenceNum = sequenceNum.ToString(),
             NumberOfPasses = numOfPasses.ToString(),
             FeedSpeed = feedSpeed.ToString(),
             SpindleSpeed = spindleSpeed.ToString(),
-            Radius = radius.ToString(),
-
-            ArcDirection = "",
-            StartAngle = "",
-            EndAngle = "",
-            Pitch = "",
-            ToolDiameter = ""
         };
 
         // Act
-        var rectangle = Rectangle.FromTokenRecord(tokenRecord);
+        var pocket = Pocket.FromTokenRecord(tokenRecord);
 
         // Assert
-        rectangle.ToolName.Should().Be(toolName);
-        rectangle.CornerA.Should().Be(cornerA);
-        rectangle.CornerB.Should().Be(cornerB);
-        rectangle.CornerC.Should().Be(cornerC);
-        rectangle.CornerD.Should().Be(cornerD);
-        rectangle.StartDepth.Should().Be(startDepth);
-        rectangle.EndDepth.Should().Be(endDepth);
-        rectangle.Offset.Should().Be(expectedOffset);
-        rectangle.SequenceNumber.Should().Be(sequenceNum);
-        rectangle.NumberOfPasses.Should().Be(numOfPasses);
-        rectangle.FeedSpeed.Should().Be(feedSpeed);
-        rectangle.SpindleSpeed.Should().Be(spindleSpeed);
-        rectangle.Radius.Should().Be(radius);
+        pocket.ToolName.Should().Be(toolName);
+        pocket.CornerA.Should().Be(cornerA);
+        pocket.CornerB.Should().Be(cornerB);
+        pocket.CornerC.Should().Be(cornerC);
+        pocket.CornerD.Should().Be(cornerD);
+        pocket.StartDepth.Should().Be(startDepth);
+        pocket.EndDepth.Should().Be(endDepth);
+        pocket.SequenceNumber.Should().Be(sequenceNum);
+        pocket.NumberOfPasses.Should().Be(numOfPasses);
+        pocket.FeedSpeed.Should().Be(feedSpeed);
+        pocket.SpindleSpeed.Should().Be(spindleSpeed);
 
     }
 
     [Fact]
-    public void MapRectangleToTokenRecord() {
+    public void MapPocketToTokenRecord() {
 
         // Arrange
         var toolName = "3-8Comp";
@@ -83,14 +69,11 @@ public class RectangleMappingTests {
         var cornerD = new Point(60, 1000);
         var startDepth = 1;
         var endDepth = 2;
-        var expectedOffsetStr = "I";
-        var offset = Offset.Inside;
         var sequenceNum = 3;
         var numOfPasses = 4;
         var feedSpeed = 5;
         var spindleSpeed = 6;
-        var radius = 7;
-        IToken rectangle = new Rectangle() {
+        IToken pocket = new Pocket() {
             ToolName = toolName,
             CornerA = cornerA,
             CornerB = cornerB,
@@ -98,19 +81,17 @@ public class RectangleMappingTests {
             CornerD = cornerD,
             StartDepth = startDepth,
             EndDepth = endDepth,
-            Offset = offset,
             SequenceNumber = sequenceNum,
             NumberOfPasses = numOfPasses,
             FeedSpeed = feedSpeed,
             SpindleSpeed = spindleSpeed,
-            Radius = radius
         };
 
         // Act
-        var record = rectangle.ToTokenRecord();
+        var record = pocket.ToTokenRecord();
 
         // Assert
-        record.Name.Should().BeEquivalentTo("rectangle");
+        record.Name.Should().BeEquivalentTo("pocket");
         record.ToolName.Should().Be(toolName);
         record.StartX.Should().Be(cornerA.X.ToString());
         record.StartY.Should().Be(cornerA.X.ToString());
@@ -122,12 +103,10 @@ public class RectangleMappingTests {
         record.PocketX.Should().Be(cornerD.X.ToString());
         record.StartZ.Should().Be(startDepth.ToString());
         record.EndZ.Should().Be(endDepth.ToString());
-        record.OffsetSide.Should().Be(expectedOffsetStr);
         record.SequenceNum.Should().Be(sequenceNum.ToString());
         record.NumberOfPasses.Should().Be(numOfPasses.ToString());
         record.FeedSpeed.Should().Be(feedSpeed.ToString());
         record.SpindleSpeed.Should().Be(spindleSpeed.ToString());
-        record.Radius.Should().Be(radius.ToString());
 
     }
 
@@ -140,7 +119,7 @@ public class RectangleMappingTests {
         };
 
         // Act
-        var mapAction = () => Rectangle.FromTokenRecord(tokenRecord);
+        var mapAction = () => Pocket.FromTokenRecord(tokenRecord);
 
         // Assert
         mapAction.Should().Throw<InvalidOperationException>();
