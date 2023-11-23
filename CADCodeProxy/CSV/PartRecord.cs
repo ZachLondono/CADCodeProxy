@@ -21,7 +21,7 @@ public class PartRecord {
 
     // Label properties
     public string CabinetNumber { get; set; } = string.Empty;
-    public string PartID { get; set;} = string.Empty;
+    public string PartID { get; set; } = string.Empty;
     public string ProductName { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
 
@@ -31,7 +31,7 @@ public class PartRecord {
     public string Comment2 { get; set; } = string.Empty;
 
     public string WidthInches { get; set; } = string.Empty;
-    public string LengthInches { get; set;} = string.Empty;
+    public string LengthInches { get; set; } = string.Empty;
 
     public string Side1Color { get; set; } = string.Empty;
     public string Side1Material { get; set; } = string.Empty;

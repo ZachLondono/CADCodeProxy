@@ -90,7 +90,7 @@ public class Part {
     private static void AddEdgeBandingLabelFields(Dictionary<string, string> labelFields, string edgeName, int edgeNum, EdgeBanding banding) {
         labelFields[$"{edgeName} Color {edgeNum}"] = banding.Color;
         labelFields[$"{edgeName} Material {edgeNum}"] = banding.Material;
-    } 
+    }
 
     internal CADCode.Part[] ToCADCodePart(UnitTypes units) {
 
@@ -107,7 +107,7 @@ public class Part {
                 Face5Filename = PrimaryFace.ProgramName,
                 Width = width,
                 Length = length,
-                Thickness = (float) Thickness,
+                Thickness = (float)Thickness,
                 Material = Material,
                 Units = units,
                 RotationAllowed = IsGrained ? 0 : 90, // The increments which this part is allowed to be rotated 
@@ -134,7 +134,7 @@ public class Part {
                     Face5Filename = SecondaryFace.ProgramName,
                     Width = width,
                     Length = length,
-                    Thickness = (float) Thickness,
+                    Thickness = (float)Thickness,
                     Material = Material,
                     Units = units,
                     RotationAllowed = IsGrained ? 0 : 1,

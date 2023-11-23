@@ -73,7 +73,7 @@ public class MultiBore : IBoringToken, IMachiningOperation {
                         FaceTypes.CC_UPPER_FACE,
                         (float)ToolDiameter,
                         ToolName,
-                        (float) Spacing,
+                        (float)Spacing,
                         0,
                         0,
                         "",
@@ -123,7 +123,7 @@ public class MultiBore : IBoringToken, IMachiningOperation {
         if (!double.TryParse(tokenRecord.EndY, out double endY)) {
             throw new InvalidOperationException("End Y value not specified or invalid for MultiBore operation");
         }
-        
+
         if (!double.TryParse(tokenRecord.StartZ, out double depth)) {
             throw new InvalidOperationException("Start Z value not specified or invalid for MultiBore operation");
         }

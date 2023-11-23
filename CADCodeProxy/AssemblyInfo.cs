@@ -1,4 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly:InternalsVisibleTo("CADCodeProxy.Unit.Test")]
+[assembly: InternalsVisibleTo("CADCodeProxy.Unit.Test")]
 

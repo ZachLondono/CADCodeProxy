@@ -36,7 +36,7 @@ public class Bore : IBoringToken, IMachiningOperation {
                     (float)Position.Y,
                     (float)Depth,
                     FaceTypes.CC_UPPER_FACE,
-                    (float) ToolDiameter,
+                    (float)ToolDiameter,
                     ToolName,
                     "",
                     "",

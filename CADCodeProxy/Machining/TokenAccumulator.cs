@@ -48,7 +48,7 @@ internal class TokenAccumulator {
                 _operations.Add(result.Item3);
 
             } else if (token is OutlineSegment outlineSegment) {
-                
+
                 var lastToken = _operations.LastOrDefault();
                 if (lastToken is not OutlineSegment lastSegment) {
                     throw new InvalidOperationException("Fillets must exist between two entities of the same type");
@@ -70,7 +70,7 @@ internal class TokenAccumulator {
                 throw new InvalidOperationException("Fillets must exist between routes or outline segments");
             }
 
-		} else if (token is IMachiningOperation operation) {
+        } else if (token is IMachiningOperation operation) {
             _operations.Add(operation);
         } else {
             throw new InvalidOperationException($"Unexpected token {token.GetType().Name}");
@@ -97,7 +97,7 @@ internal class TokenAccumulator {
             NumberOfPasses = a.NumberOfPasses,
             FeedSpeed = a.FeedSpeed,
             SpindleSpeed = a.SpindleSpeed
-		};
+        };
 
         var arc = new Arc() {
             Start = route1.End,
@@ -151,7 +151,7 @@ internal class TokenAccumulator {
             NumberOfPasses = a.NumberOfPasses,
             FeedSpeed = a.FeedSpeed,
             SpindleSpeed = a.SpindleSpeed
-		};
+        };
 
         var arc = new ArcOutlineSegment() {
             Start = segment1.End,
@@ -185,7 +185,7 @@ internal class TokenAccumulator {
 
     }
 
-    public IMachiningOperation[] GetMachiningOperations() => _operations.ToArray(); 
+    public IMachiningOperation[] GetMachiningOperations() => _operations.ToArray();
 
     internal class FilletCalculator {
 
@@ -195,7 +195,7 @@ internal class TokenAccumulator {
             var line2 = new Line(center, end);
 
             bool counterClockWise = false;
-			double xMult, yMult;
+            double xMult, yMult;
             if (IsPointToLeftOfLine(line1, end)) {
                 counterClockWise = true;
                 // Left
@@ -206,15 +206,15 @@ internal class TokenAccumulator {
                 xMult = -1;
                 yMult = 1;
             }
-            
+
             var uVec1 = GetUnitVectorInDirectionOfLine(line1);          // A unitary vector in the direction of line 1
-            var perpVec1 = new Vector2( uVec1.X * xMult, uVec1.Y * yMult ) * radius;   // A vector perpendicular to line 1, scaled by the value of radius
-            var perpPoint1 = GetPointOffsetInDirectionOfVector( line1.A,  perpVec1 ); // The point which is offset from the starting point of the start of line 1, perpendicular to line 1
-            
+            var perpVec1 = new Vector2(uVec1.X * xMult, uVec1.Y * yMult) * radius;   // A vector perpendicular to line 1, scaled by the value of radius
+            var perpPoint1 = GetPointOffsetInDirectionOfVector(line1.A, perpVec1); // The point which is offset from the starting point of the start of line 1, perpendicular to line 1
+
             var uVec2 = GetUnitVectorInDirectionOfLine(line2);
-            var perpVec2 = new Vector2( uVec2.X * xMult, uVec2.Y  * yMult) * radius;
-            var perpPoint2 = GetPointOffsetInDirectionOfVector( line2.A, perpVec2 );
-            
+            var perpVec2 = new Vector2(uVec2.X * xMult, uVec2.Y * yMult) * radius;
+            var perpPoint2 = GetPointOffsetInDirectionOfVector(line2.A, perpVec2);
+
             // Calculate intersection of parallel lines, represented by the perpendicular points and unit vectors
             // Find the tangent points to the circle centered at point center with a radius radius
             double denominator = (uVec1.X * uVec2.Y) - (uVec2.X * uVec1.Y);
@@ -230,40 +230,40 @@ internal class TokenAccumulator {
 
             // Calculates a point which is tangent to a circle on a line which is parallel to a line going through point 'start' in the direction of unitVector1
 
-            double k1 = ( unitVector2.Y * (perpPoint2.X - perpPoint1.X) - unitVector2.X * (perpPoint2.Y - perpPoint1.Y) ) / denominator;
-    
+            double k1 = (unitVector2.Y * (perpPoint2.X - perpPoint1.X) - unitVector2.X * (perpPoint2.Y - perpPoint1.Y)) / denominator;
+
             return new Point(
                 start.X + k1 * unitVector1.X,
-                start.Y + k1 * unitVector1.Y);    
+                start.Y + k1 * unitVector1.Y);
 
         }
 
         private static Vector2 GetUnitVectorInDirectionOfLine(Line line) {
 
-            var le = Math.Sqrt( Math.Pow(line.B.X - line.A.X, 2.0) + Math.Pow(line.B.Y - line.A.Y, 2) );
-    
+            var le = Math.Sqrt(Math.Pow(line.B.X - line.A.X, 2.0) + Math.Pow(line.B.Y - line.A.Y, 2));
+
             var vx = (line.B.X - line.A.X) / le;
             var vy = (line.B.Y - line.A.Y) / le;
-    
+
             return new Vector2(vx, vy);
 
         }
 
         private static Point GetPointOffsetInDirectionOfVector(Point point, Vector2 offset) {
-    
+
             double x1 = point.X + offset.Y;
             double y1 = point.Y + offset.X;
-    
+
             return new(x1, y1);
 
         }
 
         private static bool IsPointToLeftOfLine(Line line, Point point) {
 
-            return (line.B.X - line.A.X)*(point.Y - line.A.Y) - (line.B.Y - line.A.Y)*(point.X - line.A.X) > 0;
-    
+            return (line.B.X - line.A.X) * (point.Y - line.A.Y) - (line.B.Y - line.A.Y) * (point.X - line.A.X) > 0;
+
         }
-        
+
         internal record Point(double X, double Y);
         internal record Line(Point A, Point B);
         internal record Vector2(double X, double Y) {

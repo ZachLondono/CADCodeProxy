@@ -20,7 +20,7 @@ public class PlacedPart {
             Name = part.Face5Filename,
             Width = double.Parse(part.Width),
             Length = double.Parse(part.Length),
-            Area = (double) part.Area,
+            Area = (double)part.Area,
             IsRotated = part.Rotated,
             UsedInventoryIndex = part.ParentInventoryItem - 1,
             ProgramIndex = part.PatternNumber - 1,

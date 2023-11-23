@@ -27,7 +27,7 @@ public class ArcOutlineSegment : IMachiningOperation {
                             EndY: (float)End.Y,
                             CenterX: 0,
                             CenterY: 0,
-                            Radius: (float) Radius,
+                            Radius: (float)Radius,
                             ArcDirection: Direction.AsCCArcType(),
                             Offset: OffsetTypes.CC_OFFSET_OUTSIDE,
                             ToolName: ToolName,

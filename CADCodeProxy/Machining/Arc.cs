@@ -22,28 +22,28 @@ public class Arc : IToken, IMachiningOperation {
 
     void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 
-        code.RouteArc(StartX: (float) Start.X,
-                        StartY: (float) Start.Y,
-                        StartZ: (float) StartDepth,
-                        EndX: (float) End.X,
-                        EndY: (float) End.Y,
-                        Endz: (float) EndDepth,
+        code.RouteArc(StartX: (float)Start.X,
+                        StartY: (float)Start.Y,
+                        StartZ: (float)StartDepth,
+                        EndX: (float)End.X,
+                        EndY: (float)End.Y,
+                        Endz: (float)EndDepth,
                         ToolName: ToolName,
                         ToolDiameter: 0f,
                         Offset: Offset.AsCCOffset(),
                         OffsetAmount: 0,
                         ToolRotation: RotationTypes.CC_ROTATION_AUTO,
                         Face: 0,
-                        FeedSpeed: (float) FeedSpeed,
+                        FeedSpeed: (float)FeedSpeed,
                         EntrySpeed: 0,
-                        SpindleSpeed: (float) SpindleSpeed,
+                        SpindleSpeed: (float)SpindleSpeed,
                         CornerFeed: 0,
                         RType: "",
                         CenterX: 0,
                         CenterY: 0,
                         OffsetX: 0,
                         OffsetY: 0,
-                        Radius: (float) Radius,
+                        Radius: (float)Radius,
                         ArcDirection: Direction.AsCCArcType(),
                         Bulge: 0,
                         NestedRouteSequence: SequenceNumber,
@@ -56,7 +56,7 @@ public class Arc : IToken, IMachiningOperation {
         string direction = Direction switch {
             ArcDirection.ClockWise => "CW",
             ArcDirection.CounterClockWise => "CCW",
-            _ => throw new InvalidOperationException("Arc direction must be specified") 
+            _ => throw new InvalidOperationException("Arc direction must be specified")
         };
 
         return new() {
@@ -80,13 +80,13 @@ public class Arc : IToken, IMachiningOperation {
     }
 
     internal static Arc FromTokenRecord(TokenRecord tokenRecord) {
-        
+
         if (!tokenRecord.Name.Equals("arc", StringComparison.InvariantCultureIgnoreCase)
             && !tokenRecord.Name.Equals("cwarc", StringComparison.InvariantCultureIgnoreCase)
             && !tokenRecord.Name.Equals("ccwarc", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to arc.");
         }
- 
+
         if (!double.TryParse(tokenRecord.StartX, out double startX)) {
             throw new InvalidOperationException("Start X value not specified or invalid for Arc operation");
         }

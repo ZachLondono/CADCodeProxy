@@ -35,7 +35,7 @@ public class Rectangle : IToken {
             SpindleSpeed = SpindleSpeed
         };
 
-		List<IToken> tokens = new();
+        List<IToken> tokens = new();
 
         Point start = new(
                 (CornerA.X + CornerB.X) / 2,
@@ -54,7 +54,7 @@ public class Rectangle : IToken {
 
         return tokens.ToArray();
 
-	}
+    }
 
     TokenRecord IToken.ToTokenRecord() {
 
@@ -157,7 +157,7 @@ public class Rectangle : IToken {
             CornerD = new(pocketX, pocketY),
             StartDepth = startDepth,
             EndDepth = endDepth,
-            Offset = offset, 
+            Offset = offset,
             SequenceNumber = sequenceNum,
             NumberOfPasses = numberOfPasses,
             FeedSpeed = feedSpeed,

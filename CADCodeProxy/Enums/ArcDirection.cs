@@ -1,7 +1,6 @@
 ﻿namespace CADCodeProxy.Enums;
 
-public enum ArcDirection
-{
+public enum ArcDirection {
     Unknown,
     ClockWise,
     CounterClockWise

@@ -16,7 +16,7 @@ public class CSVTokenReader {
 
         List<CSVPart> parts = new();
 
-        var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite); 
+        var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         using (var reader = new StreamReader(fileStream))
         using (var csv = new CsvReader(reader, config)) {
 
@@ -26,7 +26,7 @@ public class CSVTokenReader {
             csv.Read();
             csv.ReadHeader();
 
-            while(csv.Read()) {
+            while (csv.Read()) {
 
                 var currentToken = csv.GetField(5)?.ToLowerInvariant() ?? "";
                 switch (currentToken) {

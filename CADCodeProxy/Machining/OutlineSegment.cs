@@ -18,18 +18,18 @@ public class OutlineSegment : IToken, IMachiningOperation {
     void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 
         code.DefineOutLine(
-                            StartX: (float) Start.X,
-                            StartY: (float) Start.Y,
-                            EndX: (float) End.X,
-                            EndY: (float) End.Y,
+                            StartX: (float)Start.X,
+                            StartY: (float)Start.Y,
+                            EndX: (float)End.X,
+                            EndY: (float)End.Y,
                             CenterX: 0,
                             CenterY: 0,
                             Radius: 0,
                             ArcDirection: ArcTypes.CC_UNKNOWN_ARC,
                             Offset: OffsetTypes.CC_OFFSET_OUTSIDE,
                             ToolName: ToolName,
-                            FeedSpeed: (float) FeedSpeed,
-                            SpindleSpeed: (float) SpindleSpeed,
+                            FeedSpeed: (float)FeedSpeed,
+                            SpindleSpeed: (float)SpindleSpeed,
                             NestedRouteSequence: SequenceNumber,
                             NumberOfPasses: NumberOfPasses,
                             KerfClearance: 0);
@@ -37,7 +37,7 @@ public class OutlineSegment : IToken, IMachiningOperation {
     }
 
     TokenRecord IToken.ToTokenRecord() {
-        
+
         return new() {
             Name = "OUTLINE",
             StartX = Start.X.ToString(),

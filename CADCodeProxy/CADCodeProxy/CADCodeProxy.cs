@@ -54,7 +54,7 @@ internal class CADCodeProxy : IDisposable {
             || !_wsJobs.Any()) {
             return false;
         }
-        
+
         WS_Application app = new WS_Application();
         app.WriteError += (ec, s) => Console.WriteLine($"[WXML][ERR] {ec} - {s}");
         app.NodeError += (ec, s) => Console.WriteLine($"[WXML][ERR] {ec} - {s}");
@@ -64,7 +64,7 @@ internal class CADCodeProxy : IDisposable {
         Console.WriteLine($"Result from saving WSXML file: {result} - {_bootObj?.GetErrorString(result)}");
 
         Marshal.ReleaseComObject(app);
-        foreach (var job in  _wsJobs) {
+        foreach (var job in _wsJobs) {
             Marshal.ReleaseComObject(job);
         }
 
@@ -108,9 +108,9 @@ internal class CADCodeProxy : IDisposable {
         GenerateSinglePrograms(batch.Parts, units, singlePartCode);
 
         if (RuntimeInformation.ProcessArchitecture == Architecture.X86) {
-           // var job = new WS_Job();
-           // var result = code.GetWINStepMachining(ref job, AllMachining: true);
-           // _wsJobs.Add(job);
+            // var job = new WS_Job();
+            // var result = code.GetWINStepMachining(ref job, AllMachining: true);
+            // _wsJobs.Add(job);
         } else {
             Console.WriteLine("WSXML skipped because architecture is not x86");
         }
@@ -187,7 +187,7 @@ internal class CADCodeProxy : IDisposable {
                                         .ToArray();
 
         var placedParts = parts.Where(p => p.Part.PatternNumber != 0)
-                                .Select(val => PlacedPart.FromPart(val.Part, val.PartId) )
+                                .Select(val => PlacedPart.FromPart(val.Part, val.PartId))
                                 .ToArray();
 
         var unplacedParts = optimizer.GetUnplacedParts();
@@ -197,7 +197,7 @@ internal class CADCodeProxy : IDisposable {
                             .Select(s => Path.GetFileName(s.Split(',').First().Trim()))
                             .ToArray();
 
-        ReleaseComObject(optimizer); 
+        ReleaseComObject(optimizer);
 
         return new MaterialGCodeGenerationResult() {
             MaterialName = partGroupKey.MaterialName,
@@ -262,7 +262,7 @@ internal class CADCodeProxy : IDisposable {
 
         if (optimizer is null) throw new InvalidOperationException("Could not create CADCode optimizer object");
 
-        optimizer.OptimizeError += (l,s) => Console.WriteLine($"[OPTI][ERROR] {l} - {s}");
+        optimizer.OptimizeError += (l, s) => Console.WriteLine($"[OPTI][ERROR] {l} - {s}");
         optimizer.Progress += (l) => Console.WriteLine($"[OPTI][PROG] {l}");
         optimizer.ReportedProgress += (int PanelsUsed, ref int PartsToGo) => Console.WriteLine($"[OPTI][PROG] {PanelsUsed} panels used | {PartsToGo} parts left");
 
@@ -279,7 +279,7 @@ internal class CADCodeProxy : IDisposable {
         if (code is null) throw new InvalidOperationException("Could not create CADCode code object");
 
         code.MachiningInfo += (i) => Console.WriteLine($"[CODE][INFO] {i}");
-        code.MachiningError += (l,s) => Console.WriteLine($"[CODE][ERROR] {l} - {s}");
+        code.MachiningError += (l, s) => Console.WriteLine($"[CODE][ERROR] {l} - {s}");
         code.StartProcess += (f) => Console.WriteLine($"[CODE][PROC] Process Started {f}");
         code.Progress += (l) => Console.WriteLine($"[CODE][PROG] {l}");
         code.PictureFileWritten += (f) => Console.WriteLine($"[CODE] Picture file {f}");

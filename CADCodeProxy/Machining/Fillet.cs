@@ -7,7 +7,7 @@ public class Fillet : IToken {
     public required double Radius { get; set; } = 0;
 
     TokenRecord IToken.ToTokenRecord() {
-        
+
         return new() {
             Name = "Fillet",
             Radius = Radius.ToString(),

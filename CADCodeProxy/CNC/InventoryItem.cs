@@ -5,7 +5,7 @@ namespace CADCodeProxy.CNC;
 public record InventoryItem {
 
     public required string MaterialName { get; init; }
-    public required bool IsGrained { get; init; } 
+    public required bool IsGrained { get; init; }
     public required int AvailableQty { get; init; }
     public required int Priority { get; init; }
     public required double PanelWidth { get; init; }

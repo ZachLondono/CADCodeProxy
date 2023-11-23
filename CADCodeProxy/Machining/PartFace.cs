@@ -13,7 +13,7 @@ public class PartFace {
         var accumulator = new TokenAccumulator();
 
         foreach (var token in Tokens) {
-            accumulator.AddToken(token);            
+            accumulator.AddToken(token);
         }
 
         return accumulator.GetMachiningOperations();

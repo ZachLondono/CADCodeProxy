@@ -40,20 +40,20 @@ public class GCodeGenerator {
         if (CADCodeProgressEvent is not null) {
             cadcode.ProgressEvent += CADCodeProgressEvent.Invoke;
         }
-    
+
         if (CADCodeErrorEvent is not null) {
             cadcode.ErrorEvent += CADCodeErrorEvent.Invoke;
         }
 
         GenerationEvent?.Invoke("Initializing CADCode proxy");
         cadcode.Initialize();
-        
+
         var units = GetCCUnits();
         var inventory = Inventory.ToArray();
 
         List<MachineGCodeGenerationResult> machineResults = new();
         foreach (var machine in machines) {
-        
+
             GenerationEvent?.Invoke($"Generating G-code for '{machine.Name}'");
             var result = cadcode.GenerateGCode(machine, batch, inventory, units);
 
@@ -61,15 +61,15 @@ public class GCodeGenerator {
 
             var programCount = result.MaterialGCodeGenerationResults.Sum(r => r.ProgramNames.Length);
             GenerationEvent?.Invoke($"Generated '{programCount}' nested programs for '{machine.Name}'");
-        
+
         }
-        
+
         var fileName = string.Concat(batch.Name.Split(Path.GetInvalidFileNameChars()));
         string? wsReportFilePath = Path.Combine(wsReportOutputDirectory, $"{fileName}.xml");
         if (!cadcode.TryWriteWSBatch(wsReportFilePath)) {
             wsReportFilePath = null;
         }
-        
+
         return new GCodeGenerationResult() {
             WinStepReportFilePath = wsReportFilePath,
             MachineResults = machineResults.ToArray()
