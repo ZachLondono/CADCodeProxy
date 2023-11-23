@@ -135,14 +135,14 @@ internal class TokenAccumulator {
 
     private (OutlineSegment, ArcOutlineSegment, OutlineSegment) FilletOutline(OutlineSegment a, OutlineSegment b, Fillet fillet) {
 
-        var points = FilletCalculator.GetFilletPoints(new(a.Start.X, a.Start.Y),
-                                        new(a.End.X, a.End.Y),
-                                        new(b.End.X, b.End.Y),
+        var points = FilletCalculator.GetFilletPoints(a.Start,
+                                        a.End,
+                                        b.End,
                                         fillet.Radius);
 
         var segment1 = new OutlineSegment() {
             Start = a.Start,
-            End = new(points.Item1.X, points.Item1.Y),
+            End = points.Item1,
 
             ToolName = a.ToolName,
             StartDepth = a.StartDepth,
@@ -155,7 +155,7 @@ internal class TokenAccumulator {
 
         var arc = new ArcOutlineSegment() {
             Start = segment1.End,
-            End = new(points.Item2.X, points.Item2.Y),
+            End = points.Item2,
             Radius = fillet.Radius,
             Direction = points.CounterClockWise ? ArcDirection.CounterClockWise : ArcDirection.ClockWise,
 
@@ -264,7 +264,6 @@ internal class TokenAccumulator {
 
         }
 
-        internal record Point(double X, double Y);
         internal record Line(Point A, Point B);
         internal record Vector2(double X, double Y) {
             public static Vector2 operator *(Vector2 left, double right) => new Vector2(left.X * right, left.Y * right);
