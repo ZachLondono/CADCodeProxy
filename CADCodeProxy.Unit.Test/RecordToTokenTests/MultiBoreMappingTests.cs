@@ -78,7 +78,7 @@ public class MultiBoreMappingTests {
         var sequenceNumber = 7;
         var numberOfPasses = 8;
         var token = new TokenRecord() {
-            Name = "bore",
+            Name = "multibore",
             ToolName = toolName.ToString(),
             StartX = start.X.ToString(),
             StartY = start.Y.ToString(),

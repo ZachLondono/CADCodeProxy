@@ -85,23 +85,12 @@ internal class TokenAccumulator {
                                         new(b.End.X, b.End.Y),
                                         fillet.Radius);
 
-        var route1 = new Route() {
-            Start = a.Start,
-            End = new(points.Item1.X, points.Item1.Y),
-
-            ToolName = a.ToolName,
-            StartDepth = a.StartDepth,
-            EndDepth = a.EndDepth,
-            Offset = a.Offset,
-            SequenceNumber = a.SequenceNumber,
-            NumberOfPasses = a.NumberOfPasses,
-            FeedSpeed = a.FeedSpeed,
-            SpindleSpeed = a.SpindleSpeed
-        };
+        a.End = points.Item1;
+        b.Start = points.Item2;
 
         var arc = new Arc() {
-            Start = route1.End,
-            End = new(points.Item2.X, points.Item2.Y),
+            Start = a.End,
+            End = b.Start,
             Radius = fillet.Radius,
             Direction = points.CounterClockWise ? ArcDirection.CounterClockWise : ArcDirection.ClockWise,
 
@@ -115,21 +104,7 @@ internal class TokenAccumulator {
             SpindleSpeed = a.SpindleSpeed
         };
 
-        var route2 = new Route() {
-            Start = arc.End,
-            End = b.End,
-
-            ToolName = b.ToolName,
-            StartDepth = b.StartDepth,
-            EndDepth = b.EndDepth,
-            Offset = b.Offset,
-            SequenceNumber = b.SequenceNumber,
-            NumberOfPasses = b.NumberOfPasses,
-            FeedSpeed = b.FeedSpeed,
-            SpindleSpeed = b.SpindleSpeed
-        };
-
-        return (route1, arc, route2);
+        return (a, arc, b);
 
     }
 
@@ -140,22 +115,12 @@ internal class TokenAccumulator {
                                         b.End,
                                         fillet.Radius);
 
-        var segment1 = new OutlineSegment() {
-            Start = a.Start,
-            End = points.Item1,
-
-            ToolName = a.ToolName,
-            StartDepth = a.StartDepth,
-            EndDepth = a.EndDepth,
-            SequenceNumber = a.SequenceNumber,
-            NumberOfPasses = a.NumberOfPasses,
-            FeedSpeed = a.FeedSpeed,
-            SpindleSpeed = a.SpindleSpeed
-        };
+        a.End = points.Item1;
+        b.Start = points.Item2;
 
         var arc = new ArcOutlineSegment() {
-            Start = segment1.End,
-            End = points.Item2,
+            Start = a.End,
+            End = b.Start,
             Radius = fillet.Radius,
             Direction = points.CounterClockWise ? ArcDirection.CounterClockWise : ArcDirection.ClockWise,
 
@@ -168,20 +133,7 @@ internal class TokenAccumulator {
             SpindleSpeed = a.SpindleSpeed
         };
 
-        var segment2 = new OutlineSegment() {
-            Start = arc.End,
-            End = b.End,
-
-            ToolName = b.ToolName,
-            StartDepth = b.StartDepth,
-            EndDepth = b.EndDepth,
-            SequenceNumber = b.SequenceNumber,
-            NumberOfPasses = b.NumberOfPasses,
-            FeedSpeed = b.FeedSpeed,
-            SpindleSpeed = b.SpindleSpeed
-        };
-
-        return (segment1, arc, segment2);
+        return (a, arc, b);
 
     }
 
