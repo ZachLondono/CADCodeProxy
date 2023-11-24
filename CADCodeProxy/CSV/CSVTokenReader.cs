@@ -114,12 +114,40 @@ public class CSVTokenReader {
             "multibore" => MultiBore.FromTokenRecord(record),
             "arc" or "cwarc" or "ccwarc" => Arc.FromTokenRecord(record),
             "shape" or "outline" => OutlineSegment.FromTokenRecord(record),
-            "pocket" => Pocket.FromTokenRecord(record),
+            "pocket" => MapRecordToPocket(record),
+            "freepocket" => MapRecordToFreePocket(record),
             "route" => Route.FromTokenRecord(record),
             "rectangle" => Rectangle.FromTokenRecord(record),
             "fillet" => Fillet.FromTokenRecord(record),
             _ => throw new NotImplementedException($"Token not supported '{record.Name}'"),
         };
+    }
+
+    internal IToken MapRecordToPocket(TokenRecord record) {
+
+        if (double.TryParse(record.CenterX, out _)
+            || double.TryParse(record.CenterX, out _)
+            || double.TryParse(record.Radius, out _)) {
+
+            return CircularPocket.FromTokenRecord(record);
+
+        }
+
+        return Pocket.FromTokenRecord(record);
+
+    }
+
+    internal IToken MapRecordToFreePocket(TokenRecord record) {
+
+        if (double.TryParse(record.Radius, out _)
+            || double.TryParse(record.ArcDirection, out _)) {
+
+            return FreePocketArcSegment.FromTokenRecord(record); 
+
+        }
+
+        return FreePocketSegment.FromTokenRecord(record);
+
     }
 
 }
