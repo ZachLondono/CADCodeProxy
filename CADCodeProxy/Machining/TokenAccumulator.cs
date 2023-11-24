@@ -281,6 +281,15 @@ internal class TokenAccumulator {
             var tangent1 = GetTangentPoints(start, uVec1, uVec2, perpPoint1, perpPoint2, denominator);
             var tangent2 = GetTangentPoints(center, uVec2, uVec1, perpPoint1, perpPoint2, denominator);
 
+            if (double.IsNaN(tangent1.X) || double.IsInfinity(tangent1.X)
+                || double.IsNaN(tangent1.Y) || double.IsInfinity(tangent1.Y)
+                || double.IsNaN(tangent2.X) || double.IsInfinity(tangent2.X)
+                || double.IsNaN(tangent2.Y) || double.IsInfinity(tangent2.Y)) {
+
+                throw new InvalidOperationException("Invalid fillet operation between points");
+
+            }
+
             // TODO: make sure these points are returned in the correct order;
             return (tangent1, tangent2, counterClockWise);
 
