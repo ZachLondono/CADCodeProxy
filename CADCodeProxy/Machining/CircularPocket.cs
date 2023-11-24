@@ -16,6 +16,8 @@ public class CircularPocket : IToken, IMachiningOperation {
 
     void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 
+        throw new NotImplementedException();
+
         code.DefinePocket(
             StartX: 0,
             StartY: 0,
@@ -38,7 +40,7 @@ public class CircularPocket : IToken, IMachiningOperation {
             EntrySpeed: 0,
             RotationSpeed: 0,
             NestedRouteSequence: SequenceNumber,
-            Normal: null,
+            Normal: new object[] { 0, 0, 1 },
             InsideOut: true,
             NumberOfPasses: NumberOfPasses);
 
