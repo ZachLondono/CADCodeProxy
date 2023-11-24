@@ -79,61 +79,21 @@ internal class TokenAccumulator {
 
             return;
 
-        } else if (token is Route route) {
+        } else if (token is IRouteSequenceSegment segment) {
 
             var lastToken = _currentSequence.LastOrDefault();
             if (lastToken is null) {
 
-                _currentSequence.Add(route);
+                _currentSequence.Add(segment);
 
-            } else if (lastToken is Route lastRoute) {
+            } else if (lastToken.ToolName == segment.ToolName && lastToken.End == segment.Start) {
 
-                if (lastRoute.ToolName == route.ToolName && lastRoute.End == route.Start) {
-                    _currentSequence.Add(route);
+                _currentSequence.Add(segment);
+
                 } else {
+
                     AddCurrentSequence();
-                    _operations.Add(route);
-                }
-
-            } else if (lastToken is Arc lastArc) {
-
-                if (lastArc.ToolName == route.ToolName && lastArc.End == route.Start) {
-                    _currentSequence.Add(route);
-                } else {
-                    AddCurrentSequence();
-                    _operations.Add(route);
-                }
-                _currentSequence.Add(route);
-
-            }
-
-            return;
-
-        } else if (token is Route arc) {
-
-            var lastToken = _currentSequence.LastOrDefault();
-            if (lastToken is null) {
-
-                _currentSequence.Add(arc);
-
-            } else if (lastToken is Route lastRoute) {
-
-                if (lastRoute.ToolName == arc.ToolName && lastRoute.End == arc.Start) {
-                    _currentSequence.Add(arc);
-                } else {
-                    AddCurrentSequence();
-                    _currentSequence.Add(arc);
-                }
-
-            } else if (lastToken is Arc lastArc) {
-
-                if (lastArc.ToolName == arc.ToolName && lastArc.End == arc.Start) {
-                    _currentSequence.Add(arc);
-                } else {
-                    AddCurrentSequence();
-                    _currentSequence.Add(arc);
-                }
-                _currentSequence.Add(arc);
+                _currentSequence.Add(segment);
 
             }
 
