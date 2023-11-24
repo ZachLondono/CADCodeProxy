@@ -94,6 +94,31 @@ public class RouteSequenceTests {
 
     }
 
+    [Fact]
+    public void AddToken_ShouldThrow_WhenTryingToInsertFilletBetweenRouteAndOutline() {
+
+        var route = CreateRoute(new Point(0, 0), new Point(20, 20));
+        var fillet = new Fillet() { Radius = 1 };
+        var outline = new OutlineSegment() {
+            ToolName = route.ToolName,
+            Start = route.End,
+            End = new Point(0, 20),
+            StartDepth = route.StartDepth,
+            EndDepth = route.EndDepth,
+            FeedSpeed = route.FeedSpeed,
+            NumberOfPasses = route.NumberOfPasses,
+            SequenceNumber = route.SequenceNumber,
+            SpindleSpeed = route.SpindleSpeed
+        };
+
+        _sut.AddToken(route);
+        _sut.AddToken(fillet);
+        var action = () => _sut.AddToken(outline);
+
+        action.Should().Throw<InvalidOperationException>();
+
+    }
+
     public Route CreateRoute(Point start, Point end,
                             string toolName = "",
                             double startDepth = 0,
