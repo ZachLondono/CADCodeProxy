@@ -20,8 +20,6 @@ public class Route : IToken, IMachiningOperation {
 
     void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 
-        // TODO: If there are two line sequences back to back that go over the exact same path, but have different tools, sequence number, etc. then it will do both of those paths with the same tool - possible fix is to call RouteSetMill to force it to create a new sequence
-
         code.RouteLine((float)Start.X,
                        (float)Start.Y,
                        (float)StartDepth,

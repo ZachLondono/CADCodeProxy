@@ -7,7 +7,6 @@ public class PartFace {
     public bool IsMirrored { get; set; } = false;
     public required IToken[] Tokens { get; set; }
 
-    // TODO: Fix tokens that use fillets
     public IMachiningOperation[] GetMachiningOperations() {
 
         var accumulator = new TokenAccumulator();

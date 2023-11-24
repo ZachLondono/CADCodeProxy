@@ -5,8 +5,6 @@ namespace CADCodeProxy.Machining;
 
 public class Pocket : IToken, IMachiningOperation {
 
-    // TODO: Create Circular Pocket and Free Pocket Segment tokens
-
     public required string ToolName { get; set; }
     public required Point CornerA { get; set; }
     public required Point CornerB { get; set; }
