@@ -37,7 +37,12 @@ internal class TokenAccumulator {
                     throw new InvalidOperationException("Fillets must exist between two entities of the same type");
                 }
 
-                if (route.Start != lastRoute.End) {
+                if (route.Start != lastRoute.End ||
+                    route.SequenceNumber != lastRoute.SequenceNumber ||
+                    route.NumberOfPasses != lastRoute.NumberOfPasses ||
+                    route.ToolName != lastRoute.ToolName ||
+                    route.StartDepth != lastRoute.EndDepth ||
+                    route.Offset != lastRoute.Offset) {
                     throw new InvalidOperationException("Fillets must exist between two entities which are connected");
                 }
 
