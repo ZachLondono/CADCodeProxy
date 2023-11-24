@@ -5,7 +5,7 @@ using CADCodeProxy.Enums;
 
 namespace CADCodeProxy.Machining;
 
-public class Route : IToken, IMachiningOperation {
+public class Route : IToken, IRouteSequenceSegment {
 
     public required string ToolName { get; set; }
     public required Point Start { get; set; }

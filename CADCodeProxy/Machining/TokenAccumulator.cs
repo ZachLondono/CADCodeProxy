@@ -5,7 +5,7 @@ namespace CADCodeProxy.Machining;
 internal class TokenAccumulator {
 
     private List<IMachiningOperation> _operations = new();
-    private List<IMachiningOperation> _currentSequence = new();
+    private List<IRouteSequenceSegment> _currentSequence = new();
     private Fillet? _currentFillet = null;
 
     public void AddToken(IToken token) {
