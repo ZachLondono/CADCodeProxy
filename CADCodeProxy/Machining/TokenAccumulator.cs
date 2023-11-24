@@ -5,6 +5,7 @@ namespace CADCodeProxy.Machining;
 internal class TokenAccumulator {
 
     private List<IMachiningOperation> _operations = new();
+    private List<IMachiningOperation> _currentSequence = new();
     private Fillet? _currentFillet = null;
 
     public void AddToken(IToken token) {
@@ -13,18 +14,19 @@ internal class TokenAccumulator {
 
             var lastToken = _operations.LastOrDefault();
             if (lastToken is not Route && lastToken is not OutlineSegment) {
-                // TODO: they may be in between routes or outline segments
                 throw new InvalidOperationException("Fillets must exist between routes or outline segments");
             }
 
             _currentFillet = fillet;
+            return;
 
         } else if (token is Rectangle rectangle) {
 
-            // TODO: create routes and fillets for rectangle
             foreach (var subTokens in rectangle.GetComponentTokens()) {
                 AddToken(subTokens);
             }
+
+            return;
 
         } else if (_currentFillet is not null) {
 
@@ -42,10 +44,10 @@ internal class TokenAccumulator {
                 var result = FilletRoutes(lastRoute, route, _currentFillet);
                 _currentFillet = null;
 
-                _operations.Remove(lastToken);
-                _operations.Add(result.Item1);
-                _operations.Add(result.Item2);
-                _operations.Add(result.Item3);
+                _currentSequence.Remove(lastToken);
+                _currentSequence.Add(result.Route1);
+                _currentSequence.Add(result.Arc);
+                _currentSequence.Add(result.Route2);
 
             } else if (token is OutlineSegment outlineSegment) {
 
@@ -62,23 +64,129 @@ internal class TokenAccumulator {
                 _currentFillet = null;
 
                 _operations.Remove(lastToken);
-                _operations.Add(result.Item1);
-                _operations.Add(result.Item2);
-                _operations.Add(result.Item3);
+                _operations.Add(result.Segment1);
+                _operations.Add(result.Segment2);
+                _operations.Add(result.Segment3);
 
             } else {
                 throw new InvalidOperationException("Fillets must exist between routes or outline segments");
             }
 
+            return;
+
+        } else if (token is Route route) {
+
+            var lastToken = _currentSequence.LastOrDefault();
+            if (lastToken is null) {
+
+                _currentSequence.Add(route);
+
+            } else if (lastToken is Route lastRoute) {
+
+                if (lastRoute.ToolName == route.ToolName && lastRoute.End == route.Start) {
+                    _currentSequence.Add(route);
+                } else {
+                    AddCurrentSequence();
+                    _operations.Add(route);
+                }
+
+            } else if (lastToken is Arc lastArc) {
+
+                if (lastArc.ToolName == route.ToolName && lastArc.End == route.Start) {
+                    _currentSequence.Add(route);
+                } else {
+                    AddCurrentSequence();
+                    _operations.Add(route);
+                }
+                _currentSequence.Add(route);
+
+            }
+
+            return;
+
+        } else if (token is Route arc) {
+
+            var lastToken = _currentSequence.LastOrDefault();
+            if (lastToken is null) {
+
+                _currentSequence.Add(arc);
+
+            } else if (lastToken is Route lastRoute) {
+
+                if (lastRoute.ToolName == arc.ToolName && lastRoute.End == arc.Start) {
+                    _currentSequence.Add(arc);
+                } else {
+                    AddCurrentSequence();
+                    _currentSequence.Add(arc);
+                }
+
+            } else if (lastToken is Arc lastArc) {
+
+                if (lastArc.ToolName == arc.ToolName && lastArc.End == arc.Start) {
+                    _currentSequence.Add(arc);
+                } else {
+                    AddCurrentSequence();
+                    _currentSequence.Add(arc);
+                }
+                _currentSequence.Add(arc);
+
+            }
+
+            return;
+
         } else if (token is IMachiningOperation operation) {
+
+            AddCurrentSequence();
+
             _operations.Add(operation);
+
         } else {
             throw new InvalidOperationException($"Unexpected token {token.GetType().Name}");
         }
 
     }
 
-    private static (Route, Arc, Route) FilletRoutes(Route a, Route b, Fillet fillet) {
+    private void AddCurrentSequence() {
+
+        if (!_currentSequence.Any()) {
+            return;
+        }
+
+        var first = _currentSequence.First();
+
+        if (first is Route firstRoute) {
+            _operations.Add(new SetMill() {
+                ToolName = first.ToolName,
+                Start = firstRoute.Start,
+                StartDepth = firstRoute.StartDepth,
+                Offset = firstRoute.Offset,
+                SequenceNumber = firstRoute.SequenceNumber,
+                NumberOfPasses = firstRoute.NumberOfPasses,
+                FeedSpeed = firstRoute.FeedSpeed,
+                SpindleSpeed = firstRoute.SpindleSpeed
+            });
+        } else if (first is Arc firstArc) {
+            _operations.Add(new SetMill() {
+                ToolName = first.ToolName,
+                Start = firstArc.Start,
+                StartDepth = firstArc.StartDepth,
+                Offset = firstArc.Offset,
+                SequenceNumber = firstArc.SequenceNumber,
+                NumberOfPasses = firstArc.NumberOfPasses,
+                FeedSpeed = firstArc.FeedSpeed,
+                SpindleSpeed = firstArc.SpindleSpeed
+            });
+        }
+
+        foreach (var segment in _currentSequence) {
+            _operations.Add(segment);
+        }
+
+        _currentSequence = new();
+
+    }
+
+    private static (Route Route1, Arc Arc, Route Route2) FilletRoutes(Route a, Route b, Fillet fillet) {
 
         var points = FilletCalculator.GetFilletPoints(new(a.Start.X, a.Start.Y),
                                         new(a.End.X, a.End.Y),
@@ -108,7 +216,7 @@ internal class TokenAccumulator {
 
     }
 
-    private (OutlineSegment, ArcOutlineSegment, OutlineSegment) FilletOutline(OutlineSegment a, OutlineSegment b, Fillet fillet) {
+    private (OutlineSegment Segment1, ArcOutlineSegment Segment2, OutlineSegment Segment3) FilletOutline(OutlineSegment a, OutlineSegment b, Fillet fillet) {
 
         var points = FilletCalculator.GetFilletPoints(a.Start,
                                         a.End,
