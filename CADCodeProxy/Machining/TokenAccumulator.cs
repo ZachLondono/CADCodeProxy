@@ -250,7 +250,16 @@ internal class TokenAccumulator {
 
     }
 
-    public IMachiningOperation[] GetMachiningOperations() => _operations.ToArray();
+    public IMachiningOperation[] GetMachiningOperations() {
+
+        // If this method is called before all tokens in a sequence are added, the subsequent sequences will not be added to the current sequence.
+        // This class could be designed to avoid that, although it is probably not necessary
+        
+        AddCurrentSequence();
+
+        return _operations.ToArray();
+
+    }
 
     internal class FilletCalculator {
 
