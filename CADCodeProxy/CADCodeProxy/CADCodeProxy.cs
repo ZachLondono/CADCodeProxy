@@ -98,6 +98,35 @@ internal class CADCodeProxy : IDisposable {
 
         List<MaterialGCodeGenerationResult> materialResults = new();
         var groups = batch.Parts.GroupBy(p => new PartGroupKey(p.Material, p.Thickness));
+
+        foreach (var group in groups) {
+            
+            var matchingInventory = inventory.Where(i => i.MaterialName == group.Key.MaterialName && i.PanelThickness == group.Key.Thickness).ToList();
+
+            if (!matchingInventory.Any()) {
+                throw new InvalidInventoryException($"No valid {group.Key.Thickness}mm thick '{group.Key.MaterialName}' inventory available");
+            }
+
+            // TODO: take into account panel trim when checking size of parts
+            // TODO: make sure width / length is correct
+            var largestLength = group.Select(p => {
+                    if (p.IsGrained) return p.Length;
+                    return Math.Min(p.Width, p.Length);
+                })
+                .Max();
+
+            var largestWidth = group.Select(p => {
+                    if (p.IsGrained) return p.Width;
+                    return Math.Min(p.Width, p.Length);
+                })
+                .Max();
+
+            if (matchingInventory.Any(i => i.PanelWidth < largestWidth) || matchingInventory.Any(i => i.PanelLength < largestLength)) {
+                throw new InvalidInventoryException($"No valid {group.Key.Thickness}mm thick '{group.Key.MaterialName}' inventory large enough for all parts in batch");
+            }
+            
+        }
+
         foreach (var group in groups) {
             var matResult = GenerateCodeForMaterialType(batch.InfoFields, group.Key, group.ToArray(), inventory, units, _bootObj, labels, files, code);
             materialResults.Add(matResult);
