@@ -158,29 +158,21 @@ internal class TokenAccumulator {
         }
 
         var first = _currentSequence.First();
+        var last = _currentSequence.Last();
 
-        if (first is Route firstRoute) {
+        if (first.Start == last.End) {
+
             _operations.Add(new SetMill() {
                 ToolName = first.ToolName,
-                Start = firstRoute.Start,
-                StartDepth = firstRoute.StartDepth,
-                Offset = firstRoute.Offset,
-                SequenceNumber = firstRoute.SequenceNumber,
-                NumberOfPasses = firstRoute.NumberOfPasses,
-                FeedSpeed = firstRoute.FeedSpeed,
-                SpindleSpeed = firstRoute.SpindleSpeed
+                Start = first.Start,
+                StartDepth = first.StartDepth,
+                Offset = first.Offset,
+                SequenceNumber = first.SequenceNumber,
+                NumberOfPasses = first.NumberOfPasses,
+                FeedSpeed = first.FeedSpeed,
+                SpindleSpeed = first.SpindleSpeed
             });
-        } else if (first is Arc firstArc) {
-            _operations.Add(new SetMill() {
-                ToolName = first.ToolName,
-                Start = firstArc.Start,
-                StartDepth = firstArc.StartDepth,
-                Offset = firstArc.Offset,
-                SequenceNumber = firstArc.SequenceNumber,
-                NumberOfPasses = firstArc.NumberOfPasses,
-                FeedSpeed = firstArc.FeedSpeed,
-                SpindleSpeed = firstArc.SpindleSpeed
-            });
+
         }
 
         foreach (var segment in _currentSequence) {
