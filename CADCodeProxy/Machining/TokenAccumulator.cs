@@ -56,8 +56,8 @@ internal class TokenAccumulator {
 
             } else if (token is OutlineSegment outlineSegment) {
 
-                var lastToken = _currentSequence.LastOrDefault();
-                if (lastToken is not OutlineSegment lastSegment) {
+                var lastToken = _operations.LastOrDefault();
+                if (_currentSequence.Any() || lastToken is not OutlineSegment lastSegment) {
                     throw new InvalidOperationException("Fillets must exist between two entities of the same type");
                 }
 
@@ -90,9 +90,9 @@ internal class TokenAccumulator {
 
                 _currentSequence.Add(segment);
 
-                } else {
-
-                    AddCurrentSequence();
+            } else {
+            
+                AddCurrentSequence();
                 _currentSequence.Add(segment);
 
             }
