@@ -39,7 +39,7 @@ public class FreePocketSegment : IToken, IMachiningOperation {
             EntrySpeed: 0,
             RotationSpeed: (float) SpindleSpeed, // TODO: Make sure this is actually spindle speed
             NestedRouteSequence: SequenceNumber,
-            Normal: null,
+            Normal: new object[] { 0, 0, 1 },
             InsideOut: true,
             NumberOfPasses: NumberOfPasses);
 
