@@ -12,7 +12,7 @@ internal class TokenAccumulator {
 
         if (token is Fillet fillet) {
 
-            var lastToken = _operations.LastOrDefault();
+            var lastToken = _currentSequence.LastOrDefault();
             if (lastToken is not Route && lastToken is not OutlineSegment) {
                 throw new InvalidOperationException("Fillets must exist between routes or outline segments");
             }
@@ -32,7 +32,7 @@ internal class TokenAccumulator {
 
             if (token is Route route) {
 
-                var lastToken = _operations.LastOrDefault();
+                var lastToken = _currentSequence.LastOrDefault();
                 if (lastToken is not Route lastRoute) {
                     throw new InvalidOperationException("Fillets must exist between two entities of the same type");
                 }
@@ -51,7 +51,7 @@ internal class TokenAccumulator {
 
             } else if (token is OutlineSegment outlineSegment) {
 
-                var lastToken = _operations.LastOrDefault();
+                var lastToken = _currentSequence.LastOrDefault();
                 if (lastToken is not OutlineSegment lastSegment) {
                     throw new InvalidOperationException("Fillets must exist between two entities of the same type");
                 }
