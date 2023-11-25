@@ -65,7 +65,7 @@ public class Bore : IBoringToken, IMachiningOperation {
 
     internal static Bore FromTokenRecord(TokenRecord tokenRecord) {
 
-        if (!tokenRecord.Name.Equals("bore", StringComparison.InvariantCultureIgnoreCase)) {
+        if (!tokenRecord.Name.Split('*',2).First().Equals("bore", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to bore.");
         }
 

@@ -66,7 +66,7 @@ public class FreePocketSegment : IToken, IMachiningOperation {
 
     internal static FreePocketSegment FromTokenRecord(TokenRecord tokenRecord) {
 
-        if (!tokenRecord.Name.Equals("freepocket", StringComparison.InvariantCultureIgnoreCase)) {
+        if (!tokenRecord.Name.Split('*',2).First().Equals("freepocket", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to Free Pocket Segment.");
         }
 

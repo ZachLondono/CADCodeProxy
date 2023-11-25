@@ -65,7 +65,7 @@ public class CircularPocket : IToken, IMachiningOperation {
 
     internal static CircularPocket FromTokenRecord(TokenRecord tokenRecord) {
 
-        if (!tokenRecord.Name.Equals("pocket", StringComparison.InvariantCultureIgnoreCase)) {
+        if (!tokenRecord.Name.Split('*',2).First().Equals("pocket", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to Circular Pocket.");
         }
 

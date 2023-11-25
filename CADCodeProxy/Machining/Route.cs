@@ -64,7 +64,7 @@ public class Route : IToken, IRouteSequenceSegment {
 
     internal static Route FromTokenRecord(TokenRecord tokenRecord) {
 
-        if (!tokenRecord.Name.Equals("route", StringComparison.InvariantCultureIgnoreCase)) {
+        if (!tokenRecord.Name.Split('*',2).First().Equals("route", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to route.");
         }
 

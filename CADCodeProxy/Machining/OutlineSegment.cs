@@ -57,7 +57,7 @@ public class OutlineSegment : IToken, IMachiningOperation {
 
     internal static OutlineSegment FromTokenRecord(TokenRecord tokenRecord) {
 
-        if (!tokenRecord.Name.Equals("shape", StringComparison.InvariantCultureIgnoreCase)
+        if (!tokenRecord.Name.Split('*',2).First().Equals("shape", StringComparison.InvariantCultureIgnoreCase)
             && !tokenRecord.Name.Equals("outline", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to outline/shape segment.");
         }

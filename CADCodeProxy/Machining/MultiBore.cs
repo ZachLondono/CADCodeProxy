@@ -104,7 +104,7 @@ public class MultiBore : IBoringToken, IMachiningOperation {
 
     internal static MultiBore FromTokenRecord(TokenRecord tokenRecord) {
 
-        if (!tokenRecord.Name.Equals("multibore", StringComparison.InvariantCultureIgnoreCase)) {
+        if (!tokenRecord.Name.Split('*',2).First().Equals("multibore", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to multibore.");
         }
 

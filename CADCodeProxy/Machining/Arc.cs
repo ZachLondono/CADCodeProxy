@@ -81,9 +81,10 @@ public class Arc : IToken, IRouteSequenceSegment {
 
     internal static Arc FromTokenRecord(TokenRecord tokenRecord) {
 
-        if (!tokenRecord.Name.Equals("arc", StringComparison.InvariantCultureIgnoreCase)
-            && !tokenRecord.Name.Equals("cwarc", StringComparison.InvariantCultureIgnoreCase)
-            && !tokenRecord.Name.Equals("ccwarc", StringComparison.InvariantCultureIgnoreCase)) {
+        var tokenName = tokenRecord.Name.Split('*', 2).First(); 
+        if (!tokenName.Equals("arc", StringComparison.InvariantCultureIgnoreCase)
+            && !tokenName.Equals("cwarc", StringComparison.InvariantCultureIgnoreCase)
+            && !tokenName.Equals("ccwarc", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to arc.");
         }
 
