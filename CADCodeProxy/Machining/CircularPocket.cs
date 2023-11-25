@@ -57,6 +57,8 @@ public class CircularPocket : IToken, IMachiningOperation {
             ToolName = ToolName,
             NumberOfPasses = NumberOfPasses.ToString(),
             SequenceNum = SequenceNumber.ToString(),
+            FeedSpeed = FeedSpeed.ToString(),
+            SpindleSpeed = SpindleSpeed.ToString()
         };
 
     }
