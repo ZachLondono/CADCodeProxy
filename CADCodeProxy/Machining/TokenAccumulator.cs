@@ -12,8 +12,9 @@ internal class TokenAccumulator {
 
         if (token is Fillet fillet) {
 
-            var lastToken = _currentSequence.LastOrDefault();
-            if (lastToken is not Route && lastToken is not OutlineSegment) {
+            var lastTokenInSequence = _currentSequence.LastOrDefault();
+            var lastOperation = _operations.LastOrDefault();
+            if (lastTokenInSequence is not Route && !(lastTokenInSequence is null && lastOperation is OutlineSegment)) {
                 throw new InvalidOperationException("Fillets must exist between routes or outline segments");
             }
 
