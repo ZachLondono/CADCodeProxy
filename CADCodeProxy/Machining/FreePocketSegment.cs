@@ -3,17 +3,17 @@ using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
-public class FreePocketSegment : IToken, IMachiningOperation {
+public record FreePocketSegment : IToken, IMachiningOperation {
 
-    public required string ToolName { get; set; }
-    public required Point Start { get; set; }
-    public required Point End { get; set; }
-    public required double StartDepth { get; set; }
-    public required double EndDepth { get; set; }
-    public int SequenceNumber { get; set; } = 0;
-    public int NumberOfPasses { get; set; } = 0;
-    public double FeedSpeed { get; set; }
-    public double SpindleSpeed { get; set; }
+    public required string ToolName { get; init; }
+    public required Point Start { get; init; }
+    public required Point End { get; init; }
+    public required double StartDepth { get; init; }
+    public required double EndDepth { get; init; }
+    public int SequenceNumber { get; init; } = 0;
+    public int NumberOfPasses { get; init; } = 0;
+    public double FeedSpeed { get; init; }
+    public double SpindleSpeed { get; init; }
 
     void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 

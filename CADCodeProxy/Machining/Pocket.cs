@@ -3,19 +3,19 @@ using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
-public class Pocket : IToken, IMachiningOperation {
+public record Pocket : IToken, IMachiningOperation {
 
-    public required string ToolName { get; set; }
-    public required Point CornerA { get; set; }
-    public required Point CornerB { get; set; }
-    public required Point CornerC { get; set; }
-    public required Point CornerD { get; set; }
-    public required double StartDepth { get; set; }
-    public required double EndDepth { get; set; }
-    public int SequenceNumber { get; set; } = 0;
-    public int NumberOfPasses { get; set; } = 0;
-    public double FeedSpeed { get; set; } = 0;
-    public double SpindleSpeed { get; set; } = 0;
+    public required string ToolName { get; init; }
+    public required Point CornerA { get; init; }
+    public required Point CornerB { get; init; }
+    public required Point CornerC { get; init; }
+    public required Point CornerD { get; init; }
+    public required double StartDepth { get; init; }
+    public required double EndDepth { get; init; }
+    public int SequenceNumber { get; init; } = 0;
+    public int NumberOfPasses { get; init; } = 0;
+    public double FeedSpeed { get; init; } = 0;
+    public double SpindleSpeed { get; init; } = 0;
 
     void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 

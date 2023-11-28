@@ -155,12 +155,12 @@ internal class TokenAccumulator {
                                         new(b.End.X, b.End.Y),
                                         fillet.Radius);
 
-        a.End = points.Item1;
-        b.Start = points.Item2;
+        var route1 = a with { End = points.Item1 };
+        var route2 = b with { Start = points.Item2 };
 
         var arc = new Arc() {
-            Start = a.End,
-            End = b.Start,
+            Start = route1.End,
+            End = route2.Start,
             Radius = fillet.Radius,
             Direction = points.CounterClockWise ? ArcDirection.CounterClockWise : ArcDirection.ClockWise,
 
@@ -174,7 +174,7 @@ internal class TokenAccumulator {
             SpindleSpeed = a.SpindleSpeed
         };
 
-        return (a, arc, b);
+        return (route1, arc, route2);
 
     }
 
@@ -185,12 +185,12 @@ internal class TokenAccumulator {
                                         b.End,
                                         fillet.Radius);
 
-        a.End = points.Item1;
-        b.Start = points.Item2;
+        var segment1 = a with { End = points.Item1 };
+        var segment2 = b with { Start = points.Item2 };
 
         var arc = new ArcOutlineSegment() {
-            Start = a.End,
-            End = b.Start,
+            Start = segment1.End,
+            End = segment2.Start,
             Radius = fillet.Radius,
             Direction = points.CounterClockWise ? ArcDirection.CounterClockWise : ArcDirection.ClockWise,
 
@@ -203,7 +203,7 @@ internal class TokenAccumulator {
             SpindleSpeed = a.SpindleSpeed
         };
 
-        return (a, arc, b);
+        return (segment1, arc, segment2);
 
     }
 

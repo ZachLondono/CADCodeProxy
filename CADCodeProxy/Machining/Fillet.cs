@@ -2,9 +2,9 @@
 
 namespace CADCodeProxy.Machining;
 
-public class Fillet : IToken {
+public record Fillet : IToken {
 
-    public required double Radius { get; set; } = 0;
+    public required double Radius { get; init; } = 0;
 
     TokenRecord IToken.ToTokenRecord() {
 

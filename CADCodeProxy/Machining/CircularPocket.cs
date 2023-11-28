@@ -3,16 +3,16 @@ using CADCodeProxy.CSV;
 
 namespace CADCodeProxy.Machining;
 
-public class CircularPocket : IToken, IMachiningOperation {
+public record CircularPocket : IToken, IMachiningOperation {
 
-    public required string ToolName { get; set; }
-    public required Point Center { get; set; }
-    public required double Depth { get; set; }
-    public required double Radius { get; set; }
-    public int SequenceNumber { get; set; } = 0;
-    public int NumberOfPasses { get; set; } = 0;
-    public double FeedSpeed { get; set; }
-    public double SpindleSpeed { get; set; }
+    public required string ToolName { get; init; }
+    public required Point Center { get; init; }
+    public required double Depth { get; init; }
+    public required double Radius { get; init; }
+    public int SequenceNumber { get; init; } = 0;
+    public int NumberOfPasses { get; init; } = 0;
+    public double FeedSpeed { get; init; }
+    public double SpindleSpeed { get; init; }
 
     void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 

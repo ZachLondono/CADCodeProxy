@@ -5,18 +5,18 @@ using CADCodeProxy.Enums;
 
 namespace CADCodeProxy.Machining;
 
-public class Route : IToken, IRouteSequenceSegment {
+public record Route : IToken, IRouteSequenceSegment {
 
-    public required string ToolName { get; set; }
-    public required Point Start { get; set; }
-    public required Point End { get; set; }
-    public required double StartDepth { get; set; }
-    public required double EndDepth { get; set; }
-    public Offset Offset { get; set; } = Offset.Center;
-    public int SequenceNumber { get; set; } = 0;
-    public int NumberOfPasses { get; set; } = 0;
-    public double FeedSpeed { get; set; } = 0;
-    public double SpindleSpeed { get; set; } = 0;
+    public required string ToolName { get; init; }
+    public required Point Start { get; init; }
+    public required Point End { get; init; }
+    public required double StartDepth { get; init; }
+    public required double EndDepth { get; init; }
+    public Offset Offset { get; init; } = Offset.Center;
+    public int SequenceNumber { get; init; } = 0;
+    public int NumberOfPasses { get; init; } = 0;
+    public double FeedSpeed { get; init; } = 0;
+    public double SpindleSpeed { get; init; } = 0;
 
     void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 
