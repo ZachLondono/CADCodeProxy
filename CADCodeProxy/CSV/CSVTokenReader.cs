@@ -125,15 +125,14 @@ public class CSVTokenReader {
 
     internal IToken MapRecordToPocket(TokenRecord record) {
 
-        if (double.TryParse(record.CenterX, out _)
-            || double.TryParse(record.CenterX, out _)
-            || double.TryParse(record.Radius, out _)) {
+        if (double.TryParse(record.StartX, out _)
+            || double.TryParse(record.StartX, out _)) {
 
-            return CircularPocket.FromTokenRecord(record);
-
+            return Pocket.FromTokenRecord(record);
+            
         }
 
-        return Pocket.FromTokenRecord(record);
+        return CircularPocket.FromTokenRecord(record);
 
     }
 
