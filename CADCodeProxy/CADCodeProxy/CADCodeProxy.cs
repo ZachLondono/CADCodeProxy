@@ -195,6 +195,9 @@ internal class CADCodeProxy : IDisposable {
 
         var partLabels = new List<PartLabel>();
 
+        var resultNumber = GenerateResultNumber();
+        code.StartingProgramNumber = resultNumber;
+
         code.Border(1.0f, 1.0f, (float)partGroupKey.Thickness, units, OriginType.CC_UL, $"{partGroupKey.MaterialName} {partGroupKey.Thickness}", AxisTypes.CC_AUTO_AXIS);
         foreach (var batchPart in batchParts) {
             partLabels.Add(batchPart.AddToLabels(batchInfoFields, labels));
@@ -205,7 +208,7 @@ internal class CADCodeProxy : IDisposable {
         sheetStock.ForEach(ss => optimizer.AddSheetStockByRef(ss, units));
         parts.ForEach(p => optimizer.AddPartByRef(p.Part));
 
-        var resultName = GenerateResultName();
+        string resultName = (resultNumber * 100).ToString("D6");
         optimizer.Optimize(typeOptimizeMethod.CC_OPT_ANYKIND, code, resultName, 0, 0, labels);
 
         var usedInventory = sheetStock.Select(UsedInventory.FromCutlistInventory)
@@ -343,7 +346,7 @@ internal class CADCodeProxy : IDisposable {
         };
     }
 
-    private static string GenerateResultName() => new Random().Next(0, 100000).ToString("D6");
+    private static int GenerateResultNumber() => new Random().Next(0, 1000);
 
     private static string RemoveInvalidFileNameChars(string fileName) => string.Concat(fileName.Split(Path.GetInvalidFileNameChars()));
 
