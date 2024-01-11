@@ -208,7 +208,7 @@ internal class CADCodeProxy : IDisposable {
         sheetStock.ForEach(ss => optimizer.AddSheetStockByRef(ss, units));
         parts.ForEach(p => optimizer.AddPartByRef(p.Part));
 
-        string resultName = (resultNumber * 10).ToString("D5");
+        string resultName = (resultNumber).ToString("D5");
         optimizer.Optimize(typeOptimizeMethod.CC_OPT_ANYKIND, code, resultName, 0, 0, labels);
 
         var usedInventory = sheetStock.Select(UsedInventory.FromCutlistInventory)
@@ -346,7 +346,7 @@ internal class CADCodeProxy : IDisposable {
         };
     }
 
-    private static int GenerateResultNumber() => new Random().Next(0, 1000);
+    private static int GenerateResultNumber() => new Random().Next(0, 10000);
 
     private static string RemoveInvalidFileNameChars(string fileName) => string.Concat(fileName.Split(Path.GetInvalidFileNameChars()));
 
