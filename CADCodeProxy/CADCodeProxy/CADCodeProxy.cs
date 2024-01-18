@@ -242,6 +242,9 @@ internal class CADCodeProxy : IDisposable {
 
     private static void GenerateSinglePrograms(Machining.Part[] batchParts, UnitTypes units, CADCodeCodeClass code) {
 
+        var resultNumber = GenerateResultNumber();
+        code.StartingProgramNumber = resultNumber;
+
         foreach (var part in batchParts) {
             part.AddPrimaryFaceSinglePartToCode(code, units);
         }
