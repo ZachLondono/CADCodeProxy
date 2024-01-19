@@ -1,0 +1,19 @@
+{
+  "profiles": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "Basic Example": {
+      "commandName": "Project"
+    },
+    "CSV Reading": {
+      "commandName": "Project",
+      "commandLineArgs": "csv-reading"
+    },
+    "CSV Writing": {
+      "commandName": "Project",
+      "commandLineArgs": "csv-writing"
+    }
+  }
+}

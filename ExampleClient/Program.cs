@@ -4,99 +4,124 @@ using CADCodeProxy.CSV;
 using CADCodeProxy.Enums;
 using CADCodeProxy.Exceptions;
 using CADCodeProxy.Machining;
-using CADCodeProxy.Results;
-using System.Text;
 using System.Text.Json;
+using Cocona;
+using Microsoft.Extensions.Logging;
 
-/*
-var gcodeResult = new GCodeGenerationResult() {
-	WinStepReportFilePath = null,
-	MachineResults = new MachineGCodeGenerationResult[] {
-		new() {
-			MachineName = "Machine A",
-			MaterialGCodeGenerationResults = new MaterialGCodeGenerationResult[] {
-				new() {
-					MaterialName = "Material 1",
-					MaterialThickness = 19.05,
-					ProgramNames = new string[] {
-						"0", "1", "2"
-					},
-					PartLabels = new PartLabel[] {
-						new() {
-							PartId = Guid.Empty,
-							Fields = new()
-						}
-					},
-					PlacedParts = new PlacedPart[] {
-						new() {
-							PartId = Guid.Empty,
-							Name = "Part",
-							Width = 0,
-							Length = 0,
-							UsedInventoryIndex = 0,
-							ProgramIndex = 0,
-							Area = 0,
-							IsRotated = false,
-							InsertionPoint = new(0,0),
-						}
-					},
-					UnplacedParts = new UnplacedPart[] {
-						new() {
-							PartName = "Part",
-							Qty = 0
-						}
-					},
-					UsedInventory = new UsedInventory[] {
-						new() {
-							Name = "Material",
-							Width = 0,
-							Length = 0,
-							Thickness = 0,
-							Qty = 0,
-							IsGrained = false,
-						}
-					}
-				}
-			}
-		}
-	}
-};
+var builder = CoconaApp.CreateBuilder();
+builder.Logging.AddDebug();
 
-var gcodeSerialize = JsonSerializer.Serialize(gcodeResult, new JsonSerializerOptions() {
-	WriteIndented = true
+var app = builder.Build();
+
+app.AddCommand((ILogger<Program> logger) => {
+
+	logger.LogInformation("Basic test");
+
+	var batch = CreateBatch();
+	var generator = CreateGCodeGenerator();
+	var machines = GetMachines();
+
+	GenerateGCodeForBatch(batch, generator, machines);
+
 });
-File.WriteAllText(@"C:\Users\Zachary Londono\Desktop\TestOutput\GCode Result.json", gcodeSerialize);
-*/
 
-var batches = ReadBatchesFromCSV();
+app.AddCommand("csv-reading", (ILogger<Program> logger, string file = @"R:\Door Orders\CC Input\CSV Examples\Simple Door.csv") => {
 
-var machines = new List<Machine>() {
-    //new() {
-    //    Name = "Omnitech Selexx",
-    //    NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
-    //    SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
-    //    ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Royal Omnitech Fanuc-Smart names.mdb",
-    //    PictureOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
-    //    LabelDatabaseOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
-    //},
-	new() {
-        Name = "Anderson Stratos",
-        NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
-        SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
-        ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Andi Stratos Royal - Tools from Omni.mdb",
-        PictureOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
-        LabelDatabaseOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
-    }
-};
+	logger.LogInformation($"Reading CSV file '{file}'");
 
-//Batch batch = CreateBatch();
-var batch = batches.First();
+	var batches = ReadBatchesFromCSV(file);
 
-var generator = new GCodeGenerator(LinearUnits.Millimeters);
-GenerateGCodeForBatch(batch, generator, machines);
-//WriteBatchToCSVFile(batch, @"R:\Door Orders\CC Input");
+	var generator = CreateGCodeGenerator();
+	var machines = GetMachines();
 
-static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> machines) {
+	foreach (var batch in batches) {
+		GenerateGCodeForBatch(batch, generator, machines);
+	}
+
+});
+
+app.AddCommand("csv-writing", (ILogger<Program> logger, string outputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output") => {
+
+	var batch = CreateBatch();
+	var writer = new CSVTokenWriter();
+	var file = writer.WriteBatchCSV(batch, outputDirectory);
+
+	logger.LogInformation($"Wrote csv to file: {Path.GetFullPath(file)}");
+
+});
+
+app.AddCommand("json-reading", (ILogger<Program> logger) => {
+
+	string file = @".\batches.json";
+	var batches = JsonSerializer.Deserialize<Batch[]>(file);
+
+	if (batches is null) {
+		logger.LogError("No batches read from json file");
+		return;
+	}
+
+	logger.LogInformation($"Read ({batches.Length}) batches from file: ");
+
+	var generator = CreateGCodeGenerator();
+	var machines = GetMachines();
+
+	foreach (var batch in batches) {
+		GenerateGCodeForBatch(batch, generator, machines);
+	}
+
+});
+
+app.AddCommand("json-writing", (ILogger<Program> logger, string outputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output") => {
+
+	var batch = CreateBatch();
+	Batch[] batches = [batch];
+
+	var batchJson = JsonSerializer.Serialize(batches, new JsonSerializerOptions() {
+		WriteIndented = true,
+	});
+
+	string file = Path.Combine(outputDirectory, @"batches.json");
+	File.WriteAllText(file, batchJson);
+
+	logger.LogInformation($"Wrote json to file: {Path.GetFullPath(file)}");
+
+});
+
+app.Run();
+
+
+static GCodeGenerator CreateGCodeGenerator() {
+	var generator = new GCodeGenerator(LinearUnits.Millimeters);
+	generator.GenerationEvent += Console.WriteLine;
+	//generator.CADCodeProgressEvent += Console.WriteLine;
+	generator.CADCodeErrorEvent += Console.WriteLine;
+	return generator;
+}
+
+static List<Machine> GetMachines() {
+
+	return [
+		new() {
+			Name = "Omnitech Selexx",
+			NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
+			SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
+			ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Royal Omnitech Fanuc-Smart names.mdb",
+			PictureOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
+			LabelDatabaseOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
+		},
+		new() {
+			Name = "Anderson Stratos",
+			NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
+			SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
+			ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Andi Stratos Royal - Tools from Omni.mdb",
+			PictureOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
+			LabelDatabaseOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
+		}
+	];
+
+}
+
+void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> machines) {
 
 	generator.Inventory.Add(new() {
 		MaterialName = "1/2\" MDF",
@@ -125,11 +150,28 @@ static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Ma
 		PanelThickness = 19.1,
 		Priority = 1,
 	});
+	generator.Inventory.Add(new() {
+		MaterialName = "MEDEX-3/4\"",
+		AvailableQty = 2,
+		IsGrained = true,
+		PanelLength = 2464,
+		PanelWidth = 1245,
+		PanelThickness = 19.1,
+		Priority = 1,
+	});
+	generator.Inventory.Add(new() {
+		MaterialName = "White Mela MDF-3/4\"",
+		AvailableQty = 2,
+		IsGrained = true,
+		PanelLength = 2464,
+		PanelWidth = 1245,
+		PanelThickness = 19.1,
+		Priority = 1,
+	});
 
 	try {
 
-		var result = generator.GeneratePrograms(machines, batch, @"C:\Users\Zachary Londono\Desktop\CC Output\reports");
-		//var result = generator.GenerateProgramFromWSXMLFile(@"C:\Users\Zachary Londono\Desktop\WSXML\WSXML Drawing\Draw 05-31-2023-V11\testjob.xml", machines.First());
+		var result = generator.GeneratePrograms(machines, batch);
 
 		Console.WriteLine($"Report: {result.WinStepReportFilePath}");
 		foreach (var machineResult in result.MachineResults) {
@@ -158,135 +200,119 @@ static void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Ma
 
 }
 
-static void WriteBatchToCSVFile(Batch batch, string directory) {
-
-	var writer = new CSVTokenWriter();
-
-	var file = writer.WriteBatchCSV(batch, directory);
-
-	Console.WriteLine($"File written to '{file}'");
-
-}
-
 static Batch CreateBatch() {
 	return new Batch() {
 		Name = "Test Batch",
 		InfoFields = new() {
-			{ "Field", "Value" }
-		},
-		Parts = new Part[] {
-		new() {
-			Qty = 1,
-			Material = "3/4\" MDF",
-			Width = 250,
-			Length = 500,
-			Thickness = 19.05,
-			IsGrained = true,
-			InfoFields = new() {
-				{ "Name", "Value" },
-				{ "CustomerInfo1", "Customer Name" },
-				{ "Level1", "Room Name" },
-				{ "Comment1", "Comment 1" },
-				{ "Comment2", "Comment 2" },
-				{ "Side1Color", "Color" },
-				{ "Side1Material", "Material" },
-				{ "CabinetNumber", "1234" },
-				{ "ProductName", "ProdABC" },
-				{ "Description", "Product ABC" },
+				{ "Field", "Value" }
 			},
-			Width1Banding = new("Purple", "PVC"),
-			Width2Banding = new("Pink", "Paper"),
-			Length1Banding = new("Red", "Bubble Gum"),
-			Length2Banding = new("Blue", "Rocks"),
-			PrimaryFace = new() {
-				ProgramName = "PartFront1",
-				Tokens = new IToken[] {
-					new OutlineSegment() {
-						Start = new(20, 20),
-						End = new(460, 20),
-						StartDepth = 19.05,
-						EndDepth = 19.05,
-						ToolName = "",
-						NumberOfPasses = 1,
-						SequenceNumber = 99
-					},
-					new Fillet() {
-						Radius = 20,
-					},
-					new OutlineSegment() {
-						Start = new(500-40, 0+20),
-						End = new(500-40, 250-40),
-						StartDepth = 19.05,
-						EndDepth = 19.05,
-						ToolName = "",
-						NumberOfPasses = 1,
-						SequenceNumber = 99
-					},
-					new OutlineSegment() {
-						Start = new(500-40, 250 - 40),
-						End = new(0+20, 250-40),
-						StartDepth = 19.05,
-						EndDepth = 19.05,
-						ToolName = "",
-						NumberOfPasses = 1,
-						SequenceNumber = 99
-					},
-					new OutlineSegment() {
-						Start = new(0+20, 250-40),
-						End = new(0+20, 0+20),
-						StartDepth = 19.05,
-						EndDepth = 19.05,
-						ToolName = "",
-						NumberOfPasses = 1,
-						SequenceNumber = 99
+		Parts = [
+			new() {
+				Qty = 1,
+				Material = "3/4\" MDF",
+				Width = 250,
+				Length = 500,
+				Thickness = 19.05,
+				IsGrained = true,
+				InfoFields = new() {
+						{ "Name", "Value" },
+						{ "CustomerInfo1", "Customer Name" },
+						{ "Level1", "Room Name" },
+						{ "Comment1", "Comment 1" },
+						{ "Comment2", "Comment 2" },
+						{ "Side1Color", "Color" },
+						{ "Side1Material", "Material" },
+						{ "CabinetNumber", "1234" },
+						{ "ProductName", "ProdABC" },
+						{ "Description", "Product ABC" },
+				},
+				Width1Banding = new("Purple", "PVC"),
+				Width2Banding = new("Pink", "Paper"),
+				Length1Banding = new("Red", "Bubble Gum"),
+				Length2Banding = new("Blue", "Rocks"),
+				PrimaryFace = new() {
+					ProgramName = "PartFront1",
+					Tokens = new IToken[] {
+							new OutlineSegment() {
+								Start = new(20, 20),
+								End = new(460, 20),
+								StartDepth = 19.05,
+								EndDepth = 19.05,
+								ToolName = "",
+								NumberOfPasses = 1,
+								SequenceNumber = 99
+							},
+							new Fillet() {
+								Radius = 20,
+							},
+							new OutlineSegment() {
+								Start = new(500-40, 0+20),
+								End = new(500-40, 250-40),
+								StartDepth = 19.05,
+								EndDepth = 19.05,
+								ToolName = "",
+								NumberOfPasses = 1,
+								SequenceNumber = 99
+							},
+							new OutlineSegment() {
+								Start = new(500-40, 250 - 40),
+								End = new(0+20, 250-40),
+								StartDepth = 19.05,
+								EndDepth = 19.05,
+								ToolName = "",
+								NumberOfPasses = 1,
+								SequenceNumber = 99
+							},
+							new OutlineSegment() {
+								Start = new(0+20, 250-40),
+								End = new(0+20, 0+20),
+								StartDepth = 19.05,
+								EndDepth = 19.05,
+								ToolName = "",
+								NumberOfPasses = 1,
+								SequenceNumber = 99
+							}
 					}
-				}
+				},
+				SecondaryFace = null
 			},
-			SecondaryFace = null
-		},
-		new() {
-			Qty = 1,
-			Material = "3/4\" MDF",
-			Width = 250,
-			Length = 500,
-			Thickness = 19.05,
-			IsGrained = true,
-			InfoFields = new() {
-				{ "Name", "Value" },
-				{ "CustomerInfo1", "Customer Name" },
-				{ "Level1", "Room Name" },
-				{ "Comment1", "Comment 1" },
-				{ "Comment2", "Comment 2" },
-				{ "Side1Color", "Color" },
-				{ "Side1Material", "Material" },
-				{ "CabinetNumber", "1234" },
-				{ "ProductName", "ProdABC" },
-				{ "Description", "Product ABC" },
-			},
-			Width1Banding = new("Purple", "PVC"),
-			Width2Banding = new("Pink", "Paper"),
-			Length1Banding = new("Red", "Bubble Gum"),
-			Length2Banding = new("Blue", "Rocks"),
-			PrimaryFace = new() {
-				ProgramName = "PartFront2",
-				Tokens = new IToken[] {
-				}
-			},
-			SecondaryFace = null
-		}
-	}
+			new() {
+				Qty = 1,
+				Material = "3/4\" MDF",
+				Width = 250,
+				Length = 500,
+				Thickness = 19.05,
+				IsGrained = true,
+				InfoFields = new() {
+						{ "Name", "Value" },
+						{ "CustomerInfo1", "Customer Name" },
+						{ "Level1", "Room Name" },
+						{ "Comment1", "Comment 1" },
+						{ "Comment2", "Comment 2" },
+						{ "Side1Color", "Color" },
+						{ "Side1Material", "Material" },
+						{ "CabinetNumber", "1234" },
+						{ "ProductName", "ProdABC" },
+						{ "Description", "Product ABC" },
+					},
+				Width1Banding = new("Purple", "PVC"),
+				Width2Banding = new("Pink", "Paper"),
+				Length1Banding = new("Red", "Bubble Gum"),
+				Length2Banding = new("Blue", "Rocks"),
+				PrimaryFace = new() {
+					ProgramName = "PartFront2",
+					Tokens = []
+				},
+				SecondaryFace = null
+			}
+		]
 	};
 }
 
-static Batch[] ReadBatchesFromCSV() {
+Batch[] ReadBatchesFromCSV(string filePath) {
 
 	var reader = new CSVTokenReader();
-	var batches = reader.ReadBatchCSV(@"R:\Door Orders\CC Input\Number - DoorTokens 2.csv");//@"C:\Users\Zachary Londono\Desktop\TestOutput\Number - DoorTokens.csv");
-
-	var batchJson = JsonSerializer.Serialize(batches, new JsonSerializerOptions() {
-		WriteIndented = true,
-	});
-	File.WriteAllText(@"C:\Users\Zachary Londono\Desktop\TestOutput\Number - DoorTokens.json", batchJson);
+	var batches = reader.ReadBatchCSV(filePath);
 
 	Console.WriteLine($"Read '{batches.Count()}' batches");
 	foreach (var batch in batches) {
