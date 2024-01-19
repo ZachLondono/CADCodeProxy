@@ -68,10 +68,10 @@ public record FreePocketArcSegment : IToken, IMachiningOperation {
             EndZ = EndDepth.ToString(),
             Radius = Radius.ToString(),
             ArcDirection = direction,
-            SequenceNum = SequenceNumber.ToString(),
-            NumberOfPasses = NumberOfPasses.ToString(),
-            FeedSpeed = FeedSpeed.ToString(),
-            SpindleSpeed = SpindleSpeed.ToString()
+            SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
+            NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString(),
+            FeedSpeed = FeedSpeed == 0 ? "" : FeedSpeed.ToString(),
+            SpindleSpeed = SpindleSpeed == 0 ? "" : SpindleSpeed.ToString(),
         };
 
     }

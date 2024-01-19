@@ -73,9 +73,9 @@ public record Rectangle : IToken {
             ToolName = ToolName,
             SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
             NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString(),
-            FeedSpeed = FeedSpeed.ToString(),
-            SpindleSpeed = SpindleSpeed.ToString(),
-            Radius = Radius.ToString()
+            FeedSpeed = FeedSpeed == 0 ? "" : FeedSpeed.ToString(),
+            SpindleSpeed = SpindleSpeed == 0 ? "" : SpindleSpeed.ToString(),
+            Radius = Radius == 0 ? "" : Radius.ToString()
         };
 
     }
