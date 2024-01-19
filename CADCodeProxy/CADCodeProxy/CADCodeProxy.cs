@@ -152,6 +152,11 @@ internal class CADCodeProxy : IDisposable {
 
         return new() {
             MachineName = machine.Name,
+            ToolFilePath = machine.ToolFilePath,
+            NestOutputDirectory = machine.NestOutputDirectory,
+            SingleProgramOutputDirectory = machine.SingleProgramOutputDirectory,
+            PictureOutputDirectory = machine.PictureOutputDirectory,
+            LabelDatabaseOutputDirectory = machine.LabelDatabaseOutputDirectory,
             MaterialGCodeGenerationResults = materialResults.ToArray()
         };
 
