@@ -11,7 +11,7 @@ namespace CADCodeProxy.CADCodeProxy;
 internal class CADCodeProxy : IDisposable {
 
     private CADCodeBootObject? _bootObj = null;
-    private readonly List<WS_Job> _wsJobs = new();
+    private readonly List<WS_Job> _wsJobs = [];
     // TODO: add a list of 'unreleased com objects' which can be released in the Dispose method, incase an exception is thrown and they have not yet been released
 
     public delegate void ProgressEventHandler(int value);
@@ -59,11 +59,11 @@ internal class CADCodeProxy : IDisposable {
     public bool TryWriteWSBatch(string outputFilePath) {
 
         if (RuntimeInformation.ProcessArchitecture != Architecture.X86
-            || !_wsJobs.Any()) {
+            || _wsJobs.Count == 0) {
             return false;
         }
 
-        WS_Application app = new WS_Application();
+        WS_Application app = new();
         app.WriteError += (ec, s) => ErrorEvent?.Invoke($"[WXML]{ec} - {s}");
         app.NodeError += (ec, s) => ErrorEvent?.Invoke($"[WXML][ERR] {ec} - {s}");
         app.Jobs.Add(_wsJobs.First());
@@ -106,14 +106,14 @@ internal class CADCodeProxy : IDisposable {
             code.MachiningError += (L, S) => ErrorEvent?.Invoke($"{L} - {S}");
         }
 
-        List<MaterialGCodeGenerationResult> materialResults = new();
+        List<MaterialGCodeGenerationResult> materialResults = [];
         var groups = batch.Parts.GroupBy(p => new PartGroupKey(p.Material, p.Thickness));
 
         foreach (var group in groups) {
             
             var matchingInventory = inventory.Where(i => i.MaterialName == group.Key.MaterialName && i.PanelThickness == group.Key.Thickness).ToList();
 
-            if (!matchingInventory.Any()) {
+            if (matchingInventory.Count == 0) {
                 throw new InvalidInventoryException($"No valid {group.Key.Thickness}mm thick '{group.Key.MaterialName}' inventory available");
             }
 
@@ -138,7 +138,7 @@ internal class CADCodeProxy : IDisposable {
         }
 
         foreach (var group in groups) {
-            var matResult = GenerateCodeForMaterialType(batch.InfoFields, group.Key, group.ToArray(), inventory, units, _bootObj, labels, files, code);
+            var matResult = GenerateCodeForMaterialType(batch.InfoFields, group.Key, [.. group], inventory, units, _bootObj, labels, files, code);
             materialResults.Add(matResult);
         }
 
@@ -157,7 +157,7 @@ internal class CADCodeProxy : IDisposable {
             SingleProgramOutputDirectory = machine.SingleProgramOutputDirectory,
             PictureOutputDirectory = machine.PictureOutputDirectory,
             LabelDatabaseOutputDirectory = machine.LabelDatabaseOutputDirectory,
-            MaterialGCodeGenerationResults = materialResults.ToArray()
+            MaterialGCodeGenerationResults = [.. materialResults]
         };
 
     }
@@ -221,7 +221,7 @@ internal class CADCodeProxy : IDisposable {
             UnplacedParts = unplacedParts,
             PlacedParts = placedParts,
             UsedInventory = usedInventory,
-            PartLabels = partLabels.ToArray()
+            PartLabels = [.. partLabels]
         };
 
     }
@@ -342,12 +342,10 @@ internal class CADCodeProxy : IDisposable {
     private static string RemoveInvalidFileNameChars(string fileName) => string.Concat(fileName.Split(Path.GetInvalidFileNameChars()));
 
     private void ReleaseComObjects(CADCodeLabelClass labels, CADCodeToolFileClass toolFile, CADCodeFileClass files, CADCodeCodeClass code) {
-#pragma warning disable CA1416 // Validate platform compatibility
         ReleaseComObject(labels);
         ReleaseComObject(toolFile);
         ReleaseComObject(files);
         ReleaseComObject(code);
-#pragma warning restore CA1416 // Validate platform compatibility
         GC.Collect();
         GC.WaitForPendingFinalizers();
         GC.Collect();

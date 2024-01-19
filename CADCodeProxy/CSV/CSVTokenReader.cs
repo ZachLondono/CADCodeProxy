@@ -14,7 +14,7 @@ public class CSVTokenReader {
             MissingFieldFound = null
         };
 
-        List<CSVPart> parts = new();
+        List<CSVPart> parts = [];
 
         var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         using (var reader = new StreamReader(fileStream))
@@ -34,7 +34,7 @@ public class CSVTokenReader {
                         var part = csv.GetRecord<PartRecord>() ?? throw new InvalidOperationException("Unable to read part from csv record");
                         parts.Add(new() {
                             PartRecord = part,
-                            Tokens = new()
+                            Tokens = []
                         });
                         break; ;
 
@@ -97,7 +97,7 @@ public class CSVTokenReader {
                 return new Batch() {
                     Name = group.Key,
                     Parts = parts,
-                    InfoFields = new()
+                    InfoFields = []
                 };
 
             })
@@ -108,7 +108,9 @@ public class CSVTokenReader {
 
     internal IToken MapRecordToToken(TokenRecord record) {
         string tokenName = record.Name;
-        if (record.Name.Contains("*")) tokenName = record.Name.Split('*')[0];
+        if (record.Name.Contains('*')) {
+            tokenName = record.Name.Split('*')[0];
+        }
         return tokenName.ToLower() switch {
             "bore" => Bore.FromTokenRecord(record),
             "multibore" => MultiBore.FromTokenRecord(record),
@@ -123,7 +125,7 @@ public class CSVTokenReader {
         };
     }
 
-    internal IToken MapRecordToPocket(TokenRecord record) {
+    internal static IToken MapRecordToPocket(TokenRecord record) {
 
         if (double.TryParse(record.StartX, out _)
             || double.TryParse(record.StartX, out _)) {
@@ -136,7 +138,7 @@ public class CSVTokenReader {
 
     }
 
-    internal IToken MapRecordToFreePocket(TokenRecord record) {
+    internal static IToken MapRecordToFreePocket(TokenRecord record) {
 
         if (double.TryParse(record.Radius, out _)
             || double.TryParse(record.ArcDirection, out _)) {

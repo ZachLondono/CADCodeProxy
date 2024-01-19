@@ -21,7 +21,7 @@ public record Rectangle : IToken {
 
     internal IToken[] GetComponentTokens() {
 
-        Route CreateRoute(Point start, Point end) => new Route() {
+        Route CreateRoute(Point start, Point end) => new() {
             ToolName = ToolName,
             Start = start,
             End = end,
@@ -34,7 +34,7 @@ public record Rectangle : IToken {
             SpindleSpeed = SpindleSpeed
         };
 
-        List<IToken> tokens = new();
+        List<IToken> tokens = [];
 
         Point start = new(
                 (CornerA.X + CornerB.X) / 2,
@@ -51,7 +51,7 @@ public record Rectangle : IToken {
         if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
         tokens.Add(CreateRoute(CornerA, start));
 
-        return tokens.ToArray();
+        return [.. tokens];
 
     }
 

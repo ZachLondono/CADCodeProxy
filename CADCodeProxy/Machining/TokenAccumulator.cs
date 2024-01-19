@@ -4,8 +4,8 @@ namespace CADCodeProxy.Machining;
 
 internal class TokenAccumulator {
 
-    private List<IMachiningOperation> _operations = new();
-    private List<IRouteSequenceSegment> _currentSequence = new();
+    private readonly List<IMachiningOperation> _operations = [];
+    private List<IRouteSequenceSegment> _currentSequence = [];
     private Fillet? _currentFillet = null;
 
     public void AddToken(IToken token) {
@@ -58,7 +58,7 @@ internal class TokenAccumulator {
             } else if (token is OutlineSegment outlineSegment) {
 
                 var lastToken = _operations.LastOrDefault();
-                if (_currentSequence.Any() || lastToken is not OutlineSegment lastSegment) {
+                if (_currentSequence.Count != 0 || lastToken is not OutlineSegment lastSegment) {
                     throw new InvalidOperationException("Fillets must exist between two entities of the same type");
                 }
 
@@ -70,13 +70,13 @@ internal class TokenAccumulator {
                     throw new InvalidOperationException("Fillets must exist between two entities which are connected");
                 }
 
-                var result = FilletOutline(lastSegment, outlineSegment, _currentFillet);
+                var (Segment1, Segment2, Segment3) = FilletOutline(lastSegment, outlineSegment, _currentFillet);
                 _currentFillet = null;
 
                 _operations.Remove(lastToken);
-                _operations.Add(result.Segment1);
-                _operations.Add(result.Segment2);
-                _operations.Add(result.Segment3);
+                _operations.Add(Segment1);
+                _operations.Add(Segment2);
+                _operations.Add(Segment3);
 
             } else {
                 throw new InvalidOperationException("Fillets must exist between routes or outline segments");
@@ -118,7 +118,7 @@ internal class TokenAccumulator {
 
     private void AddCurrentSequence() {
 
-        if (!_currentSequence.Any()) {
+        if (_currentSequence.Count == 0) {
             return;
         }
 
@@ -144,7 +144,7 @@ internal class TokenAccumulator {
             _operations.Add(segment);
         }
 
-        _currentSequence = new();
+        _currentSequence = [];
 
     }
 
@@ -178,7 +178,7 @@ internal class TokenAccumulator {
 
     }
 
-    private (OutlineSegment Segment1, ArcOutlineSegment Segment2, OutlineSegment Segment3) FilletOutline(OutlineSegment a, OutlineSegment b, Fillet fillet) {
+    private static (OutlineSegment Segment1, ArcOutlineSegment Segment2, OutlineSegment Segment3) FilletOutline(OutlineSegment a, OutlineSegment b, Fillet fillet) {
 
         var points = FilletCalculator.GetFilletPoints(a.Start,
                                         a.End,
@@ -214,7 +214,7 @@ internal class TokenAccumulator {
         
         AddCurrentSequence();
 
-        return _operations.ToArray();
+        return [.. _operations];
 
     }
 
@@ -306,7 +306,7 @@ internal class TokenAccumulator {
 
         internal record Line(Point A, Point B);
         internal record Vector2(double X, double Y) {
-            public static Vector2 operator *(Vector2 left, double right) => new Vector2(left.X * right, left.Y * right);
+            public static Vector2 operator *(Vector2 left, double right) => new(left.X * right, left.Y * right);
         }
 
     }

@@ -4,23 +4,23 @@ namespace CADCodeProxy.Machining;
 
 public class InfoFields : IEnumerable<KeyValuePair<string, string>> {
 
-    internal readonly Dictionary<string, string> Fields;
+    internal readonly Dictionary<string, string> _fields;
 
     public InfoFields() {
-        Fields = new();
+        _fields = [];
     }
 
     public InfoFields Add(string name, string value) {
-        Fields[name] = value;
+        _fields[name] = value;
         return this;
     }
 
-    public IEnumerator<KeyValuePair<string, string>> GetEnumerator() => Fields.GetEnumerator();
+    public IEnumerator<KeyValuePair<string, string>> GetEnumerator() => _fields.GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public bool TryGetValue(string fieldName, out string? fieldValue) {
-        return Fields.TryGetValue(fieldName, out fieldValue);
+        return _fields.TryGetValue(fieldName, out fieldValue);
     }
 
 }

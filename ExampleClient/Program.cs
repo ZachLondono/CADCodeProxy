@@ -11,6 +11,10 @@ using Microsoft.Extensions.Logging;
 var builder = CoconaApp.CreateBuilder();
 builder.Logging.AddDebug();
 
+var serializationOptions = new JsonSerializerOptions() {
+	WriteIndented = true
+};
+
 var app = builder.Build();
 
 app.AddCommand((ILogger<Program> logger) => {
@@ -27,7 +31,7 @@ app.AddCommand((ILogger<Program> logger) => {
 
 app.AddCommand("csv-reading", (ILogger<Program> logger, string file = @"R:\Door Orders\CC Input\CSV Examples\Simple Door.csv") => {
 
-	logger.LogInformation($"Reading CSV file '{file}'");
+	logger.LogInformation("Reading CSV file '{File}'", file);
 
 	var batches = ReadBatchesFromCSV(file);
 
@@ -46,7 +50,7 @@ app.AddCommand("csv-writing", (ILogger<Program> logger, string outputDirectory =
 	var writer = new CSVTokenWriter();
 	var file = writer.WriteBatchCSV(batch, outputDirectory);
 
-	logger.LogInformation($"Wrote csv to file: {Path.GetFullPath(file)}");
+	logger.LogInformation("Wrote csv to file: {FilePath}", Path.GetFullPath(file));
 
 });
 
@@ -60,7 +64,7 @@ app.AddCommand("json-reading", (ILogger<Program> logger) => {
 		return;
 	}
 
-	logger.LogInformation($"Read ({batches.Length}) batches from file: ");
+	logger.LogInformation("Read ({BatchCount}) batches from file: ", batches.Length);
 
 	var generator = CreateGCodeGenerator();
 	var machines = GetMachines();
@@ -76,14 +80,12 @@ app.AddCommand("json-writing", (ILogger<Program> logger, string outputDirectory 
 	var batch = CreateBatch();
 	Batch[] batches = [batch];
 
-	var batchJson = JsonSerializer.Serialize(batches, new JsonSerializerOptions() {
-		WriteIndented = true,
-	});
+	var batchJson = JsonSerializer.Serialize(batches, serializationOptions);
 
 	string file = Path.Combine(outputDirectory, @"batches.json");
 	File.WriteAllText(file, batchJson);
 
-	logger.LogInformation($"Wrote json to file: {Path.GetFullPath(file)}");
+	logger.LogInformation("Wrote json to file: {(FilePath)}", Path.GetFullPath(file));
 
 });
 
@@ -232,7 +234,7 @@ static Batch CreateBatch() {
 				Length2Banding = new("Blue", "Rocks"),
 				PrimaryFace = new() {
 					ProgramName = "PartFront1",
-					Tokens = new IToken[] {
+					Tokens = [
 							new OutlineSegment() {
 								Start = new(20, 20),
 								End = new(460, 20),
@@ -272,7 +274,7 @@ static Batch CreateBatch() {
 								NumberOfPasses = 1,
 								SequenceNumber = 99
 							}
-					}
+					]
 				},
 				SecondaryFace = null
 			},
@@ -314,14 +316,14 @@ Batch[] ReadBatchesFromCSV(string filePath) {
 	var reader = new CSVTokenReader();
 	var batches = reader.ReadBatchCSV(filePath);
 
-	Console.WriteLine($"Read '{batches.Count()}' batches");
+	Console.WriteLine($"Read '{batches.Length}' batches");
 	foreach (var batch in batches) {
 		Console.WriteLine(batch.Name);
 		Console.WriteLine($"Info ({batch.InfoFields.Count()}):");
 		foreach (var field in batch.InfoFields) {
 			Console.WriteLine($"\t{field.Key} => {field.Value}");
 		}
-		Console.WriteLine($"Parts ({batch.Parts.Count()}):");
+		Console.WriteLine($"Parts ({batch.Parts.Length}):");
 		foreach (var part in batch.Parts) {
 			Console.WriteLine($"\t{part.Qty}");
 			Console.WriteLine($"\t{part.Width}");

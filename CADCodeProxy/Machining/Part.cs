@@ -13,7 +13,7 @@ public class Part {
     public required double Thickness { get; set; }
     public required string Material { get; set; }
     public required bool IsGrained { get; set; }
-    public InfoFields InfoFields { get; set; } = new();
+    public InfoFields InfoFields { get; set; } = [];
     public required PartFace PrimaryFace { get; set; }
     public PartFace? SecondaryFace { get; set; } = null;
     public EdgeBanding Width1Banding { get; set; } = new("", "");
@@ -59,7 +59,7 @@ public class Part {
 
     internal PartLabel AddToLabels(InfoFields batchInfo, CADCodeLabelClass labels) {
 
-        Dictionary<string, string> labelFields = new();
+        Dictionary<string, string> labelFields = [];
 
         labelFields["Face5Filename"] = PrimaryFace.ProgramName;
         if (SecondaryFace is not null) labelFields["Face5FileName"] = SecondaryFace.ProgramName;
@@ -147,7 +147,7 @@ public class Part {
 
         }
 
-        return parts.ToArray();
+        return [.. parts];
 
     }
 

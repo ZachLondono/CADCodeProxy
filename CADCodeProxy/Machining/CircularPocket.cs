@@ -18,6 +18,7 @@ public record CircularPocket : IToken, IMachiningOperation {
 
         throw new NotImplementedException();
 
+        /*
         code.DefinePocket(
             StartX: 0,
             StartY: 0,
@@ -43,6 +44,7 @@ public record CircularPocket : IToken, IMachiningOperation {
             Normal: new object[] { 0, 0, 1 },
             InsideOut: true,
             NumberOfPasses: NumberOfPasses);
+        */
 
     } 
 

@@ -23,11 +23,11 @@ public class GCodeGenerator(LinearUnits units) {
 
     public GCodeGenerationResult GeneratePrograms(IEnumerable<Machine> machines, Batch batch) {
 
-        if (!batch.Parts.Any()) {
+        if (batch.Parts.Length == 0) {
             GenerationEvent?.Invoke("No parts in batch");
             return new GCodeGenerationResult() {
                 WinStepReportFilePath = null,
-                MachineResults = Array.Empty<MachineGCodeGenerationResult>()
+                MachineResults = [] 
             };
         } else {
             GenerationEvent?.Invoke($"{batch.Parts.Length} Parts in batch");
@@ -53,7 +53,7 @@ public class GCodeGenerator(LinearUnits units) {
         var units = GetCCUnits();
         var inventory = Inventory.ToArray();
 
-        List<MachineGCodeGenerationResult> machineResults = new();
+        List<MachineGCodeGenerationResult> machineResults = [];
         foreach (var machine in machines) {
 
             GenerationEvent?.Invoke($"Generating G-code for '{machine.Name}'");
@@ -68,7 +68,7 @@ public class GCodeGenerator(LinearUnits units) {
 
         return new GCodeGenerationResult() {
             WinStepReportFilePath = null,
-            MachineResults = machineResults.ToArray()
+            MachineResults = [.. machineResults]
         };
 
     }
