@@ -6,7 +6,7 @@ using CADCodeProxy.Results;
 
 namespace CADCodeProxy;
 
-public class GCodeGenerator {
+public class GCodeGenerator(LinearUnits units) {
 
     public delegate void GenerationEventHandler(string message);
     public event GenerationEventHandler? GenerationEvent;
@@ -17,15 +17,11 @@ public class GCodeGenerator {
     public delegate void CADCodeErrorEventHandler(string message);
     public event CADCodeErrorEventHandler? CADCodeErrorEvent;
 
-    public LinearUnits Units { get; init; }
+	public LinearUnits Units { get; init; } = units;
 
-    public GCodeGenerator(LinearUnits units) {
-        Units = units;
-    }
+	public List<InventoryItem> Inventory { get; } = [];
 
-    public List<InventoryItem> Inventory { get; } = new();
-
-    public GCodeGenerationResult GeneratePrograms(IEnumerable<Machine> machines, Batch batch, string wsReportOutputDirectory) {
+    public GCodeGenerationResult GeneratePrograms(IEnumerable<Machine> machines, Batch batch) {
 
         if (!batch.Parts.Any()) {
             GenerationEvent?.Invoke("No parts in batch");
@@ -33,17 +29,23 @@ public class GCodeGenerator {
                 WinStepReportFilePath = null,
                 MachineResults = Array.Empty<MachineGCodeGenerationResult>()
             };
+        } else {
+            GenerationEvent?.Invoke($"{batch.Parts.Length} Parts in batch");
         }
 
         using var cadcode = new CADCodeProxy.CADCodeProxy();
 
-        if (CADCodeProgressEvent is not null) {
-            cadcode.ProgressEvent += CADCodeProgressEvent.Invoke;
-        }
+        cadcode.ProgressEvent += (i) => {
+			CADCodeProgressEvent?.Invoke(i);
+		};
 
-        if (CADCodeErrorEvent is not null) {
-            cadcode.ErrorEvent += CADCodeErrorEvent.Invoke;
-        }
+		cadcode.ErrorEvent += (m) => {
+            CADCodeErrorEvent?.Invoke(m);
+        };
+
+        cadcode.InformationEvent += (m) => {
+            GenerationEvent?.Invoke(m);
+        };
 
         GenerationEvent?.Invoke("Initializing CADCode proxy");
         cadcode.Initialize();
@@ -64,31 +66,23 @@ public class GCodeGenerator {
 
         }
 
-        var fileName = string.Concat(batch.Name.Split(Path.GetInvalidFileNameChars()));
-        string? wsReportFilePath = Path.Combine(wsReportOutputDirectory, $"{fileName}.xml");
-        if (!cadcode.TryWriteWSBatch(wsReportFilePath)) {
-            wsReportFilePath = null;
-        }
-
         return new GCodeGenerationResult() {
-            WinStepReportFilePath = wsReportFilePath,
+            WinStepReportFilePath = null,
             MachineResults = machineResults.ToArray()
         };
 
     }
 
-    //public GCodeGenerationResult GenerateProgramFromWSXMLFile(string filePath, Machine machine) {
-
-    //    using var cadcode = new CADCodeProxy.CADCodeProxy();
-
-    //    cadcode.GenerateProgramFromWinStepFile(filePath, machine);
-
-    //    return new GCodeGenerationResult() {
-    //        WinStepReportFilePath = null,
-    //        MachineResults = Array.Empty<MachineGCodeGenerationResult>()
-    //    };
-
-    //}
+    /*
+    public GCodeGenerationResult GenerateProgramFromWSXMLFile(string filePath, Machine machine) {
+        using var cadcode = new CADCodeProxy.CADCodeProxy();
+        cadcode.GenerateProgramFromWinStepFile(filePath, machine);
+        return new GCodeGenerationResult() {
+            WinStepReportFilePath = null,
+            MachineResults = Array.Empty<MachineGCodeGenerationResult>()
+        };
+    }
+    */
 
     internal UnitTypes GetCCUnits() => Units switch {
         LinearUnits.Millimeters => UnitTypes.CC_U_METRIC,

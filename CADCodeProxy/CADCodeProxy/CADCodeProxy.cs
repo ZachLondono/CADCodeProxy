@@ -17,6 +17,9 @@ internal class CADCodeProxy : IDisposable {
     public delegate void ProgressEventHandler(int value);
     public event ProgressEventHandler? ProgressEvent;
 
+    public delegate void InformationEventHandler(string message);
+    public event InformationEventHandler? InformationEvent;
+
     public delegate void ErrorEventHandler(string message);
     public event ErrorEventHandler? ErrorEvent;
 
@@ -31,10 +34,15 @@ internal class CADCodeProxy : IDisposable {
             throw new InvalidOperationException($"Could not initialize CADCode");
         }
 
+        // TODO: Not sure if it is really necessary (or proper) to throw exceptions in this event handler, when the result is checked after calling Init
+        // 1) Verify that whenever CADCode cannot be authorized (ie Another pc is using it or it cannot access the authentication server) the event is called and the same error is returned from Init
+        // 2) Verify that whenever CADCode initiated (ie CADCode is not installed) the event is called and the same error is returned from Init
         _bootObj.CreateError += (l, s) => {
-            Console.WriteLine($"[ERROR] {l} - {s}");
+            ErrorEvent?.Invoke($"Failed to create CADCode instance, or authorize CADCode {l} - {s}");
             if (l == 33012) {
                 throw new CADCodeAuthorizationException(s);
+            } else {
+                throw new CADCodeInitializationException(l, $"Could not initialize CADCode - {s}");
             }
         };
 
@@ -56,12 +64,14 @@ internal class CADCodeProxy : IDisposable {
         }
 
         WS_Application app = new WS_Application();
-        app.WriteError += (ec, s) => Console.WriteLine($"[WXML][ERR] {ec} - {s}");
-        app.NodeError += (ec, s) => Console.WriteLine($"[WXML][ERR] {ec} - {s}");
+        app.WriteError += (ec, s) => ErrorEvent?.Invoke($"[WXML]{ec} - {s}");
+        app.NodeError += (ec, s) => ErrorEvent?.Invoke($"[WXML][ERR] {ec} - {s}");
         app.Jobs.Add(_wsJobs.First());
 
         var result = app.SaveFile(outputFilePath);
-        Console.WriteLine($"Result from saving WSXML file: {result} - {_bootObj?.GetErrorString(result)}");
+        if (result != 0) {
+            ErrorEvent?.Invoke($"Error writing WSXML File [{result}] - {_bootObj?.GetErrorString(result)}");
+        }
 
         Marshal.ReleaseComObject(app);
         foreach (var job in _wsJobs) {
@@ -133,14 +143,9 @@ internal class CADCodeProxy : IDisposable {
         }
 
         var singlePartCode = CreateCode(_bootObj, batch.Name, machine, toolFile);
-        GenerateSinglePrograms(batch.Parts, units, singlePartCode);
-
-        if (RuntimeInformation.ProcessArchitecture == Architecture.X86) {
-            // var job = new WS_Job();
-            // var result = code.GetWINStepMachining(ref job, AllMachining: true);
-            // _wsJobs.Add(job);
-        } else {
-            Console.WriteLine("WSXML skipped because architecture is not x86");
+        var result = GenerateSinglePrograms(batch.Parts, units, singlePartCode);
+        if (result != 0) {
+            ErrorEvent?.Invoke($"Non-zero response returned while generating single part programs - {result}");
         }
 
         ReleaseComObjects(labels, toolFile, files, code);
@@ -151,30 +156,6 @@ internal class CADCodeProxy : IDisposable {
         };
 
     }
-
-    /*
-    public void GenerateProgramFromWinStepFile(string filePath, Machine machine) {
-
-        if (_bootObj is null) {
-            Initialize();
-        }
-
-        if (_bootObj is null) {
-            throw new InvalidOperationException("Could not initialize CADCode");
-        }
-
-        var toolFIle = CreateToolFile(_bootObj, machine.ToolFilePath);
-        var code = CreateCode(_bootObj, "", machine, toolFIle);
-
-        var reader = _bootObj.CreateFileReader();
-        reader.CodeObject = code;
-
-        var result = reader.ReadWinStep(filePath);
-
-        Console.WriteLine(_bootObj.GetErrorString(result));
-
-    }
-    */
 
     private MaterialGCodeGenerationResult GenerateCodeForMaterialType(InfoFields batchInfoFields, PartGroupKey partGroupKey, Machining.Part[] batchParts, InventoryItem[] inventory, UnitTypes units, CADCodeBootObject bootObj, CADCodeLabelClass labels, CADCodeFileClass files, CADCodeCodeClass code) {
 
@@ -240,7 +221,7 @@ internal class CADCodeProxy : IDisposable {
 
     }
 
-    private static void GenerateSinglePrograms(Machining.Part[] batchParts, UnitTypes units, CADCodeCodeClass code) {
+    private static int GenerateSinglePrograms(Machining.Part[] batchParts, UnitTypes units, CADCodeCodeClass code) {
 
         var resultNumber = GenerateResultNumber();
         code.StartingProgramNumber = resultNumber;
@@ -249,15 +230,14 @@ internal class CADCodeProxy : IDisposable {
             part.AddPrimaryFaceSinglePartToCode(code, units);
         }
 
-        int result = code.DoOutput(units, 0, 0);
-        Console.WriteLine($"Result {result}");
+        return code.DoOutput(units, 0, 0);
 
     }
 
     private static CADCodeToolFileClass CreateToolFile(CADCodeBootObject boot, string filePath) {
-        var toolFile = boot.CreateToolFile();
 
-        if (toolFile is null) throw new InvalidOperationException("Could not create tool file");
+        var toolFile = boot.CreateToolFile()
+                        ?? throw new InvalidOperationException("Could not create tool file");
 
         int result = toolFile.ReadToolFile(filePath);
         if (result != 0) {
@@ -267,13 +247,14 @@ internal class CADCodeProxy : IDisposable {
         return toolFile;
     }
 
-    private static CADCodeLabelClass CreateLabel(CADCodeBootObject boot, string batchName, string outputDirectory) {
-        var labels = boot.CreateLabels();               // Stores the data that will be written to the label database
+    private CADCodeLabelClass CreateLabel(CADCodeBootObject boot, string batchName, string outputDirectory) {
 
-        if (labels is null) throw new InvalidOperationException("Could not create CADCode label object");
+        // Stores the data that will be written to the label database
+        var labels = boot.CreateLabels()
+                        ?? throw new InvalidOperationException("Could not create CADCode label object");
 
-        labels.LabelModuleError += (l, s) => Console.WriteLine($"[LABL][ERROR] {l} - {s}");
-        labels.Progress += (l) => Console.WriteLine($"[LABL][PROG] {l}");
+        labels.LabelModuleError += (l, s) => ErrorEvent?.Invoke($"Error with label module {l} - {s}");
+        labels.Progress += (l) => ProgressEvent?.Invoke(l);
 
         labels.JobName = batchName; // This is needed to set the label database's table name
 
@@ -289,34 +270,36 @@ internal class CADCodeProxy : IDisposable {
         return labels;
     }
 
-    private static CADCodePanelOptimizerClass CreateOptimizer(CADCodeBootObject boot, CADCodeFileClass files) {
-        var optimizer = boot.CreatePanelOptimizer();    // Does the work of optimizing a group of parts onto a group of available sheet stock
+    private CADCodePanelOptimizerClass CreateOptimizer(CADCodeBootObject boot, CADCodeFileClass files) {
 
-        if (optimizer is null) throw new InvalidOperationException("Could not create CADCode optimizer object");
+        // Does the work of optimizing a group of parts onto a group of available sheet stock
+        var optimizer = boot.CreatePanelOptimizer()
+                        ?? throw new InvalidOperationException("Could not create CADCode optimizer object");
 
-        optimizer.OptimizeError += (l, s) => Console.WriteLine($"[OPTI][ERROR] {l} - {s}");
-        optimizer.Progress += (l) => Console.WriteLine($"[OPTI][PROG] {l}");
-        optimizer.ReportedProgress += (int PanelsUsed, ref int PartsToGo) => Console.WriteLine($"[OPTI][PROG] {PanelsUsed} panels used | {PartsToGo} parts left");
+        optimizer.OptimizeError += (l, s) => ErrorEvent?.Invoke($"Optimization Error {l} - {s}");
+        optimizer.Progress += (l) => ProgressEvent?.Invoke(l);
+        optimizer.ReportedProgress += (int PanelsUsed, ref int PartsToGo) => InformationEvent?.Invoke($"{PanelsUsed} panels used | {PartsToGo} parts left");
 
         optimizer.FileLocations = files;
-        optimizer.Settings(100, 20, 1, 12.53, 10, 0f);  // Error 33011 - Did not set optimizer settings `CADCodePanelOptimizer.Settings()`
+        optimizer.Settings(100, 20, 1, 12.53, 10, 0f);  // Error 33011 - Did not set optimizer settings `CADCodePanelOptimizer.Settings()` when not set
         //optimizer.ToolFile = toolFile;  // error 33014 (CC_MISSING_SETTINGS) when setting tool file
 
         return optimizer;
     }
 
-    private static CADCodeCodeClass CreateCode(CADCodeBootObject boot, string batchName, Machine machine, CADCodeToolFileClass toolFile) {
-        var code = boot.CreateCode();                   // Stores the machining data needed for all the parts, and does the work of creating the individual part programs
+    private CADCodeCodeClass CreateCode(CADCodeBootObject boot, string batchName, Machine machine, CADCodeToolFileClass toolFile) {
 
-        if (code is null) throw new InvalidOperationException("Could not create CADCode code object");
+        // Stores the machining data needed for all the parts, and does the work of creating the individual part programs
+        var code = boot.CreateCode()
+                    ?? throw new InvalidOperationException("Could not create CADCode code object");
 
-        code.MachiningInfo += (i) => Console.WriteLine($"[CODE][INFO] {i}");
-        code.MachiningError += (l, s) => Console.WriteLine($"[CODE][ERROR] {l} - {s}");
-        code.StartProcess += (f) => Console.WriteLine($"[CODE][PROC] Process Started {f}");
-        code.Progress += (l) => Console.WriteLine($"[CODE][PROG] {l}");
-        code.PictureFileWritten += (f) => Console.WriteLine($"[CODE] Picture file {f}");
-        code.LastProgramNumberUsed += (n) => Console.WriteLine($"[CODE] Last program number used '{n}'");
-        code.NameChange += (o, n) => Console.WriteLine($"[CODE] Name change {o} => {n}");
+		code.MachiningInfo += (i) => InformationEvent?.Invoke($"Machining Info - {i}");
+        code.MachiningError += (l, s) => ErrorEvent?.Invoke($"Machining Error - {l} - {s}");
+        code.StartProcess += (f) => InformationEvent?.Invoke($"Process Started - {f}");
+        code.Progress += (l) => ProgressEvent?.Invoke(l);
+        code.PictureFileWritten += (f) => InformationEvent?.Invoke($"Picture file written - {f}");
+        code.LastProgramNumberUsed += (n) => InformationEvent?.Invoke($"Last program number used '{n}'");
+        code.NameChange += (o, n) => InformationEvent?.Invoke($"Name change {o} => {n}");
 
         string outputDir = Path.Combine(machine.NestOutputDirectory, RemoveInvalidFileNameChars(batchName));
         if (!Directory.Exists(outputDir)) {
@@ -353,7 +336,7 @@ internal class CADCodeProxy : IDisposable {
 
     private static string RemoveInvalidFileNameChars(string fileName) => string.Concat(fileName.Split(Path.GetInvalidFileNameChars()));
 
-    private static void ReleaseComObjects(CADCodeLabelClass labels, CADCodeToolFileClass toolFile, CADCodeFileClass files, CADCodeCodeClass code) {
+    private void ReleaseComObjects(CADCodeLabelClass labels, CADCodeToolFileClass toolFile, CADCodeFileClass files, CADCodeCodeClass code) {
 #pragma warning disable CA1416 // Validate platform compatibility
         ReleaseComObject(labels);
         ReleaseComObject(toolFile);
@@ -380,11 +363,13 @@ internal class CADCodeProxy : IDisposable {
         GC.WaitForPendingFinalizers();
     }
 
-    private static void ReleaseComObject(object obj) {
+    private void ReleaseComObject(object obj) {
 
         try {
             Marshal.ReleaseComObject(obj);
-        } catch { }
+        } catch (Exception ex) {
+            ErrorEvent?.Invoke($"Failed to release COM object {obj} - {ex.Message}");
+        }
 
     }
 
