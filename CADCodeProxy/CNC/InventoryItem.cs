@@ -13,10 +13,6 @@ public record InventoryItem {
     public required double PanelThickness { get; init; }
 
     internal CutlistInventory AsCutlistInventory() {
-
-        var inv = new CutlistInventory();
-        Console.WriteLine(inv.Graining);
-
         return new CutlistInventory() {
             Description = MaterialName,
             Width = PanelWidth.ToString(),
