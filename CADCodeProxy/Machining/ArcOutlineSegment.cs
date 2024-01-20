@@ -9,6 +9,7 @@ public class ArcOutlineSegment : IMachiningOperation {
     public required string ToolName { get; set; }
     public required Point Start { get; set; }
     public required Point End { get; set; }
+    public Point Center { get; set; } = new(0, 0);
     public required double Radius { get; set; }
     public required ArcDirection Direction { get; set; }
     public required double StartDepth { get; set; }
@@ -25,8 +26,8 @@ public class ArcOutlineSegment : IMachiningOperation {
                             StartY: (float)Start.Y,
                             EndX: (float)End.X,
                             EndY: (float)End.Y,
-                            CenterX: 0,
-                            CenterY: 0,
+                            CenterX: (float)Center.X,
+                            CenterY: (float)Center.Y,
                             Radius: (float)Radius,
                             ArcDirection: Direction.AsCCArcType(),
                             Offset: OffsetTypes.CC_OFFSET_OUTSIDE,

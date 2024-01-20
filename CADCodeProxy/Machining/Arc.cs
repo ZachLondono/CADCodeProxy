@@ -10,6 +10,7 @@ public record Arc : IToken, IRouteSequenceSegment {
     public required string ToolName { get; init; }
     public required Point Start { get; init; }
     public required Point End { get; init; }
+    public Point Center { get; init; } = new(0, 0);
     public required double Radius { get; init; }
     public required double StartDepth { get; init; }
     public required double EndDepth { get; init; }
@@ -39,8 +40,8 @@ public record Arc : IToken, IRouteSequenceSegment {
                         SpindleSpeed: (float)SpindleSpeed,
                         CornerFeed: 0,
                         RType: "",
-                        CenterX: 0,
-                        CenterY: 0,
+                        CenterX: (float) Center.X,
+                        CenterY: (float) Center.Y,
                         OffsetX: 0,
                         OffsetY: 0,
                         Radius: (float)Radius,
@@ -67,6 +68,8 @@ public record Arc : IToken, IRouteSequenceSegment {
             EndX = End.X.ToString(),
             EndY = End.Y.ToString(),
             EndZ = EndDepth.ToString(),
+            CenterX = Center.X == 0 ? "" : Center.X.ToString(),
+            CenterY = Center.Y == 0 ? "" : Center.Y.ToString(),
             Radius = Radius.ToString(),
             OffsetSide = Offset.ToCSVCode(),
             ToolName = ToolName,

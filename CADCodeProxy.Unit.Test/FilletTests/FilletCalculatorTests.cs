@@ -51,7 +51,7 @@ public class FilletCalculatorTests {
         var center = new Point(10, 10);
         var end = new Point(cX, cY);
 
-        var (_, _, ccw) = FilletCalculator.GetFilletPoints(start, center, end, 5);
+        var (_, _, _, ccw) = FilletCalculator.GetFilletPoints(start, center, end, 5);
 
         ccw.Should().Be(expectedIsCCW);
 

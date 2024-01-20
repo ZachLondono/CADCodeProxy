@@ -150,19 +150,20 @@ internal class TokenAccumulator {
 
     private static (Route Route1, Arc Arc, Route Route2) FilletRoutes(Route a, Route b, Fillet fillet) {
 
-        var points = FilletCalculator.GetFilletPoints(new(a.Start.X, a.Start.Y),
+        var (start, end, center, isCounterClockWise) = FilletCalculator.GetFilletPoints(new(a.Start.X, a.Start.Y),
                                         new(a.End.X, a.End.Y),
                                         new(b.End.X, b.End.Y),
                                         fillet.Radius);
 
-        var route1 = a with { End = points.Item1 };
-        var route2 = b with { Start = points.Item2 };
+        var route1 = a with { End = start };
+        var route2 = b with { Start = end };
 
         var arc = new Arc() {
             Start = route1.End,
             End = route2.Start,
             Radius = fillet.Radius,
-            Direction = points.CounterClockWise ? ArcDirection.CounterClockWise : ArcDirection.ClockWise,
+            Center = center,
+            Direction = isCounterClockWise ? ArcDirection.CounterClockWise : ArcDirection.ClockWise,
 
             ToolName = a.ToolName,
             StartDepth = a.StartDepth,
@@ -180,19 +181,20 @@ internal class TokenAccumulator {
 
     private static (OutlineSegment Segment1, ArcOutlineSegment Segment2, OutlineSegment Segment3) FilletOutline(OutlineSegment a, OutlineSegment b, Fillet fillet) {
 
-        var points = FilletCalculator.GetFilletPoints(a.Start,
+        var (start, end, center, isCounterClockWise) = FilletCalculator.GetFilletPoints(a.Start,
                                         a.End,
                                         b.End,
                                         fillet.Radius);
 
-        var segment1 = a with { End = points.Item1 };
-        var segment2 = b with { Start = points.Item2 };
+        var segment1 = a with { End = start };
+        var segment2 = b with { Start = end };
 
         var arc = new ArcOutlineSegment() {
             Start = segment1.End,
             End = segment2.Start,
             Radius = fillet.Radius,
-            Direction = points.CounterClockWise ? ArcDirection.CounterClockWise : ArcDirection.ClockWise,
+            Center = center,
+            Direction = isCounterClockWise ? ArcDirection.CounterClockWise : ArcDirection.ClockWise,
 
             ToolName = a.ToolName,
             StartDepth = a.StartDepth,
@@ -220,7 +222,7 @@ internal class TokenAccumulator {
 
     internal class FilletCalculator {
 
-        internal static (Point, Point, bool CounterClockWise) GetFilletPoints(Point start, Point center, Point end, double radius) {
+        internal static (Point Start, Point End, Point Center, bool CounterClockWise) GetFilletPoints(Point start, Point center, Point end, double radius) {
 
             var line1 = new Line(start, center);
             var line2 = new Line(center, end);
@@ -261,12 +263,76 @@ internal class TokenAccumulator {
 
             }
 
+            var circleCenter = CalculateCenter(tangent1, tangent2, radius, !counterClockWise);
+
             // TODO: make sure these points are returned in the correct order;
-            return (tangent1, tangent2, counterClockWise);
+            return (tangent1, tangent2, circleCenter, counterClockWise);
 
         }
 
-        private static Point GetTangentPoints(Point start, Vector2 unitVector1, Vector2 unitVector2, Point perpPoint1, Point perpPoint2, double denominator) {
+        private static Point CalculateCenter(Point start, Point end, double radius, bool clockWise) {
+
+			// https://math.stackexchange.com/a/1781546
+
+			var x1 = start.X;
+			var y1 = start.Y;
+
+			var x2 = end.X;
+			var y2 = end.Y;
+
+			var length = Math.Sqrt(Math.Pow((x2 - x1), 2) + Math.Pow((y2 - y1), 2));
+			var adjLength = length / 2;
+
+			// Distance from center of rhombus to the center of the circle
+			var b = Math.Sqrt(Math.Pow(radius, 2) - Math.Pow(adjLength, 2));
+
+			// Rhombus center point
+			var rhombusCenter = new Point((x1 + x2) / 2, (y1 + y2) / 2);
+
+			double ya = rhombusCenter.Y - y1;
+			double xa = rhombusCenter.X - x1;
+
+			var circleCenterA = new Point(rhombusCenter.X + (b * ya) / adjLength, rhombusCenter.Y - (b * xa) / adjLength);
+			var circleCenterB = new Point(rhombusCenter.X - (b * ya) / adjLength, rhombusCenter.Y + (b * xa) / adjLength);
+
+            // TODO: There has to be a better way to choose the correct center point
+			if (y1 > y2) {
+
+				if (x1 < x2) {
+					if (clockWise) {
+						return circleCenterA;
+					} else {
+						return circleCenterB;
+					}
+				} else {
+					if (clockWise) {
+						return circleCenterA;
+					} else {
+						return circleCenterB;
+					}
+				}
+
+			} else {
+
+				if (x1 < x2) {
+					if (clockWise) {
+						return circleCenterA;
+					} else {
+						return circleCenterB;
+					}
+				} else {
+					if (clockWise) {
+						return circleCenterA;
+					} else {
+						return circleCenterB;
+					}
+				}
+
+			}
+
+		}
+
+		private static Point GetTangentPoints(Point start, Vector2 unitVector1, Vector2 unitVector2, Point perpPoint1, Point perpPoint2, double denominator) {
 
             // Calculates a point which is tangent to a circle on a line which is parallel to a line going through point 'start' in the direction of unitVector1
 
