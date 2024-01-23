@@ -34,22 +34,47 @@ public record Rectangle : IToken {
             SpindleSpeed = SpindleSpeed
         };
 
+        double Distance(Point a, Point b) {
+            return Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
+        }
+
         List<IToken> tokens = [];
 
-        Point start = new(
-                (CornerA.X + CornerB.X) / 2,
-                (CornerA.Y + CornerB.Y) / 2
-            );
+        if (Distance(CornerA, CornerB) >= Distance(CornerB, CornerC)) {
 
-        tokens.Add(CreateRoute(start, CornerB));
-        if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
-        tokens.Add(CreateRoute(CornerB, CornerC));
-        if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
-        tokens.Add(CreateRoute(CornerC, CornerD));
-        if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
-        tokens.Add(CreateRoute(CornerD, CornerA));
-        if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
-        tokens.Add(CreateRoute(CornerA, start));
+            Point start = new(
+                    (CornerA.X + CornerB.X) / 2,
+                    (CornerA.Y + CornerB.Y) / 2
+                );
+    
+            tokens.Add(CreateRoute(start, CornerB));
+            if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+            tokens.Add(CreateRoute(CornerB, CornerC));
+            if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+            tokens.Add(CreateRoute(CornerC, CornerD));
+            if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+            tokens.Add(CreateRoute(CornerD, CornerA));
+            if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+            tokens.Add(CreateRoute(CornerA, start));
+
+        } else {
+
+            Point start = new(
+                    (CornerB.X + CornerC.X) / 2,
+                    (CornerB.Y + CornerC.Y) / 2
+                );
+    
+            tokens.Add(CreateRoute(start, CornerC));
+            if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+            tokens.Add(CreateRoute(CornerC, CornerD));
+            if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+            tokens.Add(CreateRoute(CornerD, CornerA));
+            if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+            tokens.Add(CreateRoute(CornerA, CornerB));
+            if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+            tokens.Add(CreateRoute(CornerB, start));
+
+        }
 
         return [.. tokens];
 
