@@ -142,7 +142,8 @@ internal class CADCodeProxy : IDisposable {
             materialResults.Add(matResult);
         }
 
-        var singlePartCode = CreateCode(_bootObj, batch.Name, machine, toolFile);
+        var singlePartToolFile = CreateToolFile(_bootObj, machine.SinglePartToolFilePath);
+        var singlePartCode = CreateCode(_bootObj, batch.Name, machine, singlePartToolFile);
         var result = GenerateSinglePrograms(batch.Parts, units, singlePartCode);
         if (result != 0) {
             ErrorEvent?.Invoke($"Non-zero response returned while generating single part programs - {result}");
