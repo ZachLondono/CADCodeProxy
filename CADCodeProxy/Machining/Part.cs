@@ -43,11 +43,11 @@ public class Part {
 
     internal void AddPrimaryFaceSinglePartToCode(CADCodeCodeClass code, UnitTypes units) {
 
-        float width = (float)Width;
-        float length = (float)Length;
+        float panelX = (float)Length;
+        float panelY = (float)Width;
         float thickness = (float)Thickness;
 
-        code.Border(width, length, thickness, units, OriginType.CC_LL, PrimaryFace.ProgramName, AxisTypes.CC_X_AXIS);
+        code.Border(panelX, panelY, thickness, units, OriginType.CC_LL, PrimaryFace.ProgramName, AxisTypes.CC_X_AXIS);
 
         foreach (var operation in PrimaryFace.GetMachiningOperations()) {
             operation.AddToCode(code);
