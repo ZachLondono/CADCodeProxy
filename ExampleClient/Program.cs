@@ -29,7 +29,7 @@ app.AddCommand((ILogger<Program> logger) => {
 
 });
 
-app.AddCommand("csv-reading", (ILogger<Program> logger, string file = @"R:\Door Orders\CC Input\CSV Examples\Simple Door.csv") => {
+app.AddCommand("csv-reading", (ILogger<Program> logger, string file = @"R:\Door Orders\CC Input\CSV Examples\Rectangle.csv") => {
 
 	logger.LogInformation("Reading CSV file '{File}'", file);
 
@@ -44,7 +44,7 @@ app.AddCommand("csv-reading", (ILogger<Program> logger, string file = @"R:\Door 
 
 });
 
-app.AddCommand("csv-writing", (ILogger<Program> logger, string outputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output") => {
+app.AddCommand("csv-writing", (ILogger<Program> logger, string outputDirectory = @"R:\Door Orders\CC Input\CSV Examples") => {
 
 	var batch = CreateBatch();
 	var writer = new CSVTokenWriter();
@@ -108,6 +108,7 @@ static List<Machine> GetMachines() {
 			NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
 			SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
 			ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Royal Omnitech Fanuc-Smart names.mdb",
+			SinglePartToolFilePath = @"Y:\CADCode\cfg\Tool Files\Royal Omnitech Fanuc-Smart names X100 SHIFT.mdb",
 			PictureOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
 			LabelDatabaseOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
 		},
@@ -116,6 +117,7 @@ static List<Machine> GetMachines() {
 			NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
 			SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
 			ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Andi Stratos Royal - Tools from Omni.mdb",
+			SinglePartToolFilePath = @"Y:\CADCode\cfg\Tool Files\Andi Stratos Royal - Tools from Omni.mdb",
 			PictureOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
 			LabelDatabaseOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
 		}
@@ -127,7 +129,7 @@ void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> 
 
 	generator.Inventory.Add(new() {
 		MaterialName = "1/2\" MDF",
-		AvailableQty = 2,
+		AvailableQty = 9999,
 		IsGrained = true,
 		PanelLength = 2464,
 		PanelWidth = 1245,
@@ -136,7 +138,7 @@ void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> 
 	});
 	generator.Inventory.Add(new() {
 		MaterialName = "3/4\" MDF",
-		AvailableQty = 2,
+		AvailableQty = 9999,
 		IsGrained = true,
 		PanelLength = 2464,
 		PanelWidth = 1245,
@@ -145,7 +147,7 @@ void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> 
 	});
 	generator.Inventory.Add(new() {
 		MaterialName = "MDF-3/4\"",
-		AvailableQty = 2,
+		AvailableQty = 9999,
 		IsGrained = true,
 		PanelLength = 2464,
 		PanelWidth = 1245,
@@ -154,7 +156,7 @@ void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> 
 	});
 	generator.Inventory.Add(new() {
 		MaterialName = "MEDEX-3/4\"",
-		AvailableQty = 2,
+		AvailableQty = 9999,
 		IsGrained = true,
 		PanelLength = 2464,
 		PanelWidth = 1245,
@@ -163,7 +165,7 @@ void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> 
 	});
 	generator.Inventory.Add(new() {
 		MaterialName = "White Mela MDF-3/4\"",
-		AvailableQty = 2,
+		AvailableQty = 9999,
 		IsGrained = true,
 		PanelLength = 2464,
 		PanelWidth = 1245,
@@ -235,45 +237,58 @@ static Batch CreateBatch() {
 				PrimaryFace = new() {
 					ProgramName = "PartFront1",
 					Tokens = [
-							new OutlineSegment() {
-								Start = new(20, 20),
+							new Route() {
+								Start = new((460-20)/2, 20),
 								End = new(460, 20),
 								StartDepth = 19.05,
 								EndDepth = 19.05,
-								ToolName = "",
+								ToolName = "3-8Comp",
 								NumberOfPasses = 1,
-								SequenceNumber = 99
 							},
 							new Fillet() {
 								Radius = 20,
 							},
-							new OutlineSegment() {
+							new Route() {
 								Start = new(500-40, 0+20),
 								End = new(500-40, 250-40),
 								StartDepth = 19.05,
 								EndDepth = 19.05,
-								ToolName = "",
+								ToolName = "3-8Comp",
 								NumberOfPasses = 1,
-								SequenceNumber = 99
 							},
-							new OutlineSegment() {
+							new Fillet() {
+								Radius = 20,
+							},
+							new Route() {
 								Start = new(500-40, 250 - 40),
 								End = new(0+20, 250-40),
 								StartDepth = 19.05,
 								EndDepth = 19.05,
-								ToolName = "",
+								ToolName = "3-8Comp",
 								NumberOfPasses = 1,
-								SequenceNumber = 99
 							},
-							new OutlineSegment() {
+							new Fillet() {
+								Radius = 20,
+							},
+							new Route() {
 								Start = new(0+20, 250-40),
 								End = new(0+20, 0+20),
 								StartDepth = 19.05,
 								EndDepth = 19.05,
-								ToolName = "",
+								ToolName = "3-8Comp",
 								NumberOfPasses = 1,
-								SequenceNumber = 99
-							}
+							},
+							new Fillet() {
+								Radius = 20,
+							},
+							new Route() {
+								Start = new(20, 20),
+								End = new((460-20)/2, 20),
+								StartDepth = 19.05,
+								EndDepth = 19.05,
+								ToolName = "3-8Comp",
+								NumberOfPasses = 1,
+							},
 					]
 				},
 				SecondaryFace = null
@@ -296,17 +311,29 @@ static Batch CreateBatch() {
 						{ "CabinetNumber", "1234" },
 						{ "ProductName", "ProdABC" },
 						{ "Description", "Product ABC" },
-					},
+				},
 				Width1Banding = new("Purple", "PVC"),
 				Width2Banding = new("Pink", "Paper"),
 				Length1Banding = new("Red", "Bubble Gum"),
 				Length2Banding = new("Blue", "Rocks"),
 				PrimaryFace = new() {
 					ProgramName = "PartFront2",
-					Tokens = []
+					Tokens = [
+							new Rectangle() {
+								CornerA = new(20, 20),
+								CornerC = new(460, 210),
+								CornerB = new(460, 20),
+								CornerD = new(20, 210),
+								StartDepth = 19.05,
+								EndDepth = 19.05,
+								Radius = 20,
+								ToolName = "3-8Comp",
+								NumberOfPasses = 1,
+							}
+					]
 				},
 				SecondaryFace = null
-			}
+			},
 		]
 	};
 }
