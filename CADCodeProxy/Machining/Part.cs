@@ -23,17 +23,17 @@ public class Part {
 
     internal void AddNestPartToCode(CADCodeCodeClass code) {
 
-        float width = (float)Width;
-        float length = (float)Length;
+        float panelX = (float)Length;
+        float panelY = (float)Width;
 
-        code.NestedPart(width, length, OriginType.CC_LL, PrimaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, 0);
+        code.NestedPart(panelX, panelY, OriginType.CC_LL, PrimaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, 0);
 
         foreach (var operation in PrimaryFace.GetMachiningOperations()) {
             operation.AddToCode(code);
         }
 
         if (SecondaryFace is not null) {
-            code.NestedPart(width, length, OriginType.CC_LL, SecondaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, 0);
+            code.NestedPart(panelX, panelY, OriginType.CC_LL, SecondaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, 0);
             foreach (var operation in SecondaryFace.GetMachiningOperations()) {
                 operation.AddToCode(code);
             }
