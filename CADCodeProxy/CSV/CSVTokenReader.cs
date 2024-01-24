@@ -55,6 +55,7 @@ public class CSVTokenReader {
         return parts.GroupBy(part => part.PartRecord.JobName)
             .Select(group => {
 
+                // TODO: Handle error where there are two parts in batch with the same face 6 file name
                 var face6Parts = group.Where(p => !string.IsNullOrWhiteSpace(p.PartRecord.Face6Flag))
                                         .ToDictionary(p => p.PartRecord.FileName);
 
@@ -63,7 +64,7 @@ public class CSVTokenReader {
                                 .ToArray();
 
                 return new Batch() {
-                    Name = group.Key,
+                    Name = group.Key.Trim(),
                     Parts = parts,
                     InfoFields = []
                 };

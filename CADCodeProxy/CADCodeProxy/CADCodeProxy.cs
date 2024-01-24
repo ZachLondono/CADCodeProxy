@@ -280,9 +280,9 @@ internal class CADCodeProxy : IDisposable {
         labels.LabelModuleError += (l, s) => ErrorEvent?.Invoke($"Error with label module {l} - {s}");
         labels.Progress += (l) => ProgressEvent?.Invoke(l);
 
-        labels.JobName = batchName; // This is needed to set the label database's table name
+        labels.JobName = batchName.Trim(); // This is needed to set the label database's table name
 
-        var fileName = RemoveInvalidFileNameChars(batchName);
+        var fileName = RemoveInvalidFileNameChars(batchName.Trim());
         var directory = Path.Combine(outputDirectory, fileName);
 
         if (!Directory.Exists(directory)) {

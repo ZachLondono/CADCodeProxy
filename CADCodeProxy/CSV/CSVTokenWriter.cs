@@ -12,7 +12,7 @@ public class CSVTokenWriter {
             throw new DirectoryNotFoundException($"CSV output directory does not exist {directory}");
         }
 
-        string filePath = GetAvailableFileName(directory, batch.Name, "csv");
+        string filePath = GetAvailableFileName(directory, batch.Name.Trim(), "csv");
 
         using var writer = new StreamWriter(filePath);
         using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
@@ -25,7 +25,7 @@ public class CSVTokenWriter {
 
         foreach (var part in batch.Parts) {
 
-            foreach (var csvPart in part.ToCSVParts(batch.Name)) {
+            foreach (var csvPart in part.ToCSVParts(batch.Name.Trim())) {
                 csv.WriteRecord(csvPart.PartRecord);
                 csv.NextRecord();
                 foreach (var tokenRecord in csvPart.Tokens) {
