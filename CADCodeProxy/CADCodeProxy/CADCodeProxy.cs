@@ -92,64 +92,76 @@ internal class CADCodeProxy : IDisposable {
             throw new InvalidOperationException("Could not initialize CADCode");
         }
 
-        var toolFile = CreateToolFile(_bootObj, machine.ToolFilePath);
-        var files = CreateFiles(machine);
-        var labels = CreateLabel(_bootObj, batch.Name, machine.LabelDatabaseOutputDirectory);
-        var code = CreateCode(_bootObj, batch.Name, machine, toolFile);
-
-        if (ProgressEvent is not null) {
-            labels.Progress += ProgressEvent.Invoke;
-            code.Progress += ProgressEvent.Invoke;
-        }
-
-        if (ErrorEvent is not null) {
-            code.MachiningError += (L, S) => ErrorEvent?.Invoke($"{L} - {S}");
-        }
+        CADCodeToolFileClass? toolFile = null;
+        CADCodeFileClass? files = null;
+        CADCodeLabelClass? labels = null;
+        CADCodeCodeClass? code = null;
 
         List<MaterialGCodeGenerationResult> materialResults = [];
-        var groups = batch.Parts.GroupBy(p => new PartGroupKey(p.Material, p.Thickness));
 
-        foreach (var group in groups) {
-            
-            var matchingInventory = inventory.Where(i => i.MaterialName == group.Key.MaterialName && i.PanelThickness == group.Key.Thickness).ToList();
+        try {
 
-            if (matchingInventory.Count == 0) {
-                throw new InvalidInventoryException($"No valid {group.Key.Thickness}mm thick '{group.Key.MaterialName}' inventory available");
+            toolFile = CreateToolFile(_bootObj, machine.ToolFilePath);
+            files = CreateFiles(machine);
+            labels = CreateLabel(_bootObj, batch.Name, machine.LabelDatabaseOutputDirectory);
+            code = CreateCode(_bootObj, batch.Name, machine, toolFile);
+
+            if (ProgressEvent is not null) {
+                labels.Progress += ProgressEvent.Invoke;
+                code.Progress += ProgressEvent.Invoke;
             }
 
-            // TODO: take into account panel trim when checking size of parts
-            // TODO: make sure width / length is correct
-            var largestLength = group.Select(p => {
-                    if (p.IsGrained) return p.Length;
-                    return Math.Min(p.Width, p.Length);
-                })
-                .Max();
-
-            var largestWidth = group.Select(p => {
-                    if (p.IsGrained) return p.Width;
-                    return Math.Min(p.Width, p.Length);
-                })
-                .Max();
-
-            if (matchingInventory.Any(i => i.PanelWidth < largestWidth) || matchingInventory.Any(i => i.PanelLength < largestLength)) {
-                throw new InvalidInventoryException($"No valid {group.Key.Thickness}mm thick '{group.Key.MaterialName}' inventory large enough for all parts in batch");
+            if (ErrorEvent is not null) {
+                code.MachiningError += (L, S) => ErrorEvent?.Invoke($"{L} - {S}");
             }
-            
-        }
 
-        foreach (var group in groups) {
-            var matResult = GenerateCodeForMaterialType(batch.InfoFields, group.Key, [.. group], inventory, units, _bootObj, labels, files, code);
-            materialResults.Add(matResult);
-        }
+            var groups = batch.Parts.GroupBy(p => new PartGroupKey(p.Material, p.Thickness));
 
-        var singlePartToolFile = CreateToolFile(_bootObj, machine.SinglePartToolFilePath);
-        var singlePartCode = CreateCode(_bootObj, batch.Name, machine, singlePartToolFile);
-        var result = GenerateSinglePrograms(batch.Parts, units, singlePartCode);
-        if (result != 0) {
-            ErrorEvent?.Invoke($"Non-zero response returned while generating single part programs - {result}");
-        }
+            foreach (var group in groups) {
+                
+                var matchingInventory = inventory.Where(i => i.MaterialName == group.Key.MaterialName && i.PanelThickness == group.Key.Thickness).ToList();
 
-        ReleaseComObjects(labels, toolFile, files, code);
+                if (matchingInventory.Count == 0) {
+                    throw new InvalidInventoryException($"No valid {group.Key.Thickness}mm thick '{group.Key.MaterialName}' inventory available");
+                }
+
+                // TODO: take into account panel trim when checking size of parts
+                // TODO: make sure width / length is correct
+                var largestLength = group.Select(p => {
+                        if (p.IsGrained) return p.Length;
+                        return Math.Min(p.Width, p.Length);
+                    })
+                    .Max();
+
+                var largestWidth = group.Select(p => {
+                        if (p.IsGrained) return p.Width;
+                        return Math.Min(p.Width, p.Length);
+                    })
+                    .Max();
+
+                if (matchingInventory.Any(i => i.PanelWidth < largestWidth) || matchingInventory.Any(i => i.PanelLength < largestLength)) {
+                    throw new InvalidInventoryException($"No valid {group.Key.Thickness}mm thick '{group.Key.MaterialName}' inventory large enough for all parts in batch");
+                }
+                
+            }
+
+            foreach (var group in groups) {
+                var matResult = GenerateCodeForMaterialType(batch.InfoFields, group.Key, [.. group], inventory, units, _bootObj, labels, files, code);
+                materialResults.Add(matResult);
+            }
+
+            var singlePartToolFile = CreateToolFile(_bootObj, machine.SinglePartToolFilePath);
+            var singlePartCode = CreateCode(_bootObj, batch.Name, machine, singlePartToolFile);
+            var result = GenerateSinglePrograms(batch.Parts, units, singlePartCode);
+            if (result != 0) {
+                ErrorEvent?.Invoke($"Non-zero response returned while generating single part programs - {result}");
+            }
+
+        } catch {
+            throw;
+        } finally {
+            ReleaseComObjects(labels, toolFile, files, code);
+        }
 
         return new() {
             MachineName = machine.Name,
@@ -167,63 +179,69 @@ internal class CADCodeProxy : IDisposable {
 
         var optimizer = CreateOptimizer(bootObj, files);
 
-        if (ProgressEvent is not null) {
-            optimizer.Progress += ProgressEvent.Invoke;
-        }
-        if (ErrorEvent is not null) {
-            optimizer.OptimizeError += (L, S) => ErrorEvent?.Invoke($"{L} - {S}");
-        }
+        try {
 
-        List<CutlistInventory> sheetStock = inventory.Where(i => i.MaterialName == partGroupKey.MaterialName && i.PanelThickness == partGroupKey.Thickness)
-                                                    .Select(i => i.AsCutlistInventory())
-                                                    .ToList();
+            if (ProgressEvent is not null) {
+                optimizer.Progress += ProgressEvent.Invoke;
+            }
+            if (ErrorEvent is not null) {
+                optimizer.OptimizeError += (L, S) => ErrorEvent?.Invoke($"{L} - {S}");
+            }
 
-        List<(CADCode.Part Part, Guid PartId)> parts = batchParts.SelectMany(p => p.ToCADCodePart(units).Select(cp => (cp, p.Id))).ToList();
+            List<CutlistInventory> sheetStock = inventory.Where(i => i.MaterialName == partGroupKey.MaterialName && i.PanelThickness == partGroupKey.Thickness)
+                                                        .Select(i => i.AsCutlistInventory())
+                                                        .ToList();
 
-        var partLabels = new List<PartLabel>();
+            List<(CADCode.Part Part, Guid PartId)> parts = batchParts.SelectMany(p => p.ToCADCodePart(units).Select(cp => (cp, p.Id))).ToList();
 
-        var resultNumber = GenerateResultNumber();
-        code.StartingProgramNumber = resultNumber;
+            var partLabels = new List<PartLabel>();
 
-        code.Border(1.0f, 1.0f, (float)partGroupKey.Thickness, units, OriginType.CC_UL, $"{partGroupKey.MaterialName} {partGroupKey.Thickness}", AxisTypes.CC_AUTO_AXIS);
-        foreach (var batchPart in batchParts) {
-            partLabels.Add(batchPart.AddToLabels(batchInfoFields, labels));
-            batchPart.AddNestPartToCode(code);
-        }
-        code.EndPanel();
+            var resultNumber = GenerateResultNumber();
+            code.StartingProgramNumber = resultNumber;
 
-        sheetStock.ForEach(ss => optimizer.AddSheetStockByRef(ss, units));
-        parts.ForEach(p => optimizer.AddPartByRef(p.Part));
+            code.Border(1.0f, 1.0f, (float)partGroupKey.Thickness, units, OriginType.CC_UL, $"{partGroupKey.MaterialName} {partGroupKey.Thickness}", AxisTypes.CC_AUTO_AXIS);
+            foreach (var batchPart in batchParts) {
+                partLabels.Add(batchPart.AddToLabels(batchInfoFields, labels));
+                batchPart.AddNestPartToCode(code);
+            }
+            code.EndPanel();
 
-        string resultName = (resultNumber).ToString("D5");
-        optimizer.Optimize(typeOptimizeMethod.CC_OPT_ANYKIND, code, resultName, 0, 0, labels);
+            sheetStock.ForEach(ss => optimizer.AddSheetStockByRef(ss, units));
+            parts.ForEach(p => optimizer.AddPartByRef(p.Part));
 
-        var usedInventory = sheetStock.Select(UsedInventory.FromCutlistInventory)
-                                        .Where(i => i.Qty > 0)
-                                        .ToArray();
+            string resultName = (resultNumber).ToString("D5");
+            optimizer.Optimize(typeOptimizeMethod.CC_OPT_ANYKIND, code, resultName, 0, 0, labels);
 
-        var placedParts = parts.Where(p => p.Part.PatternNumber != 0)
-                                .Select(val => PlacedPart.FromPart(val.Part, val.PartId))
+            var usedInventory = sheetStock.Select(UsedInventory.FromCutlistInventory)
+                                            .Where(i => i.Qty > 0)
+                                            .ToArray();
+
+            var placedParts = parts.Where(p => p.Part.PatternNumber != 0)
+                                    .Select(val => PlacedPart.FromPart(val.Part, val.PartId))
+                                    .ToArray();
+
+            var unplacedParts = optimizer.GetUnplacedParts();
+
+            var programs = code.GetProcessedFileNames()
+                                .AsEnumerable()
+                                .Select(s => Path.GetFileName(s.Split(',').First().Trim()))
                                 .ToArray();
 
-        var unplacedParts = optimizer.GetUnplacedParts();
-
-        var programs = code.GetProcessedFileNames()
-                            .AsEnumerable()
-                            .Select(s => Path.GetFileName(s.Split(',').First().Trim()))
-                            .ToArray();
-
-        ReleaseComObject(optimizer);
-
-        return new MaterialGCodeGenerationResult() {
-            MaterialName = partGroupKey.MaterialName,
-            MaterialThickness = partGroupKey.Thickness,
-            ProgramNames = programs,
-            UnplacedParts = unplacedParts,
-            PlacedParts = placedParts,
-            UsedInventory = usedInventory,
-            PartLabels = [.. partLabels]
-        };
+            return new MaterialGCodeGenerationResult() {
+                MaterialName = partGroupKey.MaterialName,
+                MaterialThickness = partGroupKey.Thickness,
+                ProgramNames = programs,
+                UnplacedParts = unplacedParts,
+                PlacedParts = placedParts,
+                UsedInventory = usedInventory,
+                PartLabels = [.. partLabels]
+            };
+            
+        } catch {
+            throw;
+        } finally {
+            ReleaseComObject(optimizer);
+        }
 
     }
 
@@ -342,7 +360,7 @@ internal class CADCodeProxy : IDisposable {
 
     private static string RemoveInvalidFileNameChars(string fileName) => string.Concat(fileName.Split(Path.GetInvalidFileNameChars()));
 
-    private void ReleaseComObjects(CADCodeLabelClass labels, CADCodeToolFileClass toolFile, CADCodeFileClass files, CADCodeCodeClass code) {
+    private void ReleaseComObjects(CADCodeLabelClass? labels, CADCodeToolFileClass? toolFile, CADCodeFileClass? files, CADCodeCodeClass? code) {
         ReleaseComObject(labels);
         ReleaseComObject(toolFile);
         ReleaseComObject(files);
@@ -367,7 +385,11 @@ internal class CADCodeProxy : IDisposable {
         GC.WaitForPendingFinalizers();
     }
 
-    private void ReleaseComObject(object obj) {
+    private void ReleaseComObject(object? obj) {
+
+        if (obj is null) {
+            return;
+        }
 
         try {
             Marshal.ReleaseComObject(obj);
