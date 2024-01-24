@@ -47,6 +47,9 @@ public class Part {
             foreach (var operation in SecondaryFace.GetMachiningOperations()) {
                 operation.AddToCode(code);
             }
+
+            throw new InvalidOperationException("Face 6 part not supported");
+
         }
 
     }

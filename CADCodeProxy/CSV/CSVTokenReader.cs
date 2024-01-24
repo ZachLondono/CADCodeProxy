@@ -84,9 +84,6 @@ public class CSVTokenReader {
         bool hasFace6 = !string.IsNullOrWhiteSpace(record.PartRecord.Face6FileName);
         if (hasFace6) {
 
-            throw new InvalidOperationException("Face 6 parts not supported");
-
-            /*
             if (face6Parts.TryGetValue(record.PartRecord.Face6FileName, out var face6Part)) {
 
                 var face6Tokens = face6Part.Tokens
@@ -103,7 +100,8 @@ public class CSVTokenReader {
                 };
 
             }
-            */
+
+            throw new InvalidOperationException("Face 6 parts not supported");
 
         }
 
