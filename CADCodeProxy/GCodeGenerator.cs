@@ -56,6 +56,11 @@ public class GCodeGenerator(LinearUnits units) {
         List<MachineGCodeGenerationResult> machineResults = [];
         foreach (var machine in machines) {
 
+            if (!IsMachineSettingValid(machine)) {
+                CADCodeErrorEvent?.Invoke($"Skipping machine '{machine.Name}' because it is misconfigured.");
+                continue;
+            }
+
             GenerationEvent?.Invoke($"Generating G-code for '{machine.Name}'");
             var result = cadcode.GenerateGCode(machine, batch, inventory, units);
 
@@ -70,6 +75,49 @@ public class GCodeGenerator(LinearUnits units) {
             WinStepReportFilePath = null,
             MachineResults = [.. machineResults]
         };
+
+    }
+
+    internal bool IsMachineSettingValid(Machine machine) {
+
+        bool isValid = true;
+
+        if (string.IsNullOrWhiteSpace(machine.Name)) {
+            CADCodeErrorEvent?.Invoke("Machine is missing a name");
+            isValid = false;
+        }
+
+        if (!File.Exists(machine.ToolFilePath)) {
+            CADCodeErrorEvent?.Invoke($"Tool file doesn't exist or can not be accessed - '{machine.ToolFilePath}'");
+            isValid = false;
+        }
+
+        if (!File.Exists(machine.SinglePartToolFilePath)) {
+            CADCodeErrorEvent?.Invoke($"Tool file doesn't exist or can not be accessed - '{machine.SinglePartToolFilePath}'");
+            isValid = false;
+        }
+
+        if (!Directory.Exists(machine.NestOutputDirectory)) {
+            CADCodeErrorEvent?.Invoke($"Nest output directory doesn't exist or can not be accessed - '{machine.NestOutputDirectory}'");
+            isValid = false;
+        }
+
+        if (!Directory.Exists(machine.SingleProgramOutputDirectory)) {
+            CADCodeErrorEvent?.Invoke($"Single program output directory doesn't exist or can not be accessed - '{machine.SingleProgramOutputDirectory}'");
+            isValid = false;
+        }
+
+        if (!Directory.Exists(machine.PictureOutputDirectory)) {
+            CADCodeErrorEvent?.Invoke($"Picture output directory doesn't exist or can not be accessed - '{machine.PictureOutputDirectory}'");
+            isValid = false;
+        }
+
+        if (!Directory.Exists(machine.LabelDatabaseOutputDirectory)) {
+            CADCodeErrorEvent?.Invoke($"Label output directory doesn't exist or can not be accessed - '{machine.LabelDatabaseOutputDirectory}'");
+            isValid = false;
+        }
+
+        return isValid;
 
     }
 
