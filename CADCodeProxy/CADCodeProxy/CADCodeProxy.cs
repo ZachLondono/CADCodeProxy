@@ -348,9 +348,9 @@ internal class CADCodeProxy : IDisposable {
         return new CADCodeFileClass {
             ToolFilePath = machine.ToolFilePath,
             FileOutputDirectory = machine.NestOutputDirectory,
-            LabelFilePath = machine.NestOutputDirectory,
-            PictureFileLocation = machine.NestOutputDirectory,
-            ReportsLocation = machine.NestOutputDirectory,
+            LabelFilePath = machine.LabelDatabaseOutputDirectory,
+            PictureFileLocation = machine.PictureOutputDirectory,
+            ReportsLocation = machine.NestOutputDirectory, // TODO: Add reports location to machine settings, if we can ever get reports to work
             StartingSubProgramNumber = 1,
             StartingProgramNumber = 1,
         };
