@@ -77,7 +77,7 @@ public class CSVTokenReader {
                         PrimaryFace = new() {
                             ProgramName = record.PartRecord.FileName,
                             IsMirrored = (record.PartRecord.Mirror.Equals("Y", StringComparison.InvariantCultureIgnoreCase) || record.PartRecord.Mirror.Equals("mirr on", StringComparison.InvariantCultureIgnoreCase)),
-                            IsRotated = record.PartRecord.Rotation.Equals("Y", StringComparison.InvariantCultureIgnoreCase),
+                            Rotation = ParseDoubleFromStringOrDefault(record.PartRecord.Rotation, 0),
                             Tokens = tokens
                         },
                         InfoFields = new() {
@@ -104,6 +104,13 @@ public class CSVTokenReader {
             .ToArray();
 
 
+    }
+
+    internal static double ParseDoubleFromStringOrDefault(string input, double defaultValue = 0) {
+        if (double.TryParse(input, out var result)) {
+            return result;
+        }
+        return defaultValue;
     }
 
     internal IToken MapRecordToToken(TokenRecord record) {
