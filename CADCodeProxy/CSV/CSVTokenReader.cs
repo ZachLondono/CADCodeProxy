@@ -55,44 +55,12 @@ public class CSVTokenReader {
         return parts.GroupBy(part => part.PartRecord.JobName)
             .Select(group => {
 
-                var parts = group.Select(record => {
+                var face6Parts = group.Where(p => !string.IsNullOrWhiteSpace(p.PartRecord.Face6Flag))
+                                        .ToDictionary(p => p.PartRecord.FileName);
 
-                    var tokens = record.Tokens
-                                        .Select(MapRecordToToken)
-                                        .ToArray();
-
-                    // TODO: check if part has a face6
-
-                    return new Part() {
-                        Qty = int.Parse(record.PartRecord.Qty),
-                        Width = double.Parse(record.PartRecord.Width),
-                        Length = double.Parse(record.PartRecord.Length),
-                        Thickness = double.Parse(record.PartRecord.Thickness),
-                        Material = record.PartRecord.Material,
-                        IsGrained = record.PartRecord.Graining == "Y",
-                        Width1Banding = new(record.PartRecord.WidthColor1, record.PartRecord.WidthMaterial1),
-                        Width2Banding = new(record.PartRecord.WidthColor2, record.PartRecord.WidthMaterial2),
-                        Length1Banding = new(record.PartRecord.LengthColor1, record.PartRecord.LengthMaterial1),
-                        Length2Banding = new(record.PartRecord.LengthColor2, record.PartRecord.LengthMaterial2),
-                        PrimaryFace = new() {
-                            ProgramName = record.PartRecord.FileName,
-                            IsMirrored = (record.PartRecord.Mirror.Equals("Y", StringComparison.InvariantCultureIgnoreCase) || record.PartRecord.Mirror.Equals("mirr on", StringComparison.InvariantCultureIgnoreCase)),
-                            Rotation = ParseDoubleFromStringOrDefault(record.PartRecord.Rotation, 0),
-                            Tokens = tokens
-                        },
-                        InfoFields = new() {
-                            { "CustomerInfo1", record.PartRecord.CustomerInfo1 },
-                            { "Level1", record.PartRecord.Level1 },
-                            { "Comment1", record.PartRecord.Comment1 },
-                            { "Comment2", record.PartRecord.Comment2 },
-                            { "Side1Color", record.PartRecord.Side1Color },
-                            { "Side1Material", record.PartRecord.Side1Material },
-                            { "CabinetNumber", record.PartRecord.CabinetNumber },
-                            { "ProductName", record.PartRecord.ProductName },
-                            { "Description", record.PartRecord.Description }
-                        }
-                    };
-                }).ToArray();
+                var parts = group.Where(p => string.IsNullOrWhiteSpace(p.PartRecord.Face6Flag))
+                                .Select(record => MapRecordToPart(record, face6Parts))
+                                .ToArray();
 
                 return new Batch() {
                     Name = group.Key,
@@ -104,6 +72,76 @@ public class CSVTokenReader {
             .ToArray();
 
 
+    }
+
+    private Part MapRecordToPart(CSVPart record, Dictionary<string, CSVPart> face6Parts) {
+
+        var tokens = record.Tokens
+                            .Select(MapRecordToToken)
+                            .ToArray();
+
+        PartFace? secondaryFace = null;
+        bool hasFace6 = !string.IsNullOrWhiteSpace(record.PartRecord.Face6FileName);
+        if (hasFace6) {
+
+            if (face6Parts.TryGetValue(record.PartRecord.Face6FileName, out var face6Part)) {
+
+                var face6Tokens = face6Part.Tokens
+                                           .Select(MapRecordToToken)
+                                           .ToArray();
+        
+                var face6Rotation = ParseDoubleFromStringOrDefault(face6Part.PartRecord.Rotation, 0);
+
+                secondaryFace = new() {
+                    ProgramName = face6Part.PartRecord.FileName,
+                    Tokens = face6Tokens,
+                    Rotation = face6Rotation,
+                    IsMirrored = IsMirrored(face6Part.PartRecord.Mirror)
+                };
+
+            }
+
+        }
+
+        var rotation = ParseDoubleFromStringOrDefault(record.PartRecord.Rotation, 0);
+        if (rotation != 0) {
+            throw new InvalidOperationException("Part rotation is not supported");
+        }
+
+        return new Part() {
+            Qty = int.Parse(record.PartRecord.Qty),
+            Width = double.Parse(record.PartRecord.Width),
+            Length = double.Parse(record.PartRecord.Length),
+            Thickness = double.Parse(record.PartRecord.Thickness),
+            Material = record.PartRecord.Material,
+            IsGrained = record.PartRecord.Graining == "Y",
+            Width1Banding = new(record.PartRecord.WidthColor1, record.PartRecord.WidthMaterial1),
+            Width2Banding = new(record.PartRecord.WidthColor2, record.PartRecord.WidthMaterial2),
+            Length1Banding = new(record.PartRecord.LengthColor1, record.PartRecord.LengthMaterial1),
+            Length2Banding = new(record.PartRecord.LengthColor2, record.PartRecord.LengthMaterial2),
+            PrimaryFace = new() {
+                ProgramName = record.PartRecord.FileName,
+                IsMirrored = IsMirrored(record.PartRecord.Mirror),
+                Rotation = rotation,
+                Tokens = tokens
+            },
+            SecondaryFace = secondaryFace,
+            InfoFields = new() {
+                { "CustomerInfo1", record.PartRecord.CustomerInfo1 },
+                { "Level1", record.PartRecord.Level1 },
+                { "Comment1", record.PartRecord.Comment1 },
+                { "Comment2", record.PartRecord.Comment2 },
+                { "Side1Color", record.PartRecord.Side1Color },
+                { "Side1Material", record.PartRecord.Side1Material },
+                { "CabinetNumber", record.PartRecord.CabinetNumber },
+                { "ProductName", record.PartRecord.ProductName },
+                { "Description", record.PartRecord.Description }
+            }
+        };
+    }
+
+    internal static bool IsMirrored(string recordValue) {
+        return (recordValue.Equals("Y", StringComparison.InvariantCultureIgnoreCase) || recordValue.Equals("mirr on", StringComparison.InvariantCultureIgnoreCase));
     }
 
     internal static double ParseDoubleFromStringOrDefault(string input, double defaultValue = 0) {
