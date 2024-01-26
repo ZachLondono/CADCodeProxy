@@ -26,7 +26,11 @@ public record InventoryItem {
             Trim2 = "7",
             Trim3 = "4",
             Trim4 = "4",
-            TrimDrop = false
+            TrimDrop = false,
+            Flippable = true,
+            UnitCost = "1",
+            MinimumRestockArea = 2000,
+            MinimumRestockDimension = 0,
         };
     }
 
