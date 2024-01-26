@@ -104,7 +104,7 @@ internal class CADCodeProxy : IDisposable {
             toolFile = CreateToolFile(_bootObj, machine.ToolFilePath);
             files = CreateFiles(machine);
             labels = CreateLabel(_bootObj, batch.Name, machine.LabelDatabaseOutputDirectory);
-            code = CreateCode(_bootObj, batch.Name, machine, toolFile);
+            code = CreateCode(_bootObj, batch.Name, machine, toolFile, machine.NestOutputDirectory);
 
             if (ProgressEvent is not null) {
                 labels.Progress += ProgressEvent.Invoke;
@@ -151,7 +151,7 @@ internal class CADCodeProxy : IDisposable {
             }
 
             var singlePartToolFile = CreateToolFile(_bootObj, machine.SinglePartToolFilePath);
-            var singlePartCode = CreateCode(_bootObj, batch.Name, machine, singlePartToolFile);
+            var singlePartCode = CreateCode(_bootObj, batch.Name, machine, singlePartToolFile, machine.SingleProgramOutputDirectory);
             var result = GenerateSinglePrograms(batch.Parts, units, singlePartCode);
             if (result != 0) {
                 ErrorEvent?.Invoke($"Non-zero response returned while generating single part programs - {result}");
@@ -311,7 +311,7 @@ internal class CADCodeProxy : IDisposable {
         return optimizer;
     }
 
-    private CADCodeCodeClass CreateCode(CADCodeBootObject boot, string batchName, Machine machine, CADCodeToolFileClass toolFile) {
+    private CADCodeCodeClass CreateCode(CADCodeBootObject boot, string batchName, Machine machine, CADCodeToolFileClass toolFile, string outputDirectoryRoot) {
 
         // Stores the machining data needed for all the parts, and does the work of creating the individual part programs
         var code = boot.CreateCode()
@@ -325,7 +325,7 @@ internal class CADCodeProxy : IDisposable {
         code.LastProgramNumberUsed += (n) => InformationEvent?.Invoke($"Last program number used '{n}'");
         code.NameChange += (o, n) => InformationEvent?.Invoke($"Name change {o} => {n}");
 
-        string outputDir = Path.Combine(machine.NestOutputDirectory, RemoveInvalidFileNameChars(batchName));
+        string outputDir = Path.Combine(outputDirectoryRoot, RemoveInvalidFileNameChars(batchName));
         if (!Directory.Exists(outputDir)) {
             Directory.CreateDirectory(outputDir);
         }
