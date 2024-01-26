@@ -14,6 +14,8 @@ internal class CADCodeProxy : IDisposable {
     private readonly List<WS_Job> _wsJobs = [];
     // TODO: add a list of 'unreleased com objects' which can be released in the Dispose method, incase an exception is thrown and they have not yet been released
 
+    public string LabelCreatorName { get; set; } = "";
+
     public delegate void ProgressEventHandler(int value);
     public event ProgressEventHandler? ProgressEvent;
 
@@ -286,6 +288,8 @@ internal class CADCodeProxy : IDisposable {
         // Stores the data that will be written to the label database
         var labels = boot.CreateLabels()
                         ?? throw new InvalidOperationException("Could not create CADCode label object");
+
+        labels.Creator = LabelCreatorName;
 
         labels.LabelModuleError += (l, s) => ErrorEvent?.Invoke($"Error with label module {l} - {s}");
         labels.Progress += (l) => ProgressEvent?.Invoke(l);

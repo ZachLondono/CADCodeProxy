@@ -18,6 +18,7 @@ public class GCodeGenerator(LinearUnits units) {
     public event CADCodeErrorEventHandler? CADCodeErrorEvent;
 
 	public LinearUnits Units { get; init; } = units;
+    public string ApplicationName { get; set; } = "CADCodeProxy";
 
 	public List<InventoryItem> Inventory { get; } = [];
 
@@ -33,7 +34,9 @@ public class GCodeGenerator(LinearUnits units) {
             GenerationEvent?.Invoke($"{batch.Parts.Length} Parts in batch");
         }
 
-        using var cadcode = new CADCodeProxy.CADCodeProxy();
+        using var cadcode = new CADCodeProxy.CADCodeProxy() {
+            LabelCreatorName = ApplicationName
+        };
 
         cadcode.ProgressEvent += (i) => {
 			CADCodeProgressEvent?.Invoke(i);
