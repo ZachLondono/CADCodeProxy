@@ -29,7 +29,7 @@ app.AddCommand((ILogger<Program> logger) => {
 
 });
 
-app.AddCommand("csv-reading", (ILogger<Program> logger, string file = @"R:\Door Orders\CC Input\CSV Examples\Rectangle.csv") => {
+app.AddCommand("csv-reading", (ILogger<Program> logger, string file = @"R:\Door Orders\CC Input\CSV Examples\Simple Door.csv") => {
 
 	logger.LogInformation("Reading CSV file '{File}'", file);
 
@@ -105,21 +105,21 @@ static List<Machine> GetMachines() {
 	return [
 		new() {
 			Name = "Omnitech Selexx",
-			NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
-			SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
+			NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output\Omni\nest",
+			SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output\Omni\single",
 			ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Royal Omnitech Fanuc-Smart names.mdb",
 			SinglePartToolFilePath = @"Y:\CADCode\cfg\Tool Files\Royal Omnitech Fanuc-Smart names X100 SHIFT.mdb",
-			PictureOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
-			LabelDatabaseOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
+			PictureOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output\Omni\pix",
+			LabelDatabaseOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output\Omni\labels",
 		},
 		new() {
 			Name = "Anderson Stratos",
-			NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
-			SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
+			NestOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output\Andi\nest",
+			SingleProgramOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output\Andi\single",
 			ToolFilePath = @"Y:\CADCode\cfg\Tool Files\Andi Stratos Royal - Tools from Omni.mdb",
 			SinglePartToolFilePath = @"Y:\CADCode\cfg\Tool Files\Andi Stratos Royal - Tools from Omni.mdb",
-			PictureOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
-			LabelDatabaseOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output",
+			PictureOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output\Andi\pix",
+			LabelDatabaseOutputDirectory = @"C:\Users\Zachary Londono\Desktop\CC Output\Andi\labels",
 		}
 	];
 
@@ -129,7 +129,7 @@ void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> 
 
 	generator.Inventory.Add(new() {
 		MaterialName = "1/2\" MDF",
-		AvailableQty = 9999,
+		AvailableQty = 99999,
 		IsGrained = true,
 		PanelLength = 2464,
 		PanelWidth = 1245,
@@ -138,7 +138,7 @@ void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> 
 	});
 	generator.Inventory.Add(new() {
 		MaterialName = "3/4\" MDF",
-		AvailableQty = 9999,
+		AvailableQty = 99999,
 		IsGrained = true,
 		PanelLength = 2464,
 		PanelWidth = 1245,
@@ -146,8 +146,17 @@ void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> 
 		Priority = 1,
 	});
 	generator.Inventory.Add(new() {
-		MaterialName = "MDF-3/4\"",
-		AvailableQty = 9999,
+		MaterialName = "MDF-7/8\"",
+		AvailableQty = 99999,
+		IsGrained = true,
+		PanelLength = 2464,
+		PanelWidth = 1245,
+		PanelThickness = 22.225,
+		Priority = 1,
+	});
+	generator.Inventory.Add(new() {
+		MaterialName = "MEDEX-3/4\"",
+		AvailableQty = 99999,
 		IsGrained = true,
 		PanelLength = 2464,
 		PanelWidth = 1245,
@@ -155,8 +164,8 @@ void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> 
 		Priority = 1,
 	});
 	generator.Inventory.Add(new() {
-		MaterialName = "MEDEX-3/4\"",
-		AvailableQty = 9999,
+		MaterialName = "3/4\" Wood Grain",
+		AvailableQty = 99999,
 		IsGrained = true,
 		PanelLength = 2464,
 		PanelWidth = 1245,
@@ -165,7 +174,7 @@ void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> 
 	});
 	generator.Inventory.Add(new() {
 		MaterialName = "White Mela MDF-3/4\"",
-		AvailableQty = 9999,
+		AvailableQty = 99999,
 		IsGrained = true,
 		PanelLength = 2464,
 		PanelWidth = 1245,
