@@ -94,7 +94,6 @@ internal class CADCodeProxy : IDisposable {
 
         CADCodeToolFileClass? toolFile = null;
         CADCodeFileClass? files = null;
-        CADCodeLabelClass? labels = null;
         CADCodeCodeClass? code = null;
 
         List<MaterialGCodeGenerationResult> materialResults = [];
@@ -103,11 +102,9 @@ internal class CADCodeProxy : IDisposable {
 
             toolFile = CreateToolFile(_bootObj, machine.ToolFilePath);
             files = CreateFiles(machine);
-            labels = CreateLabel(_bootObj, batch.Name, machine.LabelDatabaseOutputDirectory);
             code = CreateCode(_bootObj, batch.Name, machine, toolFile, machine.NestOutputDirectory);
 
             if (ProgressEvent is not null) {
-                labels.Progress += ProgressEvent.Invoke;
                 code.Progress += ProgressEvent.Invoke;
             }
 
@@ -146,8 +143,14 @@ internal class CADCodeProxy : IDisposable {
             }
 
             foreach (var group in groups) {
-                var matResult = GenerateCodeForMaterialType(batch.InfoFields, group.Key, [.. group], inventory, units, _bootObj, labels, files, code);
+
+                Func<string, CADCodeLabelClass> createLabelClass = (string resultNumber) => {
+                    return CreateLabel(_bootObj, batch.Name, group.Key.MaterialName, group.Key.Thickness, resultNumber, machine.LabelDatabaseOutputDirectory);
+                };
+
+                var matResult = GenerateCodeForMaterialType(batch.InfoFields, group.Key, [.. group], inventory, units, _bootObj,  files, code, createLabelClass);
                 materialResults.Add(matResult);
+
             }
 
             var singlePartToolFile = CreateToolFile(_bootObj, machine.SinglePartToolFilePath);
@@ -160,7 +163,7 @@ internal class CADCodeProxy : IDisposable {
         } catch {
             throw;
         } finally {
-            ReleaseComObjects(labels, toolFile, files, code);
+            ReleaseComObjects(toolFile, files, code);
         }
 
         return new() {
@@ -175,7 +178,7 @@ internal class CADCodeProxy : IDisposable {
 
     }
 
-    private MaterialGCodeGenerationResult GenerateCodeForMaterialType(InfoFields batchInfoFields, PartGroupKey partGroupKey, Machining.Part[] batchParts, InventoryItem[] inventory, UnitTypes units, CADCodeBootObject bootObj, CADCodeLabelClass labels, CADCodeFileClass files, CADCodeCodeClass code) {
+    private MaterialGCodeGenerationResult GenerateCodeForMaterialType(InfoFields batchInfoFields, PartGroupKey partGroupKey, Machining.Part[] batchParts, InventoryItem[] inventory, UnitTypes units, CADCodeBootObject bootObj, CADCodeFileClass files, CADCodeCodeClass code, Func<string, CADCodeLabelClass> createLabels) {
 
         var optimizer = CreateOptimizer(bootObj, files);
 
@@ -197,7 +200,13 @@ internal class CADCodeProxy : IDisposable {
             var partLabels = new List<PartLabel>();
 
             var resultNumber = GenerateResultNumber();
+            string resultName = (resultNumber).ToString("D5");
             code.StartingProgramNumber = resultNumber;
+
+            var labels = createLabels(resultName);
+            if (ProgressEvent is not null) {
+                labels.Progress += ProgressEvent.Invoke;
+            }
 
             code.Border(1.0f, 1.0f, (float)partGroupKey.Thickness, units, OriginType.CC_UL, $"{partGroupKey.MaterialName} {partGroupKey.Thickness}", AxisTypes.CC_AUTO_AXIS);
             foreach (var batchPart in batchParts) {
@@ -209,8 +218,9 @@ internal class CADCodeProxy : IDisposable {
             sheetStock.ForEach(ss => optimizer.AddSheetStockByRef(ss, units));
             parts.ForEach(p => optimizer.AddPartByRef(p.Part));
 
-            string resultName = (resultNumber).ToString("D5");
             optimizer.Optimize(typeOptimizeMethod.CC_OPT_ANYKIND, code, resultName, 0, 0, labels);
+
+            ReleaseComObject(labels);
 
             var usedInventory = sheetStock.Select(UsedInventory.FromCutlistInventory)
                                             .Where(i => i.Qty > 0)
@@ -271,7 +281,7 @@ internal class CADCodeProxy : IDisposable {
         return toolFile;
     }
 
-    private CADCodeLabelClass CreateLabel(CADCodeBootObject boot, string batchName, string outputDirectory) {
+    private CADCodeLabelClass CreateLabel(CADCodeBootObject boot, string batchName, string materialName, double materialThickness, string resultNumber, string outputDirectory) {
 
         // Stores the data that will be written to the label database
         var labels = boot.CreateLabels()
@@ -280,7 +290,8 @@ internal class CADCodeProxy : IDisposable {
         labels.LabelModuleError += (l, s) => ErrorEvent?.Invoke($"Error with label module {l} - {s}");
         labels.Progress += (l) => ProgressEvent?.Invoke(l);
 
-        labels.JobName = batchName.Trim(); // This is needed to set the label database's table name
+        string prefix = $"{materialName} {Math.Round(materialThickness, 0)}"; 
+        labels.JobName = $"{prefix} {resultNumber}";
 
         var fileName = RemoveInvalidFileNameChars(batchName.Trim());
         var directory = Path.Combine(outputDirectory, fileName);
@@ -360,8 +371,7 @@ internal class CADCodeProxy : IDisposable {
 
     private static string RemoveInvalidFileNameChars(string fileName) => string.Concat(fileName.Split(Path.GetInvalidFileNameChars()));
 
-    private void ReleaseComObjects(CADCodeLabelClass? labels, CADCodeToolFileClass? toolFile, CADCodeFileClass? files, CADCodeCodeClass? code) {
-        ReleaseComObject(labels);
+    private void ReleaseComObjects(CADCodeToolFileClass? toolFile, CADCodeFileClass? files, CADCodeCodeClass? code) {
         ReleaseComObject(toolFile);
         ReleaseComObject(files);
         ReleaseComObject(code);
