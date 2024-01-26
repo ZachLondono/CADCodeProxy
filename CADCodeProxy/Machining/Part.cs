@@ -125,7 +125,7 @@ public class Part {
                 Units = units,
                 RotationAllowed = IsGrained ? 0 : 90, // The increments which this part is allowed to be rotated by the panel optimizer
                 Graining = IsGrained ? "Y" : "N",    // This is the important field required to make sure that the parts are oriented correctly on grained material. The Graining flag on the 'CutListInventory' class seems to have no affect.
-                Face5Runfield = PrimaryFace.IsMirrored ? "Mirror On" : "",
+                Face5Runfield = PrimaryFace.IsMirrored ? "Mirror On" : "Mirror Off",
                 WidthColor1 = Width1Banding.Color,
                 WidthMaterial1 = Width1Banding.Material,
                 WidthColor2 = Width2Banding.Color,
