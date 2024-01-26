@@ -37,19 +37,29 @@ public class Part {
             operation.AddToCode(code);
         }
 
-        if (SecondaryFace is not null) {
-            
-            if (SecondaryFace.Rotation != 0) {
-                throw new InvalidOperationException("Part rotation is not supported");
-            }
-            
-            code.NestedPart(panelX, panelY, OriginType.CC_LL, SecondaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, (float) SecondaryFace.Rotation);
-            foreach (var operation in SecondaryFace.GetMachiningOperations()) {
-                operation.AddToCode(code);
-            }
+    }
 
-            throw new InvalidOperationException("Face 6 part not supported");
+    internal void AddNestSecondaryFacePartToCode(CADCodeCodeClass code) {
 
+        if (SecondaryFace is null) {
+            return;
+        }
+
+        if (SecondaryFace.Rotation != 0) {
+            throw new InvalidOperationException("Part rotation is not supported");
+        }
+
+        float panelX = (float)Length;
+        float panelY = (float)Width;
+
+        if (SecondaryFace.Rotation != 0) {
+            throw new InvalidOperationException("Part rotation is not supported");
+        }
+
+        // Setting the rotation of the nest part does not rotate all the machining operations correctly, must be missing some other setting. 
+        code.NestedPart(panelX, panelY, OriginType.CC_LL, SecondaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, (float)SecondaryFace.Rotation);
+        foreach (var operation in SecondaryFace.GetMachiningOperations()) {
+            operation.AddToCode(code);
         }
 
     }
@@ -118,6 +128,7 @@ public class Part {
             parts.Add(new() {
                 QuantityOrdered = 1,
                 Face5Filename = PrimaryFace.ProgramName,
+                Face6FileName = SecondaryFace?.ProgramName ?? "",
                 Width = width,
                 Length = length,
                 Thickness = (float)Thickness,
@@ -143,7 +154,7 @@ public class Part {
             if (SecondaryFace is not null) {
                 parts.Add(new() {
                     QuantityOrdered = 1,
-                    Face5Filename = SecondaryFace.ProgramName,
+                    Face6FileName = SecondaryFace.ProgramName,
                     Width = width,
                     Length = length,
                     Thickness = (float)Thickness,
@@ -151,7 +162,7 @@ public class Part {
                     Units = units,
                     RotationAllowed = IsGrained ? 0 : 1,
                     Graining = IsGrained ? "Y" : "N",
-                    Face5Runfield = SecondaryFace.IsMirrored ? "Mirror On" : "",
+                    Face6Runfield = SecondaryFace.IsMirrored ? "Mirror On" : "Mirror Off",
                     DoLabel = false 
                 });
             }

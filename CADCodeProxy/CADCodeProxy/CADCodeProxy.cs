@@ -217,6 +217,14 @@ internal class CADCodeProxy : IDisposable {
             }
             code.EndPanel();
 
+            if (batchParts.Any(p => p.SecondaryFace is not null)) {
+                code.Border(1.0f, 1.0f, (float)partGroupKey.Thickness, units, OriginType.CC_UL, $"6{partGroupKey.MaterialName} {partGroupKey.Thickness}", AxisTypes.CC_AUTO_AXIS, Face6:true);
+                foreach (var batchPart in batchParts) {
+                    batchPart.AddNestSecondaryFacePartToCode(code);
+                }
+                code.EndPanel();
+            }
+
             sheetStock.ForEach(ss => optimizer.AddSheetStockByRef(ss, units));
             parts.ForEach(p => optimizer.AddPartByRef(p.Part));
 

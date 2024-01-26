@@ -102,7 +102,7 @@ public class CSVTokenReader {
 
             }
 
-            throw new InvalidOperationException("Face 6 parts not supported");
+            //throw new InvalidOperationException("Face 6 parts not supported");
 
         }
 
