@@ -137,7 +137,7 @@ public class Part {
                 ContainsShape = containsShape,
                 RouteShape = containsShape,
                 PerimeterRoute = !containsShape, // If there is a face 6 part i think this should be set to false on one of the faces
-                //DoLabel = true
+                DoLabel = true
             });
 
             if (SecondaryFace is not null) {
@@ -152,7 +152,7 @@ public class Part {
                     RotationAllowed = IsGrained ? 0 : 1,
                     Graining = IsGrained ? "Y" : "N",
                     Face5Runfield = SecondaryFace.IsMirrored ? "Mirror On" : "",
-                    //DoLabel = true
+                    DoLabel = false 
                 });
             }
 
