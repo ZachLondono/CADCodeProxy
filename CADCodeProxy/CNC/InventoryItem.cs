@@ -15,9 +15,9 @@ public record InventoryItem {
     internal CutlistInventory AsCutlistInventory() {
         return new CutlistInventory() {
             Description = MaterialName,
-            Width = PanelWidth.ToString(),
-            Length = PanelLength.ToString(),
-            Thickness = PanelThickness.ToString(),
+            Width = PanelWidth.ToString("0.00"),
+            Length = PanelLength.ToString("0.00"),
+            Thickness = PanelThickness.ToString("0.00"),
             Priority = Priority.ToString(),
             Graining = IsGrained ? "1" : "0",
             Supply = AvailableQty.ToString(),
