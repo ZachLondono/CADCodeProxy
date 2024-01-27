@@ -302,6 +302,9 @@ internal class CADCodeProxy : IDisposable {
 
         if (!Directory.Exists(directory)) {
             Directory.CreateDirectory(directory);
+            if (!Directory.Exists(directory)) {
+                ErrorEvent?.Invoke($"Failed to create label output directory '{directory}'");
+        }
         }
 
         labels.LabelFileName = Path.Combine(outputDirectory, fileName, $"{fileName}.mdb"); // This is either a relative path (where the root directory is set by the CADCodeFileClass) or an absolute path
@@ -343,6 +346,9 @@ internal class CADCodeProxy : IDisposable {
         string outputDir = Path.Combine(outputDirectoryRoot, RemoveInvalidFileNameChars(batchName));
         if (!Directory.Exists(outputDir)) {
             Directory.CreateDirectory(outputDir);
+            if (!Directory.Exists(outputDir)) {
+                ErrorEvent?.Invoke($"Failed to create gcode output directory '{outputDir}'");
+            }
         }
 
         code.SetOutputPath(outputDir); // The code class's output path must either be set by setting the 'FileStructures' property or by calling the 'SetOutputPath' method: 33009 CC_OUTPUT_PATH_NOT_DEFINED
@@ -353,7 +359,7 @@ internal class CADCodeProxy : IDisposable {
         code.SetPicturePath(machine.PictureOutputDirectory); // if generate pictures is set, the picture path must be set
         code.AllowPanelRotation = true; // Required to make Omni work
 
-        code.WriteWinStepFiles = true;
+        //code.WriteWinStepFiles = true;
 
         return code;
 
