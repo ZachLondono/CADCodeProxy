@@ -98,7 +98,7 @@ internal class CADCodeProxy : IDisposable {
 
             GenerateSinglePrograms(_bootObj, batch, machine, units);
 
-        } catch {
+        } catch (Exception ex) {
             ErrorEvent?.Invoke(new("Error occurred while generating gcode", ex));
             throw;
         } finally {
