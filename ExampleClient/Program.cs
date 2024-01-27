@@ -29,7 +29,7 @@ app.AddCommand((ILogger<Program> logger) => {
 
 });
 
-app.AddCommand("csv-reading", (ILogger<Program> logger, string file = @"R:\Door Orders\CC Input\CSV Examples\Simple Door.csv") => {
+app.AddCommand("csv-reading", (ILogger<Program> logger, string file = @"R:\Door Orders\CC Input\OT3207 - DoorTokens.csv") => {
 
 	logger.LogInformation("Reading CSV file '{File}'", file);
 
@@ -127,60 +127,21 @@ static List<Machine> GetMachines() {
 
 void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> machines) {
 
-	generator.Inventory.Add(new() {
-		MaterialName = "1/2\" MDF",
-		AvailableQty = 99999,
-		IsGrained = true,
-		PanelLength = 2464,
-		PanelWidth = 1245,
-		PanelThickness = 12.7,
-		Priority = 1,
-	});
-	generator.Inventory.Add(new() {
-		MaterialName = "3/4\" MDF",
-		AvailableQty = 99999,
-		IsGrained = true,
-		PanelLength = 2464,
-		PanelWidth = 1245,
-		PanelThickness = 19.05,
-		Priority = 1,
-	});
-	generator.Inventory.Add(new() {
-		MaterialName = "MDF-7/8\"",
-		AvailableQty = 99999,
-		IsGrained = true,
-		PanelLength = 2464,
-		PanelWidth = 1245,
-		PanelThickness = 22.225,
-		Priority = 1,
-	});
-	generator.Inventory.Add(new() {
-		MaterialName = "MEDEX-3/4\"",
-		AvailableQty = 99999,
-		IsGrained = true,
-		PanelLength = 2464,
-		PanelWidth = 1245,
-		PanelThickness = 19.1,
-		Priority = 1,
-	});
-	generator.Inventory.Add(new() {
-		MaterialName = "3/4\" Wood Grain",
-		AvailableQty = 99999,
-		IsGrained = true,
-		PanelLength = 2464,
-		PanelWidth = 1245,
-		PanelThickness = 19.1,
-		Priority = 1,
-	});
-	generator.Inventory.Add(new() {
-		MaterialName = "White Mela MDF-3/4\"",
-		AvailableQty = 99999,
-		IsGrained = true,
-		PanelLength = 2464,
-		PanelWidth = 1245,
-		PanelThickness = 19.1,
-		Priority = 1,
-	});
+	var materials = batch.Parts
+						 .GroupBy(p => (p.Material, p.Thickness))
+						 .Select(g => g.Key);
+
+	foreach (var material in materials) {
+		generator.Inventory.Add(new() {
+			MaterialName = material.Material,
+			AvailableQty = 99999,
+			IsGrained = true,
+			PanelLength = 2464,
+			PanelWidth = 1245,
+			PanelThickness = material.Thickness,
+			Priority = 1,
+		});
+	}
 
 	try {
 
