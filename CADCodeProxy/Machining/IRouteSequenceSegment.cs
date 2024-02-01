@@ -4,6 +4,7 @@ namespace CADCodeProxy.Machining;
 
 public interface IRouteSequenceSegment : IMachiningOperation {
 
+    public string ToolName { get; }
     public Point Start { get; }
     public Point End { get; }
     public double StartDepth { get; }
