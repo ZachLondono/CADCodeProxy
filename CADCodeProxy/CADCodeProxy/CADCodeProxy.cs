@@ -211,7 +211,7 @@ internal class CADCodeProxy : IDisposable {
                 UsedInventory = usedInventory,
                 PartLabels = [.. partLabels]
             };
-            
+
         } catch (Exception ex) {
             ErrorEvent?.Invoke(new("Error occurred while generating gcode", ex));
             throw;
@@ -268,7 +268,7 @@ internal class CADCodeProxy : IDisposable {
         labels.LabelModuleError += (l, s) => CADCodeErrorEvent?.Invoke(new(labels.GetType(), "LabelModuleError", l, s));
         labels.Progress += (val) => CADCodeProgressEvent?.Invoke(new(labels.GetType(), val));
 
-        string prefix = $"{materialName} {Math.Round(materialThickness, 0)}"; 
+        string prefix = $"{materialName} {Math.Round(materialThickness, 0)}";
         labels.JobName = $"{prefix} {resultNumber}";
 
         var fileName = RemoveInvalidFileNameChars(batchName.Trim());
@@ -319,7 +319,7 @@ internal class CADCodeProxy : IDisposable {
 
         code.MachiningError += (l, s) => CADCodeErrorEvent?.Invoke(new(code.GetType(), "MachiningError", l, s));
 
-		code.MachiningInfo += (i) => CADCodeInfoEvent?.Invoke(new(code.GetType(), "MachiningInfo", i));
+        code.MachiningInfo += (i) => CADCodeInfoEvent?.Invoke(new(code.GetType(), "MachiningInfo", i));
         code.StartProcess += (f) => CADCodeInfoEvent?.Invoke(new(code.GetType(), "ProcessStarted", f));
         code.PictureFileWritten += (f) => CADCodeInfoEvent?.Invoke(new(code.GetType(), "PictureFileWritten", f));
         code.LastProgramNumberUsed += (n) => CADCodeInfoEvent?.Invoke(new(code.GetType(), "LastProgramNumberUsed", n.ToString()));

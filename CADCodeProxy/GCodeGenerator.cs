@@ -17,10 +17,10 @@ public class GCodeGenerator(LinearUnits units) {
     public event CADCodeProgressEventHandler? CADCodeProgressEvent;
     public event CADCodeErrorEventHandler? CADCodeErrorEvent;
 
-	public LinearUnits Units { get; init; } = units;
+    public LinearUnits Units { get; init; } = units;
     public string ApplicationName { get; set; } = "CADCodeProxy";
 
-	public List<InventoryItem> Inventory { get; } = [];
+    public List<InventoryItem> Inventory { get; } = [];
 
     public GCodeGenerationResult GeneratePrograms(IEnumerable<Machine> machines, Batch batch) {
 
@@ -28,7 +28,7 @@ public class GCodeGenerator(LinearUnits units) {
             InfoEvent?.Invoke("No parts in batch");
             return new GCodeGenerationResult() {
                 WinStepReportFilePath = null,
-                MachineResults = [] 
+                MachineResults = []
             };
         } else {
             InfoEvent?.Invoke($"{batch.Parts.Length} Parts in batch");
@@ -39,10 +39,10 @@ public class GCodeGenerator(LinearUnits units) {
         };
 
         cadcode.CADCodeProgressEvent += (i) => {
-			CADCodeProgressEvent?.Invoke(i);
-		};
+            CADCodeProgressEvent?.Invoke(i);
+        };
 
-		cadcode.CADCodeErrorEvent += (m) => {
+        cadcode.CADCodeErrorEvent += (m) => {
             CADCodeErrorEvent?.Invoke(m);
         };
 
