@@ -1,9 +1,9 @@
 ﻿using CADCode;
 using CADCodeProxy.CSV;
 
-namespace CADCodeProxy.Machining;
+namespace CADCodeProxy.Machining.Tokens;
 
-public record Pocket : IToken, IMachiningOperation {
+public record Pocket : IRoutingToken, IMachiningOperation {
 
     public required string ToolName { get; init; }
     public required Point CornerA { get; init; }
@@ -68,7 +68,7 @@ public record Pocket : IToken, IMachiningOperation {
 
     internal static Pocket FromTokenRecord(TokenRecord tokenRecord) {
 
-        if (!tokenRecord.Name.Split('*',2).First().Equals("pocket", StringComparison.InvariantCultureIgnoreCase)) {
+        if (!tokenRecord.Name.Split('*', 2).First().Equals("pocket", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to pocket.");
         }
 

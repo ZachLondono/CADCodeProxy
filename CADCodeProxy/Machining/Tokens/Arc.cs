@@ -3,9 +3,9 @@ using CADCodeProxy.CADCodeProxy;
 using CADCodeProxy.CSV;
 using CADCodeProxy.Enums;
 
-namespace CADCodeProxy.Machining;
+namespace CADCodeProxy.Machining.Tokens;
 
-public record Arc : IToken, IRouteSequenceSegment {
+public record Arc : IRoutingToken, IRouteSequenceSegment {
 
     public required string ToolName { get; init; }
     public required Point Start { get; init; }
@@ -40,8 +40,8 @@ public record Arc : IToken, IRouteSequenceSegment {
                         SpindleSpeed: (float)SpindleSpeed,
                         CornerFeed: 0,
                         RType: "",
-                        CenterX: (float) Center.X,
-                        CenterY: (float) Center.Y,
+                        CenterX: (float)Center.X,
+                        CenterY: (float)Center.Y,
                         OffsetX: 0,
                         OffsetY: 0,
                         Radius: (float)Radius,
@@ -84,7 +84,7 @@ public record Arc : IToken, IRouteSequenceSegment {
 
     internal static Arc FromTokenRecord(TokenRecord tokenRecord) {
 
-        var tokenName = tokenRecord.Name.Split('*', 2).First(); 
+        var tokenName = tokenRecord.Name.Split('*', 2).First();
         if (!tokenName.Equals("arc", StringComparison.InvariantCultureIgnoreCase)
             && !tokenName.Equals("cwarc", StringComparison.InvariantCultureIgnoreCase)
             && !tokenName.Equals("ccwarc", StringComparison.InvariantCultureIgnoreCase)) {

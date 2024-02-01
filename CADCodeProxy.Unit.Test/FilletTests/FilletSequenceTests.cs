@@ -1,5 +1,6 @@
 ﻿using CADCodeProxy.Enums;
 using CADCodeProxy.Machining;
+using CADCodeProxy.Machining.Tokens;
 using FluentAssertions;
 
 namespace CADCodeProxy.Unit.Test.FilletTests;

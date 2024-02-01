@@ -1,5 +1,6 @@
 ﻿using CADCode;
 using CADCodeProxy.CSV;
+using CADCodeProxy.Machining.Tokens;
 using CADCodeProxy.Results;
 
 namespace CADCodeProxy.Machining;
@@ -31,19 +32,19 @@ public class Part {
         float panelY = (float)Width;
 
         // Setting the rotation of the nest part does not rotate all the machining operations correctly, must be missing some other setting. 
-        code.NestedPart(panelX, panelY, OriginType.CC_LL, PrimaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, (float) PrimaryFace.Rotation);
+        code.NestedPart(panelX, panelY, OriginType.CC_LL, PrimaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, (float)PrimaryFace.Rotation);
 
         foreach (var operation in PrimaryFace.GetMachiningOperations()) {
             operation.AddToCode(code);
         }
 
         if (SecondaryFace is not null) {
-            
+
             if (SecondaryFace.Rotation != 0) {
                 throw new InvalidOperationException("Part rotation is not supported");
             }
-            
-            code.NestedPart(panelX, panelY, OriginType.CC_LL, SecondaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, (float) SecondaryFace.Rotation);
+
+            code.NestedPart(panelX, panelY, OriginType.CC_LL, SecondaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, (float)SecondaryFace.Rotation);
             foreach (var operation in SecondaryFace.GetMachiningOperations()) {
                 operation.AddToCode(code);
             }
@@ -152,7 +153,7 @@ public class Part {
                     RotationAllowed = IsGrained ? 0 : 1,
                     Graining = IsGrained ? "Y" : "N",
                     Face5Runfield = SecondaryFace.IsMirrored ? "Mirror On" : "",
-                    DoLabel = false 
+                    DoLabel = false
                 });
             }
 

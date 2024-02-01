@@ -1,4 +1,5 @@
 ﻿using CADCodeProxy.Machining;
+using CADCodeProxy.Machining.Tokens;
 using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
@@ -90,7 +91,7 @@ public class CSVTokenReader {
                 var face6Tokens = face6Part.Tokens
                                            .Select(MapRecordToToken)
                                            .ToArray();
-        
+
                 var face6Rotation = ParseDoubleFromStringOrDefault(face6Part.PartRecord.Rotation, 0);
 
                 secondaryFace = new() {
@@ -179,7 +180,7 @@ public class CSVTokenReader {
             || double.TryParse(record.StartX, out _)) {
 
             return Pocket.FromTokenRecord(record);
-            
+
         }
 
         return CircularPocket.FromTokenRecord(record);
@@ -191,7 +192,7 @@ public class CSVTokenReader {
         if (double.TryParse(record.Radius, out _)
             || double.TryParse(record.ArcDirection, out _)) {
 
-            return FreePocketArcSegment.FromTokenRecord(record); 
+            return FreePocketArcSegment.FromTokenRecord(record);
 
         }
 

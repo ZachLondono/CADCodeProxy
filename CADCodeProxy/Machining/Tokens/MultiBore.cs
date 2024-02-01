@@ -1,7 +1,7 @@
 ﻿using CADCode;
 using CADCodeProxy.CSV;
 
-namespace CADCodeProxy.Machining;
+namespace CADCodeProxy.Machining.Tokens;
 
 public record MultiBore : IBoringToken, IMachiningOperation {
 
@@ -104,7 +104,7 @@ public record MultiBore : IBoringToken, IMachiningOperation {
 
     internal static MultiBore FromTokenRecord(TokenRecord tokenRecord) {
 
-        if (!tokenRecord.Name.Split('*',2).First().Equals("multibore", StringComparison.InvariantCultureIgnoreCase)) {
+        if (!tokenRecord.Name.Split('*', 2).First().Equals("multibore", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to multibore.");
         }
 

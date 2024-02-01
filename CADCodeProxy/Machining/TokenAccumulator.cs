@@ -1,4 +1,5 @@
 ﻿using CADCodeProxy.Enums;
+using CADCodeProxy.Machining.Tokens;
 
 namespace CADCodeProxy.Machining;
 
@@ -62,7 +63,7 @@ internal class TokenAccumulator {
                     throw new InvalidOperationException("Fillets must exist between two entities of the same type");
                 }
 
-                if (outlineSegment.Start != lastSegment.End || 
+                if (outlineSegment.Start != lastSegment.End ||
                     outlineSegment.SequenceNumber != lastSegment.SequenceNumber ||
                     outlineSegment.NumberOfPasses != lastSegment.NumberOfPasses ||
                     outlineSegment.ToolName != lastSegment.ToolName ||
@@ -96,7 +97,7 @@ internal class TokenAccumulator {
                 _currentSequence.Add(segment);
 
             } else {
-            
+
                 AddCurrentSequence();
                 _currentSequence.Add(segment);
 
@@ -213,7 +214,7 @@ internal class TokenAccumulator {
 
         // If this method is called before all tokens in a sequence are added, the subsequent sequences will not be added to the current sequence.
         // This class could be designed to avoid that, although it is probably not necessary
-        
+
         AddCurrentSequence();
 
         return [.. _operations];
@@ -272,67 +273,67 @@ internal class TokenAccumulator {
 
         private static Point CalculateCenter(Point start, Point end, double radius, bool clockWise) {
 
-			// https://math.stackexchange.com/a/1781546
+            // https://math.stackexchange.com/a/1781546
 
-			var x1 = start.X;
-			var y1 = start.Y;
+            var x1 = start.X;
+            var y1 = start.Y;
 
-			var x2 = end.X;
-			var y2 = end.Y;
+            var x2 = end.X;
+            var y2 = end.Y;
 
-			var length = Math.Sqrt(Math.Pow((x2 - x1), 2) + Math.Pow((y2 - y1), 2));
-			var adjLength = length / 2;
+            var length = Math.Sqrt(Math.Pow((x2 - x1), 2) + Math.Pow((y2 - y1), 2));
+            var adjLength = length / 2;
 
-			// Distance from center of rhombus to the center of the circle
-			var b = Math.Sqrt(Math.Pow(radius, 2) - Math.Pow(adjLength, 2));
+            // Distance from center of rhombus to the center of the circle
+            var b = Math.Sqrt(Math.Pow(radius, 2) - Math.Pow(adjLength, 2));
 
-			// Rhombus center point
-			var rhombusCenter = new Point((x1 + x2) / 2, (y1 + y2) / 2);
+            // Rhombus center point
+            var rhombusCenter = new Point((x1 + x2) / 2, (y1 + y2) / 2);
 
-			double ya = rhombusCenter.Y - y1;
-			double xa = rhombusCenter.X - x1;
+            double ya = rhombusCenter.Y - y1;
+            double xa = rhombusCenter.X - x1;
 
-			var circleCenterA = new Point(rhombusCenter.X + (b * ya) / adjLength, rhombusCenter.Y - (b * xa) / adjLength);
-			var circleCenterB = new Point(rhombusCenter.X - (b * ya) / adjLength, rhombusCenter.Y + (b * xa) / adjLength);
+            var circleCenterA = new Point(rhombusCenter.X + (b * ya) / adjLength, rhombusCenter.Y - (b * xa) / adjLength);
+            var circleCenterB = new Point(rhombusCenter.X - (b * ya) / adjLength, rhombusCenter.Y + (b * xa) / adjLength);
 
             // TODO: There has to be a better way to choose the correct center point
-			if (y1 > y2) {
+            if (y1 > y2) {
 
-				if (x1 < x2) {
-					if (clockWise) {
-						return circleCenterA;
-					} else {
-						return circleCenterB;
-					}
-				} else {
-					if (clockWise) {
-						return circleCenterA;
-					} else {
-						return circleCenterB;
-					}
-				}
+                if (x1 < x2) {
+                    if (clockWise) {
+                        return circleCenterA;
+                    } else {
+                        return circleCenterB;
+                    }
+                } else {
+                    if (clockWise) {
+                        return circleCenterA;
+                    } else {
+                        return circleCenterB;
+                    }
+                }
 
-			} else {
+            } else {
 
-				if (x1 < x2) {
-					if (clockWise) {
-						return circleCenterA;
-					} else {
-						return circleCenterB;
-					}
-				} else {
-					if (clockWise) {
-						return circleCenterA;
-					} else {
-						return circleCenterB;
-					}
-				}
+                if (x1 < x2) {
+                    if (clockWise) {
+                        return circleCenterA;
+                    } else {
+                        return circleCenterB;
+                    }
+                } else {
+                    if (clockWise) {
+                        return circleCenterA;
+                    } else {
+                        return circleCenterB;
+                    }
+                }
 
-			}
+            }
 
-		}
+        }
 
-		private static Point GetTangentPoints(Point start, Vector2 unitVector1, Vector2 unitVector2, Point perpPoint1, Point perpPoint2, double denominator) {
+        private static Point GetTangentPoints(Point start, Vector2 unitVector1, Vector2 unitVector2, Point perpPoint1, Point perpPoint2, double denominator) {
 
             // Calculates a point which is tangent to a circle on a line which is parallel to a line going through point 'start' in the direction of unitVector1
 

@@ -1,9 +1,9 @@
 ﻿using CADCodeProxy.CSV;
 using CADCodeProxy.Enums;
 
-namespace CADCodeProxy.Machining;
+namespace CADCodeProxy.Machining.Tokens;
 
-public record Rectangle : IToken {
+public record Rectangle : IRoutingToken {
 
     public required string ToolName { get; init; }
     public required Point CornerA { get; init; }
@@ -46,7 +46,7 @@ public record Rectangle : IToken {
                     (CornerA.X + CornerB.X) / 2,
                     (CornerA.Y + CornerB.Y) / 2
                 );
-    
+
             tokens.Add(CreateRoute(start, CornerB));
             if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
             tokens.Add(CreateRoute(CornerB, CornerC));
@@ -63,7 +63,7 @@ public record Rectangle : IToken {
                     (CornerB.X + CornerC.X) / 2,
                     (CornerB.Y + CornerC.Y) / 2
                 );
-    
+
             tokens.Add(CreateRoute(start, CornerC));
             if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
             tokens.Add(CreateRoute(CornerC, CornerD));
@@ -107,7 +107,7 @@ public record Rectangle : IToken {
 
     internal static Rectangle FromTokenRecord(TokenRecord tokenRecord) {
 
-        if (!tokenRecord.Name.Split('*',2).First().Equals("rectangle", StringComparison.InvariantCultureIgnoreCase)) {
+        if (!tokenRecord.Name.Split('*', 2).First().Equals("rectangle", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to Rectangle.");
         }
 

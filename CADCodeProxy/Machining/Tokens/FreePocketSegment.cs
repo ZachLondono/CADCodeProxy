@@ -1,19 +1,15 @@
 ﻿using CADCode;
-using CADCodeProxy.CADCodeProxy;
 using CADCodeProxy.CSV;
-using CADCodeProxy.Enums;
 
-namespace CADCodeProxy.Machining;
+namespace CADCodeProxy.Machining.Tokens;
 
-public record FreePocketArcSegment : IToken, IMachiningOperation {
+public record FreePocketSegment : IRoutingToken, IMachiningOperation {
 
     public required string ToolName { get; init; }
     public required Point Start { get; init; }
     public required Point End { get; init; }
-    public required double Radius { get; init; }
     public required double StartDepth { get; init; }
     public required double EndDepth { get; init; }
-    public required ArcDirection Direction { get; init; }
     public int SequenceNumber { get; init; } = 0;
     public int NumberOfPasses { get; init; } = 0;
     public double FeedSpeed { get; init; }
@@ -22,40 +18,34 @@ public record FreePocketArcSegment : IToken, IMachiningOperation {
     void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
 
         code.DefinePocket(
-            StartX: (float) Start.X,
-            StartY: (float) Start.Y,
-            StartZ: (float) StartDepth,
-            EndX: (float) End.X,
-            EndY: (float) End.Y,
-            Endz: (float) EndDepth,
+            StartX: (float)Start.X,
+            StartY: (float)Start.Y,
+            StartZ: (float)StartDepth,
+            EndX: (float)End.X,
+            EndY: (float)End.Y,
+            Endz: (float)EndDepth,
             CenterX: 0,
             CenterY: 0,
             CenterZ: 0,
             Radius: 0,
-            ArcDirection: Direction.AsCCArcType(),
+            ArcDirection: ArcTypes.CC_UNKNOWN_ARC,
             Offset: OffsetTypes.CC_OFFSET_NONE,
             OffsetAmount: 0,
             Rotation: RotationTypes.CC_ROTATION_AUTO,
             Overlap: 0,
             ToolName: ToolName,
             ToolDiameter: 0,
-            FeedSpeed: (float) FeedSpeed,
+            FeedSpeed: (float)FeedSpeed,
             EntrySpeed: 0,
-            RotationSpeed: (float) SpindleSpeed, // TODO: Make sure this is actually spindle speed
+            RotationSpeed: (float)SpindleSpeed, // TODO: Make sure this is actually spindle speed
             NestedRouteSequence: SequenceNumber,
             Normal: new object[] { 0, 0, 1 },
-            InsideOut: false,
+            InsideOut: true,
             NumberOfPasses: NumberOfPasses);
 
     }
 
     TokenRecord IToken.ToTokenRecord() {
-
-        string direction = Direction switch {
-            ArcDirection.ClockWise => "CW",
-            ArcDirection.CounterClockWise => "CCW",
-            _ => throw new InvalidOperationException("Arc direction must be specified")
-        };
 
         return new() {
             Name = "FreePocket",
@@ -66,8 +56,6 @@ public record FreePocketArcSegment : IToken, IMachiningOperation {
             EndX = End.X.ToString(),
             EndY = End.Y.ToString(),
             EndZ = EndDepth.ToString(),
-            Radius = Radius.ToString(),
-            ArcDirection = direction,
             SequenceNum = SequenceNumber == 0 ? "" : SequenceNumber.ToString(),
             NumberOfPasses = NumberOfPasses == 0 ? "" : NumberOfPasses.ToString(),
             FeedSpeed = FeedSpeed == 0 ? "" : FeedSpeed.ToString(),
@@ -76,9 +64,9 @@ public record FreePocketArcSegment : IToken, IMachiningOperation {
 
     }
 
-    internal static FreePocketArcSegment FromTokenRecord(TokenRecord tokenRecord) {
+    internal static FreePocketSegment FromTokenRecord(TokenRecord tokenRecord) {
 
-        if (!tokenRecord.Name.Split('*',2).First().Equals("freepocket", StringComparison.InvariantCultureIgnoreCase)) {
+        if (!tokenRecord.Name.Split('*', 2).First().Equals("freepocket", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to Free Pocket Segment.");
         }
 
@@ -106,10 +94,6 @@ public record FreePocketArcSegment : IToken, IMachiningOperation {
             throw new InvalidOperationException("End Z value not specified or invalid for Free Pocket Segment");
         }
 
-        if (!double.TryParse(tokenRecord.Radius, out double radius)) {
-            throw new InvalidOperationException("Radius value not specified or invalid for Free Pocket Arc Segment");
-        }
-
         if (!int.TryParse(tokenRecord.SequenceNum, out int sequenceNum)) {
             sequenceNum = 0;
         }
@@ -126,20 +110,12 @@ public record FreePocketArcSegment : IToken, IMachiningOperation {
             spindleSpeed = 0;
         }
 
-        var direction = tokenRecord.ArcDirection.ToLower() switch {
-            "cw" => ArcDirection.ClockWise,
-            "ccw" => ArcDirection.CounterClockWise,
-            _ => ArcDirection.Unknown
-        };
-
         return new() {
             ToolName = tokenRecord.ToolName,
             Start = new(startX, startY),
             End = new(endX, endY),
-            Radius = radius,
             StartDepth = startZ,
             EndDepth = endZ,
-            Direction = direction,
             SequenceNumber = sequenceNum,
             NumberOfPasses = numberOfPasses,
             FeedSpeed = feedSpeed,

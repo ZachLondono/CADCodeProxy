@@ -3,9 +3,9 @@ using CADCodeProxy.CADCodeProxy;
 using CADCodeProxy.CSV;
 using CADCodeProxy.Enums;
 
-namespace CADCodeProxy.Machining;
+namespace CADCodeProxy.Machining.Tokens;
 
-public record Route : IToken, IRouteSequenceSegment {
+public record Route : IRoutingToken, IRouteSequenceSegment {
 
     public required string ToolName { get; init; }
     public required Point Start { get; init; }
@@ -64,7 +64,7 @@ public record Route : IToken, IRouteSequenceSegment {
 
     internal static Route FromTokenRecord(TokenRecord tokenRecord) {
 
-        if (!tokenRecord.Name.Split('*',2).First().Equals("route", StringComparison.InvariantCultureIgnoreCase)) {
+        if (!tokenRecord.Name.Split('*', 2).First().Equals("route", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to route.");
         }
 

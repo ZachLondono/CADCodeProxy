@@ -1,9 +1,9 @@
 ﻿using CADCode;
 using CADCodeProxy.CSV;
 
-namespace CADCodeProxy.Machining;
+namespace CADCodeProxy.Machining.Tokens;
 
-public record CircularPocket : IToken, IMachiningOperation {
+public record CircularPocket : IRoutingToken, IMachiningOperation {
 
     public required string ToolName { get; init; }
     public required Point Center { get; init; }
@@ -46,7 +46,7 @@ public record CircularPocket : IToken, IMachiningOperation {
             NumberOfPasses: NumberOfPasses);
         */
 
-    } 
+    }
 
     TokenRecord IToken.ToTokenRecord() {
 
@@ -67,7 +67,7 @@ public record CircularPocket : IToken, IMachiningOperation {
 
     internal static CircularPocket FromTokenRecord(TokenRecord tokenRecord) {
 
-        if (!tokenRecord.Name.Split('*',2).First().Equals("pocket", StringComparison.InvariantCultureIgnoreCase)) {
+        if (!tokenRecord.Name.Split('*', 2).First().Equals("pocket", StringComparison.InvariantCultureIgnoreCase)) {
             throw new InvalidOperationException($"Can not map token '{tokenRecord.Name}' to Circular Pocket.");
         }
 
@@ -114,6 +114,6 @@ public record CircularPocket : IToken, IMachiningOperation {
             SpindleSpeed = spindleSpeed,
         };
 
-    } 
+    }
 
 }
