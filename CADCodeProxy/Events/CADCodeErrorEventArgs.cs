@@ -1,8 +1,8 @@
 ﻿namespace CADCodeProxy.Events;
 
-public class CADCodeErrorEventArgs(Type source, string type, int number, string message) {
+public class CADCodeErrorEventArgs(string source, string type, int number, string message) {
 
-    public Type Source { get; } = source;
+    public string Source { get; } = source;
 
     public string Type { get; set; } = type;
 

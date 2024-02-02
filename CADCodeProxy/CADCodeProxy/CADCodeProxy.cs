@@ -37,7 +37,7 @@ internal class CADCodeProxy : IDisposable {
         // 1) Verify that whenever CADCode cannot be authorized (ie Another pc is using it or it cannot access the authentication server) the event is called and the same error is returned from Init
         // 2) Verify that whenever CADCode initiated (ie CADCode is not installed) the event is called and the same error is returned from Init
         _bootObj.CreateError += (l, s) => {
-            CADCodeErrorEvent?.Invoke(new(_bootObj.GetType(), "CreateError", l, s));
+            CADCodeErrorEvent?.Invoke(new("CADCodeBootObject", "CreateError", l, s));
             if (l == 33012) {
                 throw new CADCodeAuthorizationException(s);
             } else {
@@ -76,10 +76,6 @@ internal class CADCodeProxy : IDisposable {
             toolFile = CreateToolFile(_bootObj, machine.ToolFilePath);
             files = CreateFiles(machine);
             code = CreateCode(_bootObj, batch.Name, machine, toolFile, machine.NestOutputDirectory);
-
-            if (CADCodeErrorEvent is not null) {
-                code.MachiningError += (L, S) => CADCodeErrorEvent?.Invoke(new(code.GetType(), "MachiningError", L, S));
-            }
 
             var groups = batch.Parts.GroupBy(p => new PartGroupKey(p.Material, p.Thickness));
 
@@ -154,10 +150,6 @@ internal class CADCodeProxy : IDisposable {
         var optimizer = CreateOptimizer(bootObj, files);
 
         try {
-
-            if (CADCodeErrorEvent is not null) {
-                optimizer.OptimizeError += (L, S) => CADCodeErrorEvent?.Invoke(new(optimizer.GetType(), "OptimizeError", L, S));
-            }
 
             List<CutlistInventory> sheetStock = inventory.Where(i => i.MaterialName == partGroupKey.MaterialName && i.PanelThickness == partGroupKey.Thickness)
                                                         .Select(i => i.AsCutlistInventory())
@@ -246,8 +238,10 @@ internal class CADCodeProxy : IDisposable {
         var toolFile = boot.CreateToolFile()
                         ?? throw new InvalidOperationException("Could not create tool file");
 
-        toolFile.ToolFileError += (l, s) => CADCodeErrorEvent?.Invoke(new(toolFile.GetType(), "ToolFileError", l, s));
-        toolFile.ToolFileSaved += (fileName) => CADCodeInfoEvent?.Invoke(new(toolFile.GetType(), "ToolFileSaved", fileName));
+        string eventSourceName = "CADCodeToolFileClass";
+
+        toolFile.ToolFileError += (l, s) => CADCodeErrorEvent?.Invoke(new(eventSourceName, "ToolFileError", l, s));
+        toolFile.ToolFileSaved += (fileName) => CADCodeInfoEvent?.Invoke(new(eventSourceName, "ToolFileSaved", fileName));
 
         int result = toolFile.ReadToolFile(filePath);
         if (result != 0) {
@@ -265,8 +259,10 @@ internal class CADCodeProxy : IDisposable {
 
         labels.Creator = LabelCreatorName;
 
-        labels.LabelModuleError += (l, s) => CADCodeErrorEvent?.Invoke(new(labels.GetType(), "LabelModuleError", l, s));
-        labels.Progress += (val) => CADCodeProgressEvent?.Invoke(new(labels.GetType(), val));
+        string eventSourceName = "CADCodeLabelClass";
+
+        labels.LabelModuleError += (l, s) => CADCodeErrorEvent?.Invoke(new(eventSourceName, "LabelModuleError", l, s));
+        labels.Progress += (val) => CADCodeProgressEvent?.Invoke(new(eventSourceName, val));
 
         string prefix = $"{materialName} {Math.Round(materialThickness, 0)}";
         labels.JobName = $"{prefix} {resultNumber}";
@@ -292,14 +288,16 @@ internal class CADCodeProxy : IDisposable {
         var optimizer = boot.CreatePanelOptimizer()
                         ?? throw new InvalidOperationException("Could not create CADCode optimizer object");
 
-        optimizer.Progress += (val) => CADCodeProgressEvent?.Invoke(new(optimizer.GetType(), val));
+        string eventSourceName = "CADCodePanelOptimizerClass";
 
-        optimizer.OptimizeError += (l, s) => CADCodeErrorEvent?.Invoke(new(optimizer.GetType(), "OptimizeEror", l, s));
-        optimizer.PrintingError += (l, s) => CADCodeErrorEvent?.Invoke(new(optimizer.GetType(), "PrintingEror", l, s));
+        optimizer.Progress += (val) => CADCodeProgressEvent?.Invoke(new(eventSourceName, val));
 
-        optimizer.ReportedProgress += (int PanelsUsed, ref int PartsToGo) => CADCodeInfoEvent?.Invoke(new(optimizer.GetType(), "ReportedProgress", $"{PanelsUsed} panels used | {PartsToGo} parts left"));
-        optimizer.FileWritten += (string filename) => CADCodeInfoEvent?.Invoke(new(optimizer.GetType(), "FileWritten", filename));
-        optimizer.PartsMissing += (int howMany) => CADCodeInfoEvent?.Invoke(new(optimizer.GetType(), "PartsMissing", howMany.ToString()));
+        optimizer.OptimizeError += (l, s) => CADCodeErrorEvent?.Invoke(new(eventSourceName, "OptimizeError", l, s));
+        optimizer.PrintingError += (l, s) => CADCodeErrorEvent?.Invoke(new(eventSourceName, "PrintingError", l, s));
+
+        optimizer.ReportedProgress += (int PanelsUsed, ref int PartsToGo) => CADCodeInfoEvent?.Invoke(new(eventSourceName, "ReportedProgress", $"{PanelsUsed} panels used | {PartsToGo} parts left"));
+        optimizer.FileWritten += (string filename) => CADCodeInfoEvent?.Invoke(new(eventSourceName, "FileWritten", filename));
+        optimizer.PartsMissing += (int howMany) => CADCodeInfoEvent?.Invoke(new(eventSourceName, "PartsMissing", howMany.ToString()));
         //optimizer.NestedIntervalCheck += () => _;
 
         optimizer.FileLocations = files;
@@ -315,16 +313,18 @@ internal class CADCodeProxy : IDisposable {
         var code = boot.CreateCode()
                     ?? throw new InvalidOperationException("Could not create CADCode code object");
 
-        code.Progress += (val) => CADCodeProgressEvent?.Invoke(new(code.GetType(), val));
+        string eventSourceName = "CADCodeCodeClass";
 
-        code.MachiningError += (l, s) => CADCodeErrorEvent?.Invoke(new(code.GetType(), "MachiningError", l, s));
+        code.Progress += (val) => CADCodeProgressEvent?.Invoke(new(eventSourceName, val));
 
-        code.MachiningInfo += (i) => CADCodeInfoEvent?.Invoke(new(code.GetType(), "MachiningInfo", i));
-        code.StartProcess += (f) => CADCodeInfoEvent?.Invoke(new(code.GetType(), "ProcessStarted", f));
-        code.PictureFileWritten += (f) => CADCodeInfoEvent?.Invoke(new(code.GetType(), "PictureFileWritten", f));
-        code.LastProgramNumberUsed += (n) => CADCodeInfoEvent?.Invoke(new(code.GetType(), "LastProgramNumberUsed", n.ToString()));
-        code.FileDetails += (fileDetails) => CADCodeInfoEvent?.Invoke(new(code.GetType(), "FileDetails", fileDetails));
-        code.FileWritten += (fileName) => CADCodeInfoEvent?.Invoke(new(code.GetType(), "FileName", fileName));
+        code.MachiningError += (l, s) => CADCodeErrorEvent?.Invoke(new(eventSourceName, "MachiningError", l, s));
+
+        code.MachiningInfo += (i) => CADCodeInfoEvent?.Invoke(new(eventSourceName, "MachiningInfo", i));
+        code.StartProcess += (f) => CADCodeInfoEvent?.Invoke(new(eventSourceName, "ProcessStarted", f));
+        code.PictureFileWritten += (f) => CADCodeInfoEvent?.Invoke(new(eventSourceName, "PictureFileWritten", f));
+        code.LastProgramNumberUsed += (n) => CADCodeInfoEvent?.Invoke(new(eventSourceName, "LastProgramNumberUsed", n.ToString()));
+        code.FileDetails += (fileDetails) => CADCodeInfoEvent?.Invoke(new(eventSourceName, "FileDetails", fileDetails));
+        code.FileWritten += (fileName) => CADCodeInfoEvent?.Invoke(new(eventSourceName, "FileName", fileName));
 
         //code.NameChange += (o, n) => CADCodeInfoEvent?.Invoke(new(code, $"Name change {o} => {n}"));
         //code.SawOutPutChanged += () => CADCodeInfoEvent?.Invoke(new(code, ""));
