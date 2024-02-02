@@ -7,6 +7,7 @@ using CADCodeProxy.Machining;
 using System.Text.Json;
 using Cocona;
 using Microsoft.Extensions.Logging;
+using CADCodeProxy.Machining.Tokens;
 
 var builder = CoconaApp.CreateBuilder();
 builder.Logging.AddDebug();
@@ -29,7 +30,7 @@ app.AddCommand((ILogger<Program> logger) => {
 
 });
 
-app.AddCommand("csv-reading", (ILogger<Program> logger, string file = @"R:\Door Orders\CC Input\OT3207 - DoorTokens.csv") => {
+app.AddCommand("csv-reading", (ILogger<Program> logger, string file = @"R:\Door Orders\CC Input\Test.csv") => {
 
 	logger.LogInformation("Reading CSV file '{File}'", file);
 
@@ -94,9 +95,11 @@ app.Run();
 
 static GCodeGenerator CreateGCodeGenerator() {
 	var generator = new GCodeGenerator(LinearUnits.Millimeters);
-	generator.GenerationEvent += Console.WriteLine;
-	//generator.CADCodeProgressEvent += Console.WriteLine;
-	generator.CADCodeErrorEvent += Console.WriteLine;
+	generator.InfoEvent += Console.WriteLine;
+	generator.ErrorEvent += (e) => Console.WriteLine($"{e.Message} - {e.Exception}");
+	generator.CADCodeInfoEvent += (e) => Console.WriteLine($"{e.Source} - {e.Type} - {e.Message}");
+	generator.CADCodeProgressEvent += (e) => Console.WriteLine($"{e.Source} - {e.Value}/100");
+	generator.CADCodeErrorEvent += (e) => Console.WriteLine($"{e.Source} - {e.Type} - {e.Message}");
 	return generator;
 }
 
@@ -146,6 +149,13 @@ void GenerateGCodeForBatch(Batch batch, GCodeGenerator generator, List<Machine> 
 	try {
 
 		var result = generator.GeneratePrograms(machines, batch);
+
+		var jsonResult = JsonSerializer.Serialize(result, serializationOptions);
+		File.WriteAllText(@$"C:\Users\Zachary Londono\Desktop\CC Output\Results\{batch.Name} Result.json", jsonResult);
+
+		var jsonBatch = JsonSerializer.Serialize(batch, serializationOptions);
+		File.WriteAllText(@$"C:\Users\Zachary Londono\Desktop\CC Output\Results\{batch.Name} Batch.json", jsonBatch);
+
 
 		Console.WriteLine($"Report: {result.WinStepReportFilePath}");
 		foreach (var machineResult in result.MachineResults) {
@@ -327,7 +337,7 @@ Batch[] ReadBatchesFromCSV(string filePath) {
 			Console.WriteLine($"\t{part.Length}");
 			Console.WriteLine($"\t{part.Material}");
 			foreach (var token in part.PrimaryFace.Tokens) {
-				Console.WriteLine($"\t\t{token.GetType().Name} - {(token as IMachiningOperation)?.ToolName}");
+				Console.WriteLine($"\t\t{token.GetType().Name} - {(token as IRoutingToken)?.ToolName}");
 			}
 		}
 	}
