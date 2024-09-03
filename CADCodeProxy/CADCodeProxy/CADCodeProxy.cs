@@ -15,6 +15,7 @@ internal class CADCodeProxy : IDisposable {
     private CADCodeBootObject? _bootObj = null;
 
     public string LabelCreatorName { get; set; } = "";
+    public WebAuthCredentials? Credentials { get; init; } = null;
 
     public event ErrorEventHandler? ErrorEvent;
 
@@ -44,6 +45,17 @@ internal class CADCodeProxy : IDisposable {
                 throw new CADCodeInitializationException(l, $"Could not initialize CADCode - {s}");
             }
         };
+
+        if (Credentials is not null) {
+
+            string response = "";
+            int webAuthResult = _bootObj.WebAuth(Credentials.User, Credentials.Password, ref response);
+
+            if (webAuthResult > 0) {
+                throw new CADCodeAuthorizationException($"Web Authorization Failed: '{response}'");
+            }
+
+        }
 
         var initResult = _bootObj.Init();
 
@@ -76,7 +88,7 @@ internal class CADCodeProxy : IDisposable {
             toolFile = CreateToolFile(_bootObj, machine.ToolFilePath);
             files = CreateFiles(machine);
             code = CreateCode(_bootObj, batch.Name, machine, toolFile, machine.NestOutputDirectory);
-
+            
             var groups = batch.Parts.GroupBy(p => new PartGroupKey(p.Material, p.Thickness));
 
             ValidateInventory(inventory, groups);
@@ -86,7 +98,7 @@ internal class CADCodeProxy : IDisposable {
                 CADCodeLabelClass createLabelClass(string resultNumber) {
                     return CreateLabel(_bootObj, batch.Name, group.Key.MaterialName, group.Key.Thickness, resultNumber, machine.LabelDatabaseOutputDirectory);
                 }
-
+                
                 var matResult = GenerateCodeForMaterialType(batch.InfoFields, group.Key, [.. group], inventory, units, _bootObj, files, code, createLabelClass);
                 materialResults.Add(matResult);
 
@@ -148,6 +160,7 @@ internal class CADCodeProxy : IDisposable {
     private MaterialGCodeGenerationResult GenerateCodeForMaterialType(InfoFields batchInfoFields, PartGroupKey partGroupKey, Machining.Part[] batchParts, InventoryItem[] inventory, UnitTypes units, CADCodeBootObject bootObj, CADCodeFileClass files, CADCodeCodeClass code, Func<string, CADCodeLabelClass> createLabels) {
 
         var optimizer = CreateOptimizer(bootObj, files);
+        var reader = bootObj.CreateFileReader();
 
         try {
 

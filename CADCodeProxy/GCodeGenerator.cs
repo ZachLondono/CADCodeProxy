@@ -1,4 +1,5 @@
 ﻿using CADCode;
+using CADCodeProxy.CADCodeProxy;
 using CADCodeProxy.CNC;
 using CADCodeProxy.Enums;
 using CADCodeProxy.Events;
@@ -8,7 +9,9 @@ using ErrorEventHandler = CADCodeProxy.Events.ErrorEventHandler;
 
 namespace CADCodeProxy;
 
-public class GCodeGenerator(LinearUnits units) {
+public class GCodeGenerator(LinearUnits units, WebAuthCredentials? credentials = null) {
+
+    private readonly WebAuthCredentials? _credentials = credentials;
 
     public event InfoEventHandler? InfoEvent;
     public event ErrorEventHandler? ErrorEvent;
@@ -35,7 +38,8 @@ public class GCodeGenerator(LinearUnits units) {
         }
 
         using var cadcode = new CADCodeProxy.CADCodeProxy() {
-            LabelCreatorName = ApplicationName
+            LabelCreatorName = ApplicationName,
+            Credentials = _credentials
         };
 
         cadcode.CADCodeProgressEvent += (i) => {
