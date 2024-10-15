@@ -160,7 +160,6 @@ internal class CADCodeProxy : IDisposable {
     private MaterialGCodeGenerationResult GenerateCodeForMaterialType(InfoFields batchInfoFields, PartGroupKey partGroupKey, Machining.Part[] batchParts, InventoryItem[] inventory, UnitTypes units, CADCodeBootObject bootObj, CADCodeFileClass files, CADCodeCodeClass code, Func<string, CADCodeLabelClass> createLabels) {
 
         var optimizer = CreateOptimizer(bootObj, files);
-        var reader = bootObj.CreateFileReader();
 
         try {
 
