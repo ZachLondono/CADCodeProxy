@@ -36,7 +36,7 @@ internal class CADCodeProxy : IDisposable {
 
         // TODO: Not sure if it is really necessary (or proper) to throw exceptions in this event handler, when the result is checked after calling Init
         // 1) Verify that whenever CADCode cannot be authorized (ie Another pc is using it or it cannot access the authentication server) the event is called and the same error is returned from Init
-        // 2) Verify that whenever CADCode initiated (ie CADCode is not installed) the event is called and the same error is returned from Init
+        // 2) Verify that whenever CADCode cannot be initiated (ie CADCode is not installed) the event is called and the same error is returned from Init
         _bootObj.CreateError += (l, s) => {
             CADCodeErrorEvent?.Invoke(new("CADCodeBootObject", "CreateError", l, s));
             if (l == 33012) {
