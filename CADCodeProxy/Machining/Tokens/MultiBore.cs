@@ -63,13 +63,13 @@ public record MultiBore : IBoringToken, IMachiningOperation {
         NumberOfPasses = numberOfPasses;
     }
 
-    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
-        code.MultiBore((float)Start.X,
-                        (float)Start.Y,
+        code.MultiBore((float)Start.X + (float)xOffset,
+                        (float)Start.Y + (float)yOffset,
                         (float)Depth,
-                        (float)End.X,
-                        (float)End.Y,
+                        (float)End.X + (float)xOffset,
+                        (float)End.Y + (float)yOffset,
                         FaceTypes.CC_UPPER_FACE,
                         (float)ToolDiameter,
                         ToolName,

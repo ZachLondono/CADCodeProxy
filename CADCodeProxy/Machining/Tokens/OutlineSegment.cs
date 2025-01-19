@@ -15,13 +15,13 @@ public record OutlineSegment : IRoutingToken, IMachiningOperation {
     public double FeedSpeed { get; init; } = 0;
     public double SpindleSpeed { get; init; } = 0;
 
-    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
         code.DefineOutLine(
-                            StartX: (float)Start.X,
-                            StartY: (float)Start.Y,
-                            EndX: (float)End.X,
-                            EndY: (float)End.Y,
+                            StartX: (float)Start.X + (float)xOffset,
+                            StartY: (float)Start.Y + (float)yOffset,
+                            EndX: (float)End.X + (float)xOffset,
+                            EndY: (float)End.Y + (float)yOffset,
                             CenterX: 0,
                             CenterY: 0,
                             Radius: 0,

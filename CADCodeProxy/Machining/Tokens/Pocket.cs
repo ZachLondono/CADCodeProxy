@@ -17,16 +17,16 @@ public record Pocket : IRoutingToken, IMachiningOperation {
     public double FeedSpeed { get; init; } = 0;
     public double SpindleSpeed { get; init; } = 0;
 
-    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
-        code.Pocket((float)CornerA.X,
-                    (float)CornerA.Y,
-                    (float)CornerB.X,
-                    (float)CornerB.Y,
-                    (float)CornerC.X,
-                    (float)CornerC.Y,
-                    (float)CornerD.X,
-                    (float)CornerD.Y,
+        code.Pocket((float)CornerA.X + (float)xOffset,
+                    (float)CornerA.Y + (float)yOffset,
+                    (float)CornerB.X + (float)xOffset,
+                    (float)CornerB.Y + (float)yOffset,
+                    (float)CornerC.X + (float)xOffset,
+                    (float)CornerC.Y + (float)yOffset,
+                    (float)CornerD.X + (float)xOffset,
+                    (float)CornerD.Y + (float)yOffset,
                     (float)StartDepth,
                     (float)EndDepth,
                     ToolName,

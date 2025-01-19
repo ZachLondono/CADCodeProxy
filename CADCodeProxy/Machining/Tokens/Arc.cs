@@ -21,7 +21,7 @@ public record Arc : IRoutingToken, IRouteSequenceSegment {
     public double FeedSpeed { get; init; } = 0;
     public double SpindleSpeed { get; init; } = 0;
 
-    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
         code.RouteArc(StartX: (float)Start.X,
                         StartY: (float)Start.Y,

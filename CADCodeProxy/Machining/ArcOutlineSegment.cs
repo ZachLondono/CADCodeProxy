@@ -19,7 +19,7 @@ public class ArcOutlineSegment : IMachiningOperation {
     public double FeedSpeed { get; set; } = 0;
     public double SpindleSpeed { get; set; } = 0;
 
-    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
         code.DefineOutLine(
                             StartX: (float)Start.X,

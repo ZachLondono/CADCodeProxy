@@ -15,11 +15,11 @@ public class SetMill : IMachiningOperation {
     public required double FeedSpeed { get; set; } = 0;
     public required double SpindleSpeed { get; set; } = 0;
 
-    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
         code.RouteSetmill(
-                        (float)Start.X,
-                        (float)Start.Y,
+                        (float)Start.X + (float)xOffset,
+                        (float)Start.Y + (float)yOffset,
                         (float)StartDepth,
                         ToolName,
                         0f,

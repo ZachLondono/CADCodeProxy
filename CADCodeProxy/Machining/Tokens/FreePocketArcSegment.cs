@@ -19,14 +19,14 @@ public record FreePocketArcSegment : IRoutingToken, IMachiningOperation {
     public double FeedSpeed { get; init; }
     public double SpindleSpeed { get; init; }
 
-    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
         code.DefinePocket(
-            StartX: (float)Start.X,
-            StartY: (float)Start.Y,
+            StartX: (float)Start.X + (float)xOffset,
+            StartY: (float)Start.Y + (float)yOffset,
             StartZ: (float)StartDepth,
-            EndX: (float)End.X,
-            EndY: (float)End.Y,
+            EndX: (float)End.X + (float)xOffset,
+            EndY: (float)End.Y + (float)yOffset,
             Endz: (float)EndDepth,
             CenterX: 0,
             CenterY: 0,

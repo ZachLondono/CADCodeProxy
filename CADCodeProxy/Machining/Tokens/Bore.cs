@@ -30,7 +30,7 @@ public class Bore : IBoringToken, IMachiningOperation {
         NumberOfPasses = numberOfPasses;
     }
 
-    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
         code.Bore((float)Position.X,
                     (float)Position.Y,

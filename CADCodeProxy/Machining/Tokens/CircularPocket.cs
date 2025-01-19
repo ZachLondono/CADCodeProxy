@@ -14,7 +14,7 @@ public record CircularPocket : IRoutingToken, IMachiningOperation {
     public double FeedSpeed { get; init; }
     public double SpindleSpeed { get; init; }
 
-    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
         throw new NotImplementedException();
 

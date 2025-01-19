@@ -18,13 +18,13 @@ public record Route : IRoutingToken, IRouteSequenceSegment {
     public double FeedSpeed { get; init; } = 0;
     public double SpindleSpeed { get; init; } = 0;
 
-    void IMachiningOperation.AddToCode(CADCodeCodeClass code) {
+    void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
-        code.RouteLine((float)Start.X,
-                       (float)Start.Y,
+        code.RouteLine((float)Start.X + (float)xOffset,
+                       (float)Start.Y + (float)yOffset,
                        (float)StartDepth,
-                       (float)End.X,
-                       (float)End.Y,
+                       (float)End.X + (float)xOffset,
+                       (float)End.Y + (float)yOffset,
                        (float)EndDepth,
                        ToolName,
                        0f,

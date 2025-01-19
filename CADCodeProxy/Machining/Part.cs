@@ -24,29 +24,28 @@ public class Part {
 
     internal void AddNestPartToCode(CADCodeCodeClass code) {
 
-        if (PrimaryFace.Rotation != 0) {
-            throw new InvalidOperationException("Part rotation is not supported");
-        }
-
         float panelX = (float)Length;
         float panelY = (float)Width;
 
-        // Setting the rotation of the nest part does not rotate all the machining operations correctly, must be missing some other setting. 
         code.NestedPart(panelX, panelY, OriginType.CC_LL, PrimaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, (float)PrimaryFace.Rotation);
 
+        // This only works when the Origin Type is set to 'CC_LL' and the rotation is set to 0, 90, 180 or 270 degrees.
+        double xOffset = PrimaryFace.Rotation == 180 || PrimaryFace.Rotation == 270 ? -panelX : 0;
+        double yOffset = PrimaryFace.Rotation == 90 || PrimaryFace.Rotation == 180 ? -panelY : 0;
+
         foreach (var operation in PrimaryFace.GetMachiningOperations()) {
-            operation.AddToCode(code);
+            operation.AddToCode(code, xOffset, yOffset);
         }
 
         if (SecondaryFace is not null) {
 
-            if (SecondaryFace.Rotation != 0) {
-                throw new InvalidOperationException("Part rotation is not supported");
-            }
-
             code.NestedPart(panelX, panelY, OriginType.CC_LL, SecondaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, (float)SecondaryFace.Rotation);
+
+            xOffset = SecondaryFace.Rotation == 180 || SecondaryFace.Rotation == 270 ? -panelX : 0;
+            yOffset = SecondaryFace.Rotation == 90 || SecondaryFace.Rotation == 180 ? -panelY : 0;
+
             foreach (var operation in SecondaryFace.GetMachiningOperations()) {
-                operation.AddToCode(code);
+                operation.AddToCode(code, xOffset, yOffset);
             }
 
             throw new InvalidOperationException("Face 6 part not supported");
@@ -113,6 +112,11 @@ public class Part {
         string width = Width.ToString();
         string length = Length.ToString();
 
+        if (PrimaryFace.Rotation == 90 || PrimaryFace.Rotation == 270) {
+            width = Length.ToString();
+            length = Width.ToString();
+        }
+
         for (int i = 0; i < Qty; i++) {
 
             bool containsShape = PrimaryFace.Tokens.Any(t => t is OutlineSegment);
@@ -124,7 +128,7 @@ public class Part {
                 Thickness = (float)Thickness,
                 Material = Material,
                 Units = units,
-                RotationAllowed = IsGrained ? 0 : 90, // The increments which this part is allowed to be rotated by the panel optimizer
+                RotationAllowed = 90, // The increments which this part is allowed to be rotated by the panel optimizer
                 Graining = IsGrained ? "Y" : "N",    // This is the important field required to make sure that the parts are oriented correctly on grained material. The Graining flag on the 'CutListInventory' class seems to have no affect.
                 Face5Runfield = PrimaryFace.IsMirrored ? "Mirror On" : "Mirror Off",
                 WidthColor1 = Width1Banding.Color,
