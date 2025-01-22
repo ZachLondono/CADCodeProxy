@@ -8,6 +8,7 @@ using System.Text.Json;
 using Cocona;
 using Microsoft.Extensions.Logging;
 using CADCodeProxy.Machining.Tokens;
+using CADCodeProxy.CADCodeProxy;
 
 var builder = CoconaApp.CreateBuilder();
 builder.Logging.AddDebug();
@@ -94,7 +95,8 @@ app.Run();
 
 
 static GCodeGenerator CreateGCodeGenerator() {
-	var generator = new GCodeGenerator(LinearUnits.Millimeters);
+	var auth = new WebAuthCredentials("Royal02", "CVGF#ocP98Dg");
+	var generator = new GCodeGenerator(LinearUnits.Millimeters, auth);
 	generator.InfoEvent += Console.WriteLine;
 	generator.ErrorEvent += (e) => Console.WriteLine($"{e.Message} - {e.Exception}");
 	generator.CADCodeInfoEvent += (e) => Console.WriteLine($"{e.Source} - {e.Type} - {e.Message}");
