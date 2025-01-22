@@ -16,35 +16,57 @@ public record CircularPocket : IRoutingToken, IMachiningOperation {
 
     void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
-        throw new NotImplementedException();
-
-        /*
         code.DefinePocket(
-            StartX: 0,
-            StartY: 0,
+            StartX: (float) (Center.X + xOffset),
+            StartY: (float) (Center.Y - Radius + yOffset),
             StartZ: (float) Depth,
-            EndX: 0,
-            EndY: 0,
-            Endz: 0,
-            CenterX: (float) Center.X,
-            CenterY: (float) Center.Y,
-            CenterZ: 0,
+            EndX: (float) (Center.X + xOffset),
+            EndY: (float) (Center.Y + Radius + yOffset),
+            Endz: (float) Depth,
+            CenterX: (float) (Center.X + xOffset),
+            CenterY: (float) (Center.Y + yOffset),
+            CenterZ: (float) Depth,
             Radius: (float) Radius,
-            ArcDirection: ArcTypes.CC_UNKNOWN_ARC,
+            ArcDirection: ArcTypes.CC_CLOCKWISE_ARC,
             Offset: OffsetTypes.CC_OFFSET_NONE,
             OffsetAmount: 0,
             Rotation: RotationTypes.CC_ROTATION_AUTO,
             Overlap: 0,
             ToolName: ToolName,
             ToolDiameter: 0,
-            FeedSpeed: 0,
+            FeedSpeed: (float) FeedSpeed,
             EntrySpeed: 0,
-            RotationSpeed: 0,
+            RotationSpeed: (float) SpindleSpeed,
             NestedRouteSequence: SequenceNumber,
-            Normal: new object[] { 0, 0, 1 },
-            InsideOut: true,
+            Normal: new object?[] { null, 0, 0, 1, 0, null, null, null, 0, null, null, 1, null, 0 },
+            InsideOut: false,
             NumberOfPasses: NumberOfPasses);
-        */
+
+        code.DefinePocket(
+            StartX: (float) (Center.X + xOffset),
+            StartY: (float) (Center.Y + Radius + yOffset),
+            StartZ: (float) Depth,
+            EndX: (float) (Center.X + xOffset),
+            EndY: (float) (Center.Y - Radius + yOffset),
+            Endz: (float) Depth,
+            CenterX: (float) (Center.X + xOffset),
+            CenterY: (float) (Center.Y + yOffset),
+            CenterZ: (float) Depth,
+            Radius: (float) Radius,
+            ArcDirection: ArcTypes.CC_CLOCKWISE_ARC,
+            Offset: OffsetTypes.CC_OFFSET_NONE,
+            OffsetAmount: 0,
+            Rotation: RotationTypes.CC_ROTATION_AUTO,
+            Overlap: 0,
+            ToolName: ToolName,
+            ToolDiameter: 0,
+            FeedSpeed: (float) FeedSpeed,
+            EntrySpeed: 0,
+            RotationSpeed: (float) SpindleSpeed,
+            NestedRouteSequence: SequenceNumber,
+            Normal: new object?[] { null, 0, 0, 1, 0, null, null, null, 0, null, null, 1, null, 0 },
+            InsideOut: false,
+            NumberOfPasses: NumberOfPasses);
 
     }
 
