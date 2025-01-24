@@ -221,7 +221,7 @@ public class FilletSequenceTests {
         var operations2 = accumulator2.GetMachiningOperations();
 
         // Assert
-        operations1.Should().BeEquivalentTo(operations2);
+        operations1.Should().BeEquivalentTo(operations2, options => options.RespectingRuntimeTypes());
 
     }
 
