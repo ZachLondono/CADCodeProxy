@@ -20,25 +20,26 @@ public record Route : IRoutingToken, IRouteSequenceSegment {
 
     void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
-        code.RouteLine((float)Start.X + (float)xOffset,
-                       (float)Start.Y + (float)yOffset,
-                       (float)StartDepth,
-                       (float)End.X + (float)xOffset,
-                       (float)End.Y + (float)yOffset,
-                       (float)EndDepth,
-                       ToolName,
-                       0f,
-                       Offset.AsCCOffset(),
-                       0f,
-                       RotationTypes.CC_ROTATION_AUTO,
-                       FaceTypes.CC_UPPER_FACE,
-                       (float)FeedSpeed,
-                       0f,
-                       (float)SpindleSpeed,
-                       0f,
-                       "",
-                       SequenceNumber,
-                       NumberOfPasses: NumberOfPasses);
+        code.RouteLine(
+                StartX: (float) (Start.X + xOffset),
+                StartY: (float) (Start.Y + yOffset),
+                StartZ: (float) StartDepth,
+                EndX: (float) (End.X + xOffset),
+                EndY: (float) (End.Y + yOffset),
+                Endz: (float) EndDepth,
+                ToolName: ToolName,
+                Diameter: 0f,
+                Offset: Offset.AsCCOffset(),
+                OffsetAmount: 0f,
+                Rotation: RotationTypes.CC_ROTATION_AUTO,
+                Face: FaceTypes.CC_UPPER_FACE,
+                FeedSpeed: (float)FeedSpeed,
+                EntrySpeed: 0f,
+                SpindleSpeed: (float)SpindleSpeed,
+                CornerFeed: 0f,
+                RType: "",
+                NestedRouteSequence: SequenceNumber,
+                NumberOfPasses: NumberOfPasses);
 
     }
 

@@ -65,21 +65,22 @@ public record MultiBore : IBoringToken, IMachiningOperation {
 
     void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
-        code.MultiBore((float)Start.X + (float)xOffset,
-                        (float)Start.Y + (float)yOffset,
-                        (float)Depth,
-                        (float)End.X + (float)xOffset,
-                        (float)End.Y + (float)yOffset,
-                        FaceTypes.CC_UPPER_FACE,
-                        (float)ToolDiameter,
-                        ToolName,
-                        (float)Spacing,
-                        0,
-                        0,
-                        "",
-                        HoleCount,
-                        SequenceNumber: SequenceNumber,
-                        NumberOfPasses: NumberOfPasses);
+        code.MultiBore(
+                StartX: (float) (Start.X + xOffset),
+                StartY: (float) (Start.Y + yOffset),
+                StartZ: (float) Depth,
+                EndX: (float) (End.X + xOffset),
+                EndY: (float) (End.Y + yOffset),
+                Face: FaceTypes.CC_UPPER_FACE,
+                Diameter: (float)ToolDiameter,
+                ToolName: ToolName,
+                Pitch: (float)Spacing,
+                SpindleSpeed: 0f,
+                FeedSpeed: 0f,
+                RType: "",
+                NumberOfHoles: HoleCount,
+                SequenceNumber: SequenceNumber,
+                NumberOfPasses: NumberOfPasses);
 
     }
 

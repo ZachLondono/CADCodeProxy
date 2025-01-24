@@ -18,21 +18,21 @@ public record OutlineSegment : IRoutingToken, IMachiningOperation {
     void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
         code.DefineOutLine(
-                            StartX: (float)Start.X + (float)xOffset,
-                            StartY: (float)Start.Y + (float)yOffset,
-                            EndX: (float)End.X + (float)xOffset,
-                            EndY: (float)End.Y + (float)yOffset,
-                            CenterX: 0,
-                            CenterY: 0,
-                            Radius: 0,
-                            ArcDirection: ArcTypes.CC_UNKNOWN_ARC,
-                            Offset: OffsetTypes.CC_OFFSET_OUTSIDE,
-                            ToolName: ToolName,
-                            FeedSpeed: (float)FeedSpeed,
-                            SpindleSpeed: (float)SpindleSpeed,
-                            NestedRouteSequence: SequenceNumber,
-                            NumberOfPasses: NumberOfPasses,
-                            KerfClearance: 0);
+                   StartX: (float) (Start.X + xOffset),
+                   StartY: (float) (Start.Y + yOffset),
+                   EndX: (float) (End.X + xOffset),
+                   EndY: (float) (End.Y + yOffset),
+                   CenterX: 0,
+                   CenterY: 0,
+                   Radius: 0,
+                   ArcDirection: ArcTypes.CC_UNKNOWN_ARC,
+                   Offset: OffsetTypes.CC_OFFSET_OUTSIDE,
+                   ToolName: ToolName,
+                   FeedSpeed: (float)FeedSpeed,
+                   SpindleSpeed: (float)SpindleSpeed,
+                   NestedRouteSequence: SequenceNumber,
+                   NumberOfPasses: NumberOfPasses,
+                   KerfClearance: 0);
 
     }
 

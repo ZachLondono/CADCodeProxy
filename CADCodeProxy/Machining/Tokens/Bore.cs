@@ -32,17 +32,17 @@ public class Bore : IBoringToken, IMachiningOperation {
 
     void IMachiningOperation.AddToCode(CADCodeCodeClass code, double xOffset, double yOffset) {
 
-        code.Bore((float)Position.X,
-                    (float)Position.Y,
-                    (float)Depth,
-                    FaceTypes.CC_UPPER_FACE,
-                    (float)ToolDiameter,
-                    ToolName,
-                    "",
-                    "",
-                    0f,
-                    0f,
-                    "",
+        code.Bore(StartX: (float) (Position.X + xOffset),
+                    StartY: (float) (Position.Y + yOffset),
+                    StartZ: (float) Depth,
+                    Face: FaceTypes.CC_UPPER_FACE,
+                    Diameter: (float) ToolDiameter,
+                    ToolName: ToolName,
+                    EntrySlowdown: "",
+                    ExitSlowdown: "",
+                    SpindleSpeed: 0f,
+                    FeedSpeed: 0f,
+                    RType: "",
                     SequenceNumber: SequenceNumber,
                     NumberOfPasses: NumberOfPasses);
 
