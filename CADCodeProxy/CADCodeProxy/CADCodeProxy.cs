@@ -177,7 +177,7 @@ internal class CADCodeProxy : IDisposable {
 
             var labels = createLabels(resultName);
 
-            code.Border(1.0f, 1.0f, (float)partGroupKey.Thickness, units, OriginType.CC_UL, $"{partGroupKey.MaterialName} {partGroupKey.Thickness}", AxisTypes.CC_AUTO_AXIS);
+            code.Border(1.0f, 1.0f, (float)partGroupKey.Thickness, units, OriginType.CC_UL, $"{partGroupKey.MaterialName} {partGroupKey.Thickness}", AxisTypes.CC_AUTO_AXIS, MetafileName: "", Runfield: "", PatternNumber: 0, Face6: false);
             foreach (var batchPart in batchParts) {
                 partLabels.Add(batchPart.AddToLabels(batchInfoFields, labels));
                 batchPart.AddNestPartToCode(code);
@@ -185,7 +185,13 @@ internal class CADCodeProxy : IDisposable {
             code.EndPanel();
 
             sheetStock.ForEach(ss => optimizer.AddSheetStockByRef(ss, units));
-            parts.ForEach(p => optimizer.AddPartByRef(p.Part));
+            parts.ForEach(p => {
+                if (string.IsNullOrWhiteSpace(p.Part.Face6Flag)) {
+                    optimizer.AddPartByRef(p.Part);
+                } else {
+                    optimizer.AddPart(p.Part);
+                }
+            });
 
             optimizer.Optimize(typeOptimizeMethod.CC_OPT_ANYKIND, code, resultName, 0, 0, labels);
 
@@ -315,6 +321,7 @@ internal class CADCodeProxy : IDisposable {
         optimizer.FileLocations = files;
         optimizer.Settings(100, 20, 1, 12.53, 10, 0f);  // Error 33011 - Did not set optimizer settings `CADCodePanelOptimizer.Settings()` when not set
         //optimizer.ToolFile = toolFile;  // error 33014 (CC_MISSING_SETTINGS) when setting tool file
+        optimizer.IncludeFace6Machining = true; // Required to generate face 6 programs
 
         return optimizer;
     }

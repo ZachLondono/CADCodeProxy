@@ -28,7 +28,7 @@ public class Part {
         float panelY = (float)Width;
 
         code.NestedPart(panelX, panelY, OriginType.CC_LL, PrimaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, (float)PrimaryFace.Rotation);
-
+        
         // This only works when the Origin Type is set to 'CC_LL' and the rotation is set to 0, 90, 180 or 270 degrees.
         double xOffset = PrimaryFace.Rotation == 180 || PrimaryFace.Rotation == 270 ? -panelX : 0;
         double yOffset = PrimaryFace.Rotation == 90 || PrimaryFace.Rotation == 180 ? -panelY : 0;
@@ -36,19 +36,17 @@ public class Part {
         foreach (var operation in PrimaryFace.GetMachiningOperations()) {
             operation.AddToCode(code, xOffset, yOffset);
         }
-
+        
         if (SecondaryFace is not null) {
 
             code.NestedPart(panelX, panelY, OriginType.CC_LL, SecondaryFace.ProgramName, AxisTypes.CC_AUTO_AXIS, (float)SecondaryFace.Rotation);
-
+            
             xOffset = SecondaryFace.Rotation == 180 || SecondaryFace.Rotation == 270 ? -panelX : 0;
             yOffset = SecondaryFace.Rotation == 90 || SecondaryFace.Rotation == 180 ? -panelY : 0;
 
             foreach (var operation in SecondaryFace.GetMachiningOperations()) {
                 operation.AddToCode(code, xOffset, yOffset);
             }
-
-            throw new InvalidOperationException("Face 6 part not supported");
 
         }
 
@@ -131,6 +129,7 @@ public class Part {
                 RotationAllowed = 90, // The increments which this part is allowed to be rotated by the panel optimizer
                 Graining = IsGrained ? "Y" : "N",    // This is the important field required to make sure that the parts are oriented correctly on grained material. The Graining flag on the 'CutListInventory' class seems to have no affect.
                 Face5Runfield = PrimaryFace.IsMirrored ? "Mirror On" : "Mirror Off",
+
                 WidthColor1 = Width1Banding.Color,
                 WidthMaterial1 = Width1Banding.Material,
                 WidthColor2 = Width2Banding.Color,
@@ -142,13 +141,18 @@ public class Part {
                 ContainsShape = containsShape,
                 RouteShape = containsShape,
                 PerimeterRoute = !containsShape, // If there is a face 6 part i think this should be set to false on one of the faces
-                DoLabel = true
+                DoLabel = true,
+                
+                Face6FileName = SecondaryFace?.ProgramName ?? "",
+
             });
 
             if (SecondaryFace is not null) {
                 parts.Add(new() {
                     QuantityOrdered = 1,
                     Face5Filename = SecondaryFace.ProgramName,
+                    Face6FileName = "",
+                    Face6Flag = "Y",
                     Width = width,
                     Length = length,
                     Thickness = (float)Thickness,
@@ -156,7 +160,7 @@ public class Part {
                     Units = units,
                     RotationAllowed = IsGrained ? 0 : 1,
                     Graining = IsGrained ? "Y" : "N",
-                    Face5Runfield = SecondaryFace.IsMirrored ? "Mirror On" : "",
+                    Face6Runfield = SecondaryFace.IsMirrored ? "Mirror On" : "",
                     DoLabel = false
                 });
             }

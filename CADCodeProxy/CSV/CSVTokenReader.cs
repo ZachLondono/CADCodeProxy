@@ -103,8 +103,6 @@ public class CSVTokenReader {
 
             }
 
-            throw new InvalidOperationException("Face 6 parts not supported");
-
         }
 
         var rotation = ParseDoubleFromStringOrDefault(record.PartRecord.Rotation, 0);
