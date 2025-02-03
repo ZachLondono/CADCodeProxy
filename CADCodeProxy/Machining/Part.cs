@@ -142,7 +142,7 @@ public class Part {
                 RouteShape = containsShape,
                 PerimeterRoute = !containsShape, // If there is a face 6 part i think this should be set to false on one of the faces
                 DoLabel = true,
-                
+
                 Face6FileName = SecondaryFace?.ProgramName ?? "",
 
             });

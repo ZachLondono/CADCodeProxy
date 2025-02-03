@@ -40,7 +40,17 @@ public record Rectangle : IRoutingToken {
 
         List<IToken> tokens = [];
 
-        if (Distance(CornerA, CornerB) >= Distance(CornerB, CornerC)) {
+        if (Offset == Offset.Outside) {
+
+            tokens.Add(CreateRoute(CornerA, CornerB));
+            if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+            tokens.Add(CreateRoute(CornerB, CornerC));
+            if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+            tokens.Add(CreateRoute(CornerC, CornerD));
+            if (Radius != 0) tokens.Add(new Fillet() { Radius = Radius });
+            tokens.Add(CreateRoute(CornerD, CornerA));
+
+        } else if (Distance(CornerA, CornerB) >= Distance(CornerB, CornerC)) {
 
             Point start = new(
                     (CornerA.X + CornerB.X) / 2,
